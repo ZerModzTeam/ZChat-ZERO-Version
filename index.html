@@ -2,150 +2,154 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZChat ZERO - Revolution</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ZChat ZERO - God Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://meet.jit.si/external_api.js"></script>
     <style>
-        :root { --bg: #05050a; --card: rgba(255,255,255,0.05); --text: #ffffff; --border: rgba(255,255,255,0.1); --cyan: #06b6d4; --input-bg: #0a0a14; }
-        .light-theme { --bg: #ffffff; --card: #f8fafc; --text: #0f172a; --border: #e2e8f0; --cyan: #0891b2; --input-bg: #f1f5f9; }
-        
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100dvh; margin: 0; overflow: hidden; transition: 0.3s; }
-        .glass { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); }
-        .capsule { border-radius: 24px; }
-        
-        /* Fix Input Bar Tenggelam */
-        .app-container { display: flex; flex-direction: column; height: 100dvh; }
-        .chat-layout { display: flex; flex-direction: column; height: 100%; position: relative; }
-        #flow-box { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 12px; }
-        .input-area { position: absolute; bottom: 0; left: 0; right: 0; background: var(--bg); padding: 15px; z-index: 100; border-top: 1px solid var(--border); }
+        :root { --bg: #05050a; --card: rgba(255,255,255,0.05); --text: #ffffff; --cyan: #06b6d4; --border: rgba(255,255,255,0.1); }
+        .light-theme { --bg: #ffffff; --card: #f1f5f9; --text: #0f172a; --cyan: #0891b2; --border: #cbd5e1; }
 
-        #z-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 10000; transition: 0.4s; width: 90%; max-width: 400px; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100dvh; transition: 0.3s; }
+        
+        /* FIX LAYOUT TENGGELAM */
+        .app-shell { display: flex; flex-direction: column; height: 100%; width: 100%; }
+        .main-content { flex: 1; display: flex; overflow: hidden; position: relative; }
+        
+        .chat-container { display: flex; flex-direction: column; width: 100%; height: 100%; background: var(--bg); position: relative; }
+        #flow-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
+        
+        .input-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; z-index: 50; }
+
+        .glass { background: var(--card); backdrop-filter: blur(15px); border: 1px solid var(--border); }
+        .capsule { border-radius: 20px; }
+        .btn-press:active { transform: scale(0.92); }
+        
+        #z-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 10000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 90%; max-width: 350px; }
         #z-notif.active { top: 20px; }
-        .nav-active { color: var(--cyan); border-bottom: 3px solid var(--cyan); opacity: 1 !important; }
-        .tab-content { display: none; height: 100%; }
-        .tab-content.active { display: block; }
-        #call-screen { position: fixed; inset: 0; z-index: 9999; display: none; background: #000; }
-        .pfp-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--cyan); }
+        
+        .avatar-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; background: var(--cyan); color: white; overflow: hidden; border: 1px solid var(--border); }
+        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .sidebar { transition: 0.3s ease-in-out; background: var(--bg); }
+        @media (max-width: 768px) {
+            .sidebar { position: absolute; inset: 0; z-index: 100; }
+            .sidebar.hide { transform: translateX(-100%); }
+        }
+
+        /* VN Recording Animation */
+        .rec-active { background: #ef4444 !important; animation: pulse 1s infinite; color: white !important; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
-    <div id="call-screen"></div>
+    <div id="call-screen" class="fixed inset-0 z-[10000] hidden bg-black"></div>
 
-    <div id="z-notif" class="glass capsule p-4 flex items-center gap-3 shadow-2xl border-l-4 border-cyan-500 text-sm font-bold uppercase">
-        <i class="fas fa-shield-check text-cyan-500"></i> <span id="notif-text"></span>
+    <div id="z-notif" class="glass capsule p-4 flex items-center gap-3 shadow-2xl border-l-4 border-cyan-500">
+        <i class="fas fa-shield-check text-cyan-500 text-xl"></i>
+        <span id="notif-text" class="text-xs font-black uppercase tracking-widest"></span>
     </div>
 
-    <div class="fixed top-4 right-4 z-[1000] flex gap-2">
-        <button onclick="toggleTheme()" class="w-10 h-10 glass capsule flex items-center justify-center text-cyan-500 shadow-lg">
-            <i id="t-icon" class="fas fa-moon"></i>
-        </button>
-        <button id="pfp-btn" onclick="openProfile()" class="hidden w-10 h-10 glass capsule overflow-hidden border border-cyan-500/50">
-            <img id="my-ava-top" src="" class="w-full h-full object-cover">
-        </button>
-    </div>
-
-    <div id="auth-screen" class="h-screen flex items-center justify-center p-6 bg-[#020205]">
-        <div id="l-box" class="glass capsule p-8 w-full max-w-sm text-center">
-            <h1 class="text-3xl font-black text-cyan-500 italic mb-6">ZChat <span class="text-white">ZERO</span></h1>
+    <div id="auth-screen" class="fixed inset-0 z-[1000] bg-[#020205] flex items-center justify-center p-6">
+        <div id="login-box" class="glass capsule p-10 w-full max-w-sm text-center">
+            <h1 class="text-4xl font-black text-cyan-500 italic mb-2">ZChat</h1>
+            <p class="text-[9px] tracking-[4px] opacity-40 mb-8 uppercase font-bold text-white">Authorized Access Only</p>
             <div class="space-y-4">
-                <input type="text" id="l-u" placeholder="USERNAME" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none text-center font-bold text-white">
-                <input type="password" id="l-p" placeholder="PASSWORD" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none text-center text-white">
-                <label class="text-[10px] opacity-50 flex items-center justify-center gap-2 text-white">
-                    <input type="checkbox" id="k-l" class="accent-cyan-500"> KEEP LOGIN
-                </label>
-                <button onclick="login()" class="w-full p-4 bg-cyan-600 capsule font-black uppercase text-xs text-white">Access Node</button>
-                <p class="text-[10px] opacity-50 text-white">Belum punya akun? <span onclick="switchA(true)" class="text-cyan-500 cursor-pointer">Daftar</span></p>
+                <input type="text" id="l-u" placeholder="USERNAME" class="w-full p-4 capsule bg-white/5 border border-white/10 outline-none text-center font-bold text-white focus:border-cyan-500">
+                <input type="password" id="l-p" placeholder="PASSWORD" class="w-full p-4 capsule bg-white/5 border border-white/10 outline-none text-center text-white focus:border-cyan-500">
+                <button onclick="login()" class="w-full p-4 bg-cyan-600 capsule font-black uppercase text-xs btn-press text-white shadow-lg shadow-cyan-500/20">Masuk Terminal</button>
+                <p class="text-[10px] opacity-60 text-white">Belum punya akun? <span onclick="switchAuth(true)" class="text-cyan-500 font-bold cursor-pointer hover:underline">Daftar sekarang!</span></p>
             </div>
         </div>
-        <div id="r-box" class="hidden glass capsule p-8 w-full max-w-sm text-center">
-            <h1 class="text-2xl font-black mb-6 text-white uppercase">Register Node</h1>
-            <div class="space-y-4">
-                <input type="text" id="r-u" placeholder="NEW USERNAME" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none text-center text-white">
-                <input type="password" id="r-p" placeholder="NEW PASSWORD" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none text-center text-white">
-                <button onclick="register()" class="w-full p-4 bg-fuchsia-600 capsule font-black uppercase text-xs text-white">Daftar Sekarang</button>
-                <button onclick="switchA(false)" class="text-[10px] opacity-50 text-white">Kembali ke Login</button>
-            </div>
+        <div id="reg-box" class="hidden glass capsule p-10 w-full max-w-sm text-center">
+            <h1 class="text-2xl font-black mb-6 uppercase text-white">Create Node</h1>
+            <input type="text" id="r-u" placeholder="NEW USERNAME" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-4 outline-none text-center text-white">
+            <input type="password" id="r-p" placeholder="NEW PASSWORD" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-6 outline-none text-center text-white">
+            <button onclick="register()" class="w-full p-4 bg-fuchsia-600 capsule font-black uppercase text-xs btn-press text-white shadow-lg">DAFTAR DAN LOGIN</button>
+            <button onclick="switchAuth(false)" class="mt-4 text-[10px] opacity-40 block w-full text-white uppercase font-bold">Kembali</button>
         </div>
     </div>
 
-    <div id="app-screen" class="hidden h-screen flex flex-col md:flex-row p-2 md:p-4 gap-4">
-        <div id="side" class="w-full md:w-96 flex flex-col gap-4">
-            <div class="glass capsule p-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-cyan-600 flex items-center justify-center overflow-hidden border border-white/10">
-                        <img id="my-ava-side" src="" class="w-full h-full object-cover">
-                    </div>
-                    <span id="my-id" class="font-bold text-xs uppercase"></span>
-                </div>
-                <button onclick="showAddManual()" class="w-10 h-10 glass rounded-full text-cyan-400"><i class="fas fa-user-plus"></i></button>
-            </div>
-
-            <div class="glass capsule flex-1 flex flex-col overflow-hidden">
-                <div class="flex justify-around p-3 border-b border-white/5 text-[10px] font-black uppercase">
-                    <button onclick="tab('t-chat', this)" class="t-btn nav-active py-2 px-4">Chats</button>
-                    <button onclick="tab('t-req', this)" class="t-btn opacity-40 py-2 px-4">Requests <span id="req-count" class="text-cyan-500 font-black"></span></button>
-                </div>
-                <div id="t-chat" class="tab-content active p-2 overflow-y-auto"></div>
-                <div id="t-req" class="tab-content p-2 overflow-y-auto"></div>
-            </div>
-        </div>
-
-        <div id="main-chat" class="hidden md:flex flex-1 glass capsule chat-layout">
-            <div class="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">
-                <div class="flex items-center gap-3">
-                    <button onclick="closeChat()" class="md:hidden"><i class="fas fa-arrow-left"></i></button>
-                    <div id="h-av-box" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden border border-white/10">
-                        <img id="h-av-img" src="" class="w-full h-full object-cover">
-                    </div>
-                    <div><h3 id="h-name" class="font-bold text-xs uppercase"></h3><p class="text-[8px] text-cyan-500">PROTOCOL ENCRYPTED</p></div>
-                </div>
-                <div class="flex gap-4">
-                    <button onclick="call('voice')"><i class="fas fa-phone"></i></button>
-                    <button onclick="call('video')"><i class="fas fa-video"></i></button>
+    <div class="app-shell">
+        <header class="p-4 border-b border-white/10 flex items-center justify-between glass z-10">
+            <div class="flex items-center gap-3">
+                <div id="my-pfp" class="avatar-circle">?</div>
+                <div>
+                    <h2 id="my-name" class="text-xs font-black uppercase tracking-widest">User</h2>
+                    <div class="flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span><p class="text-[8px] text-green-500 font-bold uppercase">Encrypted</p></div>
                 </div>
             </div>
-
-            <div id="flow-box"></div>
-
-            <div class="input-area">
-                <div class="flex items-center gap-2">
-                    <input type="file" id="f-in" class="hidden" onchange="upFile(this)">
-                    <button onclick="document.getElementById('f-in').click()" class="p-2 text-cyan-400"><i class="fas fa-paperclip"></i></button>
-                    <input type="text" id="m-in" placeholder="Type message..." class="flex-1 bg-black/20 p-3 capsule border border-white/10 outline-none text-sm text-current">
-                    <button id="v-trig" class="w-10 h-10 glass rounded-full flex items-center justify-center"><i class="fas fa-microphone"></i></button>
-                    <button onclick="send()" class="w-10 h-10 bg-cyan-600 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs text-white"></i></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="m-profile" class="fixed inset-0 bg-black/90 hidden z-[2000] flex items-center justify-center p-6">
-        <div class="glass capsule p-8 w-full max-w-sm text-center">
-            <h3 class="font-bold mb-6 uppercase text-sm tracking-widest">Update Profile</h3>
-            <div class="relative inline-block mb-6">
-                <img id="pfp-preview-img" src="https://i.ibb.co/4pGm9Yh/default-ava.png" class="pfp-preview">
-                <label for="pfp-input" class="absolute bottom-0 right-0 bg-cyan-600 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer border-2 border-black">
-                    <i class="fas fa-camera text-[10px]"></i>
-                </label>
-                <input type="file" id="pfp-input" class="hidden" accept="image/*" onchange="previewPFP(this)">
-            </div>
-            <div class="space-y-3">
-                <button onclick="savePFP()" class="w-full p-4 bg-cyan-600 capsule font-black text-xs uppercase">Simpan Perubahan</button>
-                <button onclick="document.getElementById('m-profile').style.display='none'" class="w-full p-4 glass capsule text-xs uppercase opacity-50">Tutup</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="m-add" class="fixed inset-0 bg-black/80 hidden z-[200] flex items-center justify-center p-6">
-        <div class="glass capsule p-8 w-full max-w-xs text-center">
-            <h3 class="font-bold mb-4 uppercase text-xs">Tambah Teman Manual</h3>
-            <input type="text" id="target-id" class="w-full p-4 capsule bg-black/40 border border-white/10 mb-4 outline-none text-center uppercase text-white" placeholder="USERNAME TARGET">
             <div class="flex gap-2">
-                <button onclick="document.getElementById('m-add').style.display='none'" class="flex-1 p-3 glass capsule text-[10px]">BATAL</button>
-                <button onclick="sendRequest()" class="flex-1 p-3 bg-cyan-600 capsule text-[10px] font-bold">KIRIM REQUEST</button>
+                <button onclick="toggleTheme()" class="w-10 h-10 glass capsule btn-press text-cyan-500"><i id="t-icon" class="fas fa-moon"></i></button>
+                <button onclick="openProfile()" class="w-10 h-10 glass capsule btn-press text-fuchsia-400"><i class="fas fa-user-gear"></i></button>
             </div>
+        </header>
+
+        <div class="main-content">
+            <div id="sidebar" class="sidebar w-full md:w-85 border-r border-white/10 flex flex-col p-4 gap-4">
+                <button onclick="showAddModal()" class="w-full p-4 bg-cyan-600/10 border border-cyan-500/30 capsule text-[10px] font-black uppercase text-cyan-400 btn-press">
+                    <i class="fas fa-user-plus mr-2"></i> Tambah User Manual
+                </button>
+                <div class="flex justify-around text-[10px] font-black border-b border-white/5 pb-3 tracking-widest uppercase">
+                    <button onclick="showTab('chats', this)" class="tab-btn text-cyan-500 border-b-2 border-cyan-500 pb-1">Chats</button>
+                    <button onclick="showTab('reqs', this)" class="tab-btn opacity-40">Requests <span id="req-badge" class="text-cyan-500"></span></button>
+                </div>
+                <div id="list-area" class="flex-1 overflow-y-auto space-y-3"></div>
+            </div>
+
+            <div id="chat-view" class="chat-container hidden md:flex">
+                <div class="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-md">
+                    <div class="flex items-center gap-3">
+                        <button onclick="backToSidebar()" class="md:hidden mr-2 btn-press p-2"><i class="fas fa-chevron-left"></i></button>
+                        <div id="h-pfp" class="avatar-circle">?</div>
+                        <div>
+                            <h3 id="h-name" class="text-xs font-bold uppercase tracking-wider">Pilih Chat</h3>
+                            <p class="text-[7px] opacity-40 uppercase font-black">Secure Link Established</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-5 text-gray-400 mr-2">
+                        <button onclick="startCall('voice')" class="btn-press hover:text-cyan-400"><i class="fas fa-phone-alt"></i></button>
+                        <button onclick="startCall('video')" class="btn-press hover:text-cyan-400"><i class="fas fa-video"></i></button>
+                    </div>
+                </div>
+
+                <div id="flow-box"></div>
+
+                <div class="input-bar">
+                    <button onclick="document.getElementById('f-in').click()" class="w-10 h-10 text-cyan-400 btn-press"><i class="fas fa-plus-circle text-xl"></i></button>
+                    <input type="file" id="f-in" class="hidden" onchange="uploadFile(this)">
+                    <input type="text" id="m-in" placeholder="Say something..." class="flex-1 p-3.5 capsule bg-black/20 border border-white/5 outline-none text-xs text-current focus:border-cyan-500/50 transition-all">
+                    <button id="v-btn" class="w-10 h-10 glass rounded-full text-fuchsia-400 btn-press"><i class="fas fa-microphone"></i></button>
+                    <button onclick="sendMessage()" class="w-11 h-11 bg-cyan-600 rounded-full btn-press shadow-xl flex items-center justify-center"><i class="fas fa-paper-plane text-xs text-white"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-add" class="fixed inset-0 bg-black/90 hidden z-[2000] flex items-center justify-center p-6">
+        <div class="glass capsule p-8 w-full max-w-xs text-center border-white/10">
+            <h3 class="font-black text-xs uppercase mb-6 tracking-widest text-cyan-500">Add Manual Node</h3>
+            <input type="text" id="target-id" placeholder="USERNAME" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-6 outline-none text-center text-white uppercase font-bold">
+            <div class="flex gap-3">
+                <button onclick="closeModals()" class="flex-1 p-3 glass capsule text-[9px] font-bold uppercase">Batal</button>
+                <button onclick="sendRequest()" class="flex-1 p-3 bg-cyan-600 capsule text-[9px] font-black uppercase btn-press">Kirim Req</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-profile" class="fixed inset-0 bg-black/95 hidden z-[2000] flex items-center justify-center p-6">
+        <div class="glass capsule p-10 w-full max-w-sm text-center border-white/10">
+            <h3 class="font-black text-xs mb-8 tracking-widest uppercase text-cyan-500">Profile Settings</h3>
+            <div class="relative w-28 h-28 mx-auto mb-8">
+                <div id="pfp-preview" class="w-full h-full rounded-full bg-gray-800 flex items-center justify-center text-3xl font-bold overflow-hidden border-2 border-cyan-500/50 shadow-2xl">?</div>
+                <label class="absolute bottom-1 right-1 bg-cyan-600 text-white w-9 h-9 rounded-full flex items-center justify-center cursor-pointer shadow-xl border-2 border-black">
+                    <i class="fas fa-camera text-xs"></i>
+                    <input type="file" class="hidden" accept="image/*" onchange="previewProfile(this)">
+                </label>
+            </div>
+            <button onclick="saveProfile()" class="w-full p-4 bg-cyan-600 capsule text-xs font-black uppercase btn-press shadow-lg shadow-cyan-500/20">Update Profile</button>
+            <button onclick="closeModals()" class="mt-6 opacity-40 text-[9px] font-black uppercase tracking-widest block w-full">Tutup</button>
         </div>
     </div>
 
@@ -159,70 +163,34 @@
 
         let me = localStorage.getItem('z_u') || "";
         let to = "";
-        let myPFP = "https://i.ibb.co/4pGm9Yh/default-ava.png";
+        let currentTab = 'chats';
         let rec, chunks = [];
 
-        if(me) { document.getElementById('auth-screen').style.display='none'; launch(); }
+        if(me) { document.getElementById('auth-screen').style.display = 'none'; launch(); }
 
-        function alertZ(m) {
+        function notify(msg) {
             const n = document.getElementById('z-notif');
-            document.getElementById('notif-text').innerText = m;
+            document.getElementById('notif-text').innerText = msg;
             n.classList.add('active');
             setTimeout(() => n.classList.remove('active'), 3000);
         }
 
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-            const i = document.getElementById('t-icon');
-            i.className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon';
+        function switchAuth(isReg) {
+            document.getElementById('login-box').classList.toggle('hidden', isReg);
+            document.getElementById('reg-box').classList.toggle('hidden', !isReg);
         }
 
-        function switchA(r) {
-            document.getElementById('l-box').classList.toggle('hidden', r);
-            document.getElementById('r-box').classList.toggle('hidden', !r);
-        }
-
-        // --- PROFILE SYSTEM ---
-        function openProfile() {
-            document.getElementById('m-profile').style.display = 'flex';
-            document.getElementById('pfp-preview-img').src = myPFP;
-        }
-
-        function previewPFP(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => document.getElementById('pfp-preview-img').src = e.target.result;
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function savePFP() {
-            const base64 = document.getElementById('pfp-preview-img').src;
-            db.ref('users/'+me).update({ pfp: base64 }, () => {
-                alertZ("Profil diperbarui!");
-                document.getElementById('m-profile').style.display = 'none';
-                myPFP = base64;
-                updatePFPDoms();
-            });
-        }
-
-        function updatePFPDoms() {
-            document.getElementById('my-ava-top').src = myPFP;
-            document.getElementById('my-ava-side').src = myPFP;
-        }
-
-        // --- AUTH & CORE ---
         function register() {
             const u = document.getElementById('r-u').value.trim().toLowerCase();
             const p = document.getElementById('r-p').value;
-            if(!u || !p) return alertZ("Isi data!");
+            if(!u || !p) return notify("LENGKAPI DATA!");
             db.ref('users/'+u).once('value', s => {
-                if(s.exists()) return alertZ("User sudah ada!");
-                db.ref('users/'+u).set({u, p, pfp: "https://i.ibb.co/4pGm9Yh/default-ava.png"}, () => {
-                    alertZ("Pendaftaran berhasil silahkan login");
+                if(s.exists()) return notify("USERNAME SUDAH ADA!");
+                db.ref('users/'+u).set({ u, p, pfp: "" }, () => {
+                    notify("Pendaftaran berhasil silahkan login");
                     document.getElementById('l-u').value = u;
                     document.getElementById('l-p').value = p;
-                    switchA(false);
+                    switchAuth(false);
                 });
             });
         }
@@ -231,101 +199,106 @@
             const u = document.getElementById('l-u').value.trim().toLowerCase();
             const p = document.getElementById('l-p').value;
             db.ref('users/'+u).once('value', s => {
-                if(!s.exists() || s.val().p !== p) return alertZ("Data salah!");
+                if(!s.exists() || s.val().p !== p) return notify("LOGIN GAGAL!");
                 me = u;
-                if(document.getElementById('k-l').checked) localStorage.setItem('z_u', u);
-                document.getElementById('auth-screen').style.display='none';
+                localStorage.setItem('z_u', u);
+                document.getElementById('auth-screen').style.display = 'none';
                 launch();
             });
         }
 
         function launch() {
-            document.getElementById('app-screen').classList.replace('hidden', 'flex');
-            document.getElementById('pfp-btn').classList.remove('hidden');
-            document.getElementById('my-id').innerText = me;
+            document.getElementById('my-name').innerText = me;
             db.ref('users/'+me).on('value', s => {
-                if(s.exists() && s.val().pfp) { myPFP = s.val().pfp; updatePFPDoms(); }
+                const u = s.val();
+                const el = document.getElementById('my-pfp');
+                if(u.pfp) el.innerHTML = `<img src="${u.pfp}">`;
+                else el.innerText = me[0].toUpperCase();
             });
             loadLists();
         }
 
-        function showAddManual() { document.getElementById('m-add').style.display = 'flex'; }
+        function showAddModal() { document.getElementById('modal-add').classList.remove('hidden'); }
+        function openProfile() { document.getElementById('modal-profile').classList.remove('hidden'); }
+        function closeModals() { document.getElementById('modal-add').classList.add('hidden'); document.getElementById('modal-profile').classList.add('hidden'); }
 
         function sendRequest() {
-            const target = document.getElementById('target-id').value.trim().toLowerCase();
-            if(!target || target === me) return alertZ("Username tidak valid!");
-            db.ref('users/'+target).once('value', s => {
-                if(!s.exists()) return alertZ("USER TIDAK ADA!");
-                db.ref(`requests/${target}/${me}`).set({ status: 'pending' });
-                alertZ("Request terkirim!");
-                document.getElementById('m-add').style.display = 'none';
+            const tid = document.getElementById('target-id').value.trim().toLowerCase();
+            if(!tid || tid === me) return notify("INVALID USERNAME!");
+            db.ref('users/'+tid).once('value', s => {
+                if(!s.exists()) return notify("USER TIDAK DITEMUKAN!");
+                db.ref(`requests/${tid}/${me}`).set({ status: 'pending' });
+                notify("REQUEST TERKIRIM!");
+                closeModals();
             });
         }
 
         function loadLists() {
-            // Requests (Persetujuan)
-            db.ref(`requests/${me}`).on('value', snap => {
-                const list = document.getElementById('t-req'); list.innerHTML = "";
-                let count = 0;
-                snap.forEach(c => {
-                    if(c.val().status === 'pending') {
-                        count++;
-                        list.innerHTML += `<div class="glass capsule p-4 mb-2 flex items-center justify-between border-white/5">
-                            <span class="font-bold text-[10px] uppercase">${c.key}</span>
-                            <button onclick="accept('${c.key}')" class="bg-cyan-600 px-4 py-1 rounded-full text-[10px] font-black">TERIMA</button>
-                        </div>`;
-                    }
+            const listArea = document.getElementById('list-area');
+            if(currentTab === 'reqs') {
+                db.ref(`requests/${me}`).on('value', snap => {
+                    listArea.innerHTML = "";
+                    let c = 0;
+                    snap.forEach(i => {
+                        if(i.val().status === 'pending') {
+                            c++;
+                            listArea.innerHTML += `<div class="glass capsule p-4 flex items-center justify-between border-white/5 animate-pulse">
+                                <span class="text-[10px] font-black uppercase text-cyan-500">${i.key}</span>
+                                <button onclick="accept('${i.key}')" class="bg-cyan-600 px-4 py-1.5 rounded-full text-[9px] font-black text-white">TERIMA</button>
+                            </div>`;
+                        }
+                    });
+                    document.getElementById('req-badge').innerText = c > 0 ? `(${c})` : "";
                 });
-                document.getElementById('req-count').innerText = count > 0 ? `(${count})` : "";
-            });
-
-            // Friends (Hanya yang sudah disetujui)
-            db.ref(`friends/${me}`).on('value', snap => {
-                const list = document.getElementById('t-chat'); list.innerHTML = "";
-                snap.forEach(c => {
-                    db.ref('users/'+c.key).once('value', uSnap => {
-                        const uData = uSnap.val();
-                        list.innerHTML += `<div onclick="openChat('${c.key}', '${uData.pfp}')" class="glass capsule p-4 mb-2 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition">
-                            <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center overflow-hidden border border-white/10">
-                                <img src="${uData.pfp}" class="w-full h-full object-cover">
-                            </div>
-                            <span class="font-bold text-xs uppercase">${c.key}</span>
-                        </div>`;
+            } else {
+                db.ref(`friends/${me}`).on('value', snap => {
+                    listArea.innerHTML = "";
+                    snap.forEach(i => {
+                        db.ref('users/'+i.key).once('value', us => {
+                            const u = us.val();
+                            const pfp = u.pfp ? `<img src="${u.pfp}">` : u.u[0].toUpperCase();
+                            listArea.innerHTML += `<div onclick="openChat('${u.u}', '${u.pfp}')" class="glass capsule p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-all">
+                                <div class="avatar-circle w-11 h-11 text-xs border-cyan-500/20">${pfp}</div>
+                                <div><h4 class="text-xs font-black uppercase tracking-tighter">${u.u}</h4><p class="text-[7px] text-cyan-500 font-bold uppercase">Online Node</p></div>
+                            </div>`;
+                        });
                     });
                 });
-            });
+            }
         }
 
-        function accept(user) {
-            db.ref(`friends/${me}/${user}`).set(true);
-            db.ref(`friends/${user}/${me}`).set(true);
-            db.ref(`requests/${me}/${user}`).update({ status: 'accepted' });
-            alertZ("Berhasil Terhubung!");
+        function accept(uid) {
+            db.ref(`friends/${me}/${uid}`).set(true);
+            db.ref(`friends/${uid}/${me}`).set(true);
+            db.ref(`requests/${me}/${uid}`).update({ status: 'accepted' });
+            notify("KONEKSI BERHASIL!");
         }
 
-        function openChat(target, pfp) {
+        function openChat(target, pfpUrl) {
             to = target;
-            document.getElementById('main-chat').classList.replace('hidden', 'flex');
+            document.getElementById('chat-view').classList.replace('hidden', 'flex');
+            document.getElementById('sidebar').classList.add('hide');
             document.getElementById('h-name').innerText = target;
-            document.getElementById('h-av-img').src = pfp;
-            if(window.innerWidth < 768) document.getElementById('side').classList.add('hidden');
-            
+            const hPfp = document.getElementById('h-pfp');
+            if(pfpUrl && pfpUrl !== "undefined") hPfp.innerHTML = `<img src="${pfpUrl}">`;
+            else hPfp.innerText = target[0].toUpperCase();
+
             const path = `msgs/${[me, to].sort().join('_')}`;
             db.ref(path).off();
             db.ref(path).on('value', snap => {
-                const box = document.getElementById('flow-box'); box.innerHTML = "";
-                snap.forEach(c => {
-                    const m = c.val();
-                    const isMe = m.s === me;
-                    let body = m.t === 'text' ? `<p class="text-sm">${m.c}</p>` :
-                               m.t === 'audio' ? `<audio controls src="${m.c}" class="max-w-full"></audio>` :
-                               m.t === 'image' ? `<img src="${m.c}" class="rounded-lg max-w-full shadow-lg border border-white/10">` : 
-                               `<p class="text-[10px] opacity-50 italic">File sent: ${m.c.substring(0,20)}...</p>`;
+                const box = document.getElementById('flow-box');
+                box.innerHTML = "";
+                snap.forEach(m => {
+                    const d = m.val();
+                    const isMe = d.s === me;
+                    let body = d.t === 'text' ? `<p class="text-[13px] leading-relaxed">${d.c}</p>` :
+                               d.t === 'audio' ? `<audio controls src="${d.c}" class="max-w-[200px]"></audio>` :
+                               `<img src="${d.c}" class="rounded-xl max-w-full shadow-lg border border-white/10">`;
 
                     box.innerHTML += `<div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                        <div class="p-3 px-4 capsule max-w-[85%] ${isMe ? 'bg-cyan-600 text-white' : 'glass'} shadow-md">
+                        <div class="max-w-[85%] p-3.5 capsule ${isMe ? 'bg-cyan-600 text-white shadow-cyan-500/10' : 'glass'}">
                             ${body}
-                            <p class="text-[6px] opacity-40 mt-1 text-right">${new Date(m.d).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
+                            <p class="text-[6px] opacity-40 mt-1.5 text-right font-bold uppercase">${new Date(d.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
                         </div>
                     </div>`;
                 });
@@ -333,27 +306,54 @@
             });
         }
 
-        function send() {
-            const v = document.getElementById('m-in').value.trim();
-            if(v) push(v, 'text');
+        function sendMessage() {
+            const val = document.getElementById('m-in').value.trim();
+            if(!val || !to) return;
+            pushMsg(val, 'text');
             document.getElementById('m-in').value = "";
         }
 
-        function push(c, t) {
-            if(!to) return;
-            const path = `msgs/${[me, to].sort().join('_')}`;
-            db.ref(path).push({ s: me, c: c, t: t, d: Date.now() });
+        function uploadFile(input) {
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => pushMsg(e.target.result, 'image');
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
-        // --- CALLS (NO PIN) ---
-        function call(type) {
-            const room = "ZChat_" + [me, to].sort().join("_");
+        function pushMsg(c, t) {
+            const path = `msgs/${[me, to].sort().join('_')}`;
+            db.ref(path).push({ s: me, c: c, t: t, ts: Date.now() });
+        }
+
+        // --- VOICE NOTE ENGINE ---
+        const vBtn = document.getElementById('v-btn');
+        vBtn.onmousedown = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                rec = new MediaRecorder(stream);
+                rec.ondataavailable = e => chunks.push(e.data);
+                rec.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    const r = new FileReader();
+                    r.onload = e => pushMsg(e.target.result, 'audio');
+                    r.readAsDataURL(blob);
+                    chunks = [];
+                };
+                rec.start();
+                vBtn.classList.add('rec-active');
+            } catch(e) { notify("Akses Mic Gagal!"); }
+        };
+        vBtn.onmouseup = () => { if(rec) { rec.stop(); vBtn.classList.remove('rec-active'); } };
+
+        // --- CALLS ENGINE ---
+        function startCall(type) {
+            const room = "Z_" + [me, to].sort().join("_");
             document.getElementById('call-screen').style.display = "block";
             const api = new JitsiMeetExternalAPI("meet.jit.si", {
-                roomName: room,
-                parentNode: document.querySelector('#call-screen'),
+                roomName: room, parentNode: document.querySelector('#call-screen'),
                 configOverwrite: { prejoinPageEnabled: false, startWithVideoMuted: type === 'voice' },
-                interfaceConfigOverwrite: { TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup'] }
+                interfaceConfigOverwrite: { TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup', 'fittoscreen'] }
             });
             api.addEventListener('videoConferenceLeft', () => {
                 document.getElementById('call-screen').style.display = "none";
@@ -361,7 +361,31 @@
             });
         }
 
-        function closeChat() { document.getElementById('main-chat').classList.add('hidden'); document.getElementById('side').classList.remove('hidden'); }
+        function showTab(t, btn) {
+            currentTab = t;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('opacity-40'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('text-cyan-500', 'border-b-2', 'border-cyan-500'));
+            btn.classList.remove('opacity-40');
+            btn.classList.add('text-cyan-500', 'border-b-2', 'border-cyan-500');
+            loadLists();
+        }
+
+        function backToSidebar() { document.getElementById('chat-view').classList.add('hidden'); document.getElementById('sidebar').classList.remove('hide'); }
+        function toggleTheme() { document.body.classList.toggle('light-theme'); document.getElementById('t-icon').className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon'; }
+        function previewProfile(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('pfp-preview').innerHTML = `<img src="${e.target.result}">`;
+                    document.getElementById('pfp-preview').dataset.base = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function saveProfile() {
+            const base = document.getElementById('pfp-preview').dataset.base;
+            if(base) db.ref('users/'+me).update({ pfp: base }, () => { notify("PROFIL DIPERBARUI!"); closeModals(); });
+        }
     </script>
 </body>
 </html>
