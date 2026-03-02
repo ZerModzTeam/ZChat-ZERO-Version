@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZChat ZERO - Final Ultimate</title>
+    <title>ZChat ZERO - Final Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://meet.jit.si/external_api.js"></script>
@@ -42,15 +42,17 @@
                 <input type="text" id="l-u" placeholder="USERNAME" class="w-full p-4 capsule bg-white/5 border border-white/10 outline-none text-center font-bold text-white focus:border-cyan-500">
                 <input type="password" id="l-p" placeholder="PASSWORD" class="w-full p-4 capsule bg-white/5 border border-white/10 outline-none text-center text-white focus:border-cyan-500">
                 <button onclick="login()" class="w-full p-4 bg-cyan-600 capsule font-black uppercase text-xs btn-press text-white">Access Node</button>
-                <p class="text-[10px] opacity-60 text-white">Belum ada akun? <span onclick="switchAuth(true)" class="text-cyan-500 font-bold cursor-pointer">Daftar</span></p>
+                <p class="text-[10px] opacity-60 text-white">Gak punya akun? <span onclick="switchAuth(true)" class="text-cyan-500 font-bold cursor-pointer">Daftar</span></p>
             </div>
         </div>
         <div id="reg-box" class="hidden glass capsule p-10 w-full max-w-sm text-center">
-            <h1 class="text-2xl font-black mb-6 uppercase text-white">Create Node</h1>
-            <input type="text" id="r-u" placeholder="USERNAME BARU" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-4 outline-none text-center text-white">
-            <input type="password" id="r-p" placeholder="PASSWORD BARU" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-6 outline-none text-center text-white">
-            <button onclick="register()" class="w-full p-4 bg-fuchsia-600 capsule font-black uppercase text-xs btn-press text-white">Daftar & Login</button>
-            <button onclick="switchAuth(false)" class="mt-4 text-[10px] opacity-40 block w-full text-white">Kembali</button>
+            <h1 class="text-2xl font-black mb-6 uppercase text-white tracking-widest">Create Node</h1>
+            <div class="space-y-4">
+                <input type="text" id="r-u" placeholder="NEW USERNAME" class="w-full p-4 capsule bg-white/5 border border-white/10 outline-none text-center text-white">
+                <input type="password" id="r-p" placeholder="NEW PASSWORD" class="w-full p-4 capsule bg-white/5 border border-white/10 outline-none text-center text-white">
+                <button onclick="register()" class="w-full p-4 bg-fuchsia-600 capsule font-black uppercase text-xs btn-press text-white">Daftar Sekarang</button>
+                <button onclick="switchAuth(false)" class="mt-2 text-[10px] opacity-40 block w-full text-white uppercase font-bold">Kembali</button>
+            </div>
         </div>
     </div>
 
@@ -81,9 +83,9 @@
                     <div class="flex items-center gap-3">
                         <button onclick="backToSidebar()" class="md:hidden mr-2 btn-press"><i class="fas fa-chevron-left"></i></button>
                         <div id="h-pfp" class="avatar-circle">?</div>
-                        <div><h3 id="h-name" class="text-xs font-bold uppercase">...</h3><p class="text-[7px] opacity-40 font-black">Secure Link</p></div>
+                        <div><h3 id="h-name" class="text-xs font-bold uppercase tracking-widest">...</h3><p class="text-[7px] opacity-40 font-black uppercase">Secure Node Link</p></div>
                     </div>
-                    <div class="flex gap-5 text-gray-400">
+                    <div class="flex gap-5 text-gray-400 mr-2">
                         <button onclick="startCall('voice')" class="btn-press"><i class="fas fa-phone"></i></button>
                         <button onclick="startCall('video')" class="btn-press"><i class="fas fa-video"></i></button>
                     </div>
@@ -92,7 +94,7 @@
                 <div class="input-bar">
                     <button onclick="document.getElementById('f-in').click()" class="w-10 h-10 text-cyan-400 btn-press"><i class="fas fa-paperclip"></i></button>
                     <input type="file" id="f-in" class="hidden" onchange="uploadFile(this)">
-                    <input type="text" id="m-in" placeholder="Ketik pesan..." class="flex-1 p-3 capsule bg-black/20 border border-white/5 outline-none text-xs text-current">
+                    <input type="text" id="m-in" placeholder="Ketik pesan..." class="flex-1 p-3.5 capsule bg-black/20 border border-white/5 outline-none text-xs text-white">
                     <button id="v-btn" class="w-10 h-10 glass rounded-full text-fuchsia-400 btn-press"><i class="fas fa-microphone"></i></button>
                     <button onclick="sendMessage()" class="w-11 h-11 bg-cyan-600 rounded-full btn-press flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs text-white"></i></button>
                 </div>
@@ -102,8 +104,8 @@
 
     <div id="modal-add" class="fixed inset-0 bg-black/90 hidden z-[2000] flex items-center justify-center p-6">
         <div class="glass capsule p-8 w-full max-w-xs text-center border-white/10">
-            <h3 class="font-black text-xs uppercase mb-6 tracking-widest text-cyan-500">Cari Username</h3>
-            <input type="text" id="target-id" placeholder="ID TARGET" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-6 outline-none text-center text-white uppercase font-bold">
+            <h3 class="font-black text-xs uppercase mb-6 tracking-widest text-cyan-500">Add Manual Link</h3>
+            <input type="text" id="target-id" placeholder="USERNAME TARGET" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-6 outline-none text-center text-white uppercase font-bold">
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="flex-1 p-3 glass capsule text-[9px] font-bold">BATAL</button>
                 <button onclick="sendRequest()" class="flex-1 p-3 bg-cyan-600 capsule text-[9px] font-black btn-press">KIRIM</button>
@@ -111,16 +113,16 @@
         </div>
     </div>
     <div id="modal-profile" class="fixed inset-0 bg-black/95 hidden z-[2000] flex items-center justify-center p-6">
-        <div class="glass capsule p-10 w-full max-w-sm text-center border-white/10">
-            <h3 class="font-black text-xs mb-8 uppercase text-cyan-500">Profil Saya</h3>
+        <div class="glass capsule p-10 w-full max-w-sm text-center">
+            <h3 class="font-black text-xs mb-8 uppercase text-cyan-500 tracking-widest">Profile Configuration</h3>
             <div class="relative w-28 h-28 mx-auto mb-8">
-                <div id="pfp-preview" class="w-full h-full rounded-full bg-gray-800 flex items-center justify-center text-3xl font-bold overflow-hidden border-2 border-cyan-500/50 shadow-2xl">?</div>
+                <div id="pfp-preview" class="w-full h-full rounded-full bg-gray-800 flex items-center justify-center text-3xl font-bold border-2 border-cyan-500/50 overflow-hidden shadow-2xl">?</div>
                 <label class="absolute bottom-1 right-1 bg-cyan-600 text-white w-9 h-9 rounded-full flex items-center justify-center cursor-pointer border-2 border-black">
                     <i class="fas fa-camera text-xs"></i><input type="file" class="hidden" accept="image/*" onchange="previewProfile(this)">
                 </label>
             </div>
-            <button onclick="saveProfile()" class="w-full p-4 bg-cyan-600 capsule text-xs font-black uppercase btn-press shadow-lg shadow-cyan-500/20">Update Profile</button>
-            <button onclick="closeModals()" class="mt-6 opacity-40 text-[9px] font-black uppercase block w-full text-white">Tutup</button>
+            <button onclick="saveProfile()" class="w-full p-4 bg-cyan-600 capsule text-xs font-black uppercase btn-press">Simpan Profil</button>
+            <button onclick="closeModals()" class="mt-6 opacity-40 text-[9px] font-black block w-full text-white uppercase tracking-widest">Tutup</button>
         </div>
     </div>
 
@@ -128,29 +130,32 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script>
         const config = { apiKey: "AIzaSyD-1wEkNvg1pGy-klwSRcNbsAQRZYvJevM", databaseURL: "https://zchat-56639-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "zchat-56639" };
-        firebase.initializeApp(config);
-        const db = firebase.database();
-        let me = localStorage.getItem('z_u') || "";
-        let to = "", currentTab = 'chats', rec, chunks = [];
+        firebase.initializeApp(config); const db = firebase.database();
+        let me = localStorage.getItem('z_u') || ""; let to = "", currentTab = 'chats', rec, chunks = [];
 
-        if(me) { document.getElementById('auth-screen').style.display = 'none'; launch(); }
-        function notify(msg) { const n = document.getElementById('z-notif'); document.getElementById('notif-text').innerText = msg; n.classList.add('active'); setTimeout(() => n.classList.remove('active'), 3000); }
+        if(me) { document.getElementById('auth-screen').style.display='none'; launch(); }
+        function notify(msg) { const n=document.getElementById('z-notif'); document.getElementById('notif-text').innerText=msg; n.classList.add('active'); setTimeout(()=>n.classList.remove('active'),3000); }
         function switchAuth(isReg) { document.getElementById('login-box').classList.toggle('hidden', isReg); document.getElementById('reg-box').classList.toggle('hidden', !isReg); }
+        
         function register() {
             const u = document.getElementById('r-u').value.trim().toLowerCase();
             const p = document.getElementById('r-p').value;
-            if(!u || !p) return notify("ISI SEMUA!");
+            if(!u || !p) return notify("ISI USERNAME & PASSWORD!");
             db.ref('users/'+u).once('value', s => {
-                if(s.exists()) return notify("USER ADA!");
-                db.ref('users/'+u).set({ u, p, pfp: "" }, () => { notify("Berhasil! Silakan login."); document.getElementById('l-u').value=u; document.getElementById('l-p').value=p; switchAuth(false); });
+                if(s.exists()) return notify("USERNAME SUDAH TERDAFTAR!");
+                db.ref('users/'+u).set({ u, p, pfp: "" }, () => {
+                    notify("BERHASIL TERDAFTAR!");
+                    me = u; localStorage.setItem('z_u', u);
+                    document.getElementById('auth-screen').style.display = 'none';
+                    launch();
+                });
             });
         }
         function login() {
-            const u = document.getElementById('l-u').value.trim().toLowerCase();
-            const p = document.getElementById('l-p').value;
+            const u=document.getElementById('l-u').value.trim().toLowerCase(), p=document.getElementById('l-p').value;
             db.ref('users/'+u).once('value', s => {
-                if(!s.exists() || s.val().p !== p) return notify("GAGAL!");
-                me = u; localStorage.setItem('z_u', u); document.getElementById('auth-screen').style.display = 'none'; launch();
+                if(!s.exists() || s.val().p !== p) return notify("LOGIN GAGAL!");
+                me = u; localStorage.setItem('z_u', u); document.getElementById('auth-screen').style.display='none'; launch();
             });
         }
         function launch() {
@@ -166,10 +171,10 @@
         function closeModals() { document.getElementById('modal-add').classList.add('hidden'); document.getElementById('modal-profile').classList.add('hidden'); }
         function sendRequest() {
             const tid = document.getElementById('target-id').value.trim().toLowerCase();
-            if(!tid || tid === me) return notify("USER TIDAK VALID!");
+            if(!tid || tid === me) return notify("ID TIDAK VALID!");
             db.ref('users/'+tid).once('value', s => {
-                if(!s.exists()) return notify("USER GAK ADA!");
-                db.ref(`requests/${tid}/${me}`).set({ status: 'pending' }); notify("TERKIRIM!"); closeModals();
+                if(!s.exists()) return notify("USER TIDAK DITEMUKAN!");
+                db.ref(`requests/${tid}/${me}`).set({ status: 'pending' }); notify("REQUEST TERKIRIM!"); closeModals();
             });
         }
         function loadLists() {
@@ -187,7 +192,7 @@
                     snap.forEach(i => {
                         db.ref('users/'+i.key).once('value', us => {
                             const u = us.val(); const pfp = (u && u.pfp) ? `<img src="${u.pfp}">` : i.key[0].toUpperCase();
-                            listArea.innerHTML += `<div onclick="openChat('${i.key}', '${u ? u.pfp : ''}')" class="glass capsule p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-all"><div class="avatar-circle w-11 h-11 text-xs">${pfp}</div><h4 class="text-xs font-black uppercase tracking-tighter">${i.key}</h4></div>`;
+                            listArea.innerHTML += `<div onclick="openChat('${i.key}', '${u ? u.pfp : ''}')" class="glass capsule p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-all"><div class="avatar-circle w-11 h-11 text-xs">${pfp}</div><h4 class="text-xs font-black uppercase">${i.key}</h4></div>`;
                         });
                     });
                 });
@@ -204,11 +209,36 @@
             const path = `msgs/${[me, to].sort().join('_')}`; db.ref(path).off();
             db.ref(path).on('value', snap => {
                 const box = document.getElementById('flow-box'); box.innerHTML = "";
-                snap.forEach(m => {function showTab(t, btn) { currentTab = t; document.querySelectorAll('.tab-btn').forEach(b => { b.classList.add('opacity-40'); b.classList.remove('text-cyan-500', 'border-b-2', 'border-cyan-500'); }); btn.classList.remove('opacity-40'); btn.classList.add('text-cyan-500', 'border-b-2', 'border-cyan-500'); loadLists(); }
+                snap.forEach(m => {
+                    const d = m.val(); const isMe = d.s === me;
+                    let body = d.t === 'text' ? `<p class="text-[13px]">${d.c}</p>` : d.t === 'audio' ? `<audio controls src="${d.c}" class="max-w-[200px]"></audio>` : `<img src="${d.c}" class="rounded-xl">`;
+                    box.innerHTML += `<div class="flex ${isMe ? 'justify-end' : 'justify-start'}"><div class="max-w-[85%] p-3.5 capsule ${isMe ? 'bg-cyan-600 text-white shadow-lg' : 'glass'}">${body}<p class="text-[6px] opacity-40 mt-1 text-right font-black uppercase">${new Date(d.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p></div></div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+        function sendMessage() { const val = document.getElementById('m-in').value.trim(); if(val && to) { pushMsg(val, 'text'); document.getElementById('m-in').value = ""; } }
+        function uploadFile(input) { if(input.files && input.files[0]) { const r = new FileReader(); r.onload = e => pushMsg(e.target.result, 'image'); r.readAsDataURL(input.files[0]); } }
+        function pushMsg(c, t) { const path = `msgs/${[me, to].sort().join('_')}`; db.ref(path).push({ s: me, c: c, t: t, ts: Date.now() }); }
+        
+        const vBtn = document.getElementById('v-btn');
+        vBtn.onmousedown = async () => {
+            try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); rec = new MediaRecorder(s); rec.ondataavailable = e => chunks.push(e.data);
+                rec.onstop = () => { const b = new Blob(chunks, { type: 'audio/webm' }); const r = new FileReader(); r.onload = e => pushMsg(e.target.result, 'audio'); r.readAsDataURL(b); chunks = []; };
+                rec.start(); vBtn.classList.add('rec-active'); } catch(e) { notify("Mic Error!"); }
+        };
+        vBtn.onmouseup = () => { if(rec) { rec.stop(); vBtn.classList.remove('rec-active'); } };
+
+        function startCall(type) {
+            const room = "Z_" + [me, to].sort().join("_"); document.getElementById('call-screen').style.display = "block";
+            const api = new JitsiMeetExternalAPI("meet.jit.si", { roomName: room, parentNode: document.querySelector('#call-screen'), configOverwrite: { prejoinPageEnabled: false, startWithVideoMuted: type === 'voice' } });
+            api.addEventListener('videoConferenceLeft', () => { document.getElementById('call-screen').style.display = "none"; document.getElementById('call-screen').innerHTML = ""; });
+        }
+        function showTab(t, btn) { currentTab = t; document.querySelectorAll('.tab-btn').forEach(b => { b.classList.add('opacity-40'); b.classList.remove('text-cyan-500', 'border-b-2', 'border-cyan-500'); }); btn.classList.remove('opacity-40'); btn.classList.add('text-cyan-500', 'border-b-2', 'border-cyan-500'); loadLists(); }
         function backToSidebar() { document.getElementById('chat-view').classList.add('hidden'); document.getElementById('sidebar').classList.remove('hide'); }
         function toggleTheme() { document.body.classList.toggle('light-theme'); document.getElementById('t-icon').className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon'; }
         function previewProfile(input) { if(input.files && input.files[0]) { const r = new FileReader(); r.onload = e => { document.getElementById('pfp-preview').innerHTML = `<img src="${e.target.result}">`; document.getElementById('pfp-preview').dataset.base = e.target.result; }; r.readAsDataURL(input.files[0]); } }
-        function saveProfile() { const b = document.getElementById('pfp-preview').dataset.base; if(b) db.ref('users/'+me).update({ pfp: b }, () => { notify("PROFIL UPDATE!"); closeModals(); }); }
+        function saveProfile() { const b = document.getElementById('pfp-preview').dataset.base; if(b) db.ref('users/'+me).update({ pfp: b }, () => { notify("PROFIL TERSIMPAN!"); closeModals(); }); }
     </script>
 </body>
 </html>
