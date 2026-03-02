@@ -3,71 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZChat ZERO - God Mode</title>
+    <title>ZChat ZERO - Final Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://meet.jit.si/external_api.js"></script>
     <style>
         :root { --bg: #05050a; --card: rgba(255,255,255,0.05); --text: #ffffff; --cyan: #06b6d4; --border: rgba(255,255,255,0.1); }
         .light-theme { --bg: #ffffff; --card: #f1f5f9; --text: #0f172a; --cyan: #0891b2; --border: #cbd5e1; }
-
         body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100dvh; transition: 0.3s; }
-        
-        /* FIX LAYOUT TENGGELAM */
         .app-shell { display: flex; flex-direction: column; height: 100%; width: 100%; }
         .main-content { flex: 1; display: flex; overflow: hidden; position: relative; }
-        
         .chat-container { display: flex; flex-direction: column; width: 100%; height: 100%; background: var(--bg); position: relative; }
-        #flow-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
-        
-        .input-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; z-index: 50; }
-
+        #flow-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 90px; }
+        .input-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 15px; background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; z-index: 100; }
         .glass { background: var(--card); backdrop-filter: blur(15px); border: 1px solid var(--border); }
         .capsule { border-radius: 20px; }
         .btn-press:active { transform: scale(0.92); }
-        
-        #z-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 10000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 90%; max-width: 350px; }
+        #z-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 10000; transition: 0.5s; width: 90%; max-width: 350px; }
         #z-notif.active { top: 20px; }
-        
         .avatar-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; background: var(--cyan); color: white; overflow: hidden; border: 1px solid var(--border); }
         .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
-        
         .sidebar { transition: 0.3s ease-in-out; background: var(--bg); }
-        @media (max-width: 768px) {
-            .sidebar { position: absolute; inset: 0; z-index: 100; }
-            .sidebar.hide { transform: translateX(-100%); }
-        }
-
-        /* VN Recording Animation */
+        @media (max-width: 768px) { .sidebar { position: absolute; inset: 0; z-index: 200; } .sidebar.hide { transform: translateX(-100%); } }
         .rec-active { background: #ef4444 !important; animation: pulse 1s infinite; color: white !important; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     </style>
 </head>
 <body>
     <div id="call-screen" class="fixed inset-0 z-[10000] hidden bg-black"></div>
-
     <div id="z-notif" class="glass capsule p-4 flex items-center gap-3 shadow-2xl border-l-4 border-cyan-500">
-        <i class="fas fa-shield-check text-cyan-500 text-xl"></i>
-        <span id="notif-text" class="text-xs font-black uppercase tracking-widest"></span>
+        <i class="fas fa-bolt text-cyan-500"></i><span id="notif-text" class="text-xs font-black uppercase tracking-widest"></span>
     </div>
 
     <div id="auth-screen" class="fixed inset-0 z-[1000] bg-[#020205] flex items-center justify-center p-6">
         <div id="login-box" class="glass capsule p-10 w-full max-w-sm text-center">
-            <h1 class="text-4xl font-black text-cyan-500 italic mb-2">ZChat</h1>
-            <p class="text-[9px] tracking-[4px] opacity-40 mb-8 uppercase font-bold text-white">Authorized Access Only</p>
+            <h1 class="text-4xl font-black text-cyan-500 italic mb-8">ZChat <span class="text-white">ZERO</span></h1>
             <div class="space-y-4">
                 <input type="text" id="l-u" placeholder="USERNAME" class="w-full p-4 capsule bg-white/5 border border-white/10 outline-none text-center font-bold text-white focus:border-cyan-500">
                 <input type="password" id="l-p" placeholder="PASSWORD" class="w-full p-4 capsule bg-white/5 border border-white/10 outline-none text-center text-white focus:border-cyan-500">
-                <button onclick="login()" class="w-full p-4 bg-cyan-600 capsule font-black uppercase text-xs btn-press text-white shadow-lg shadow-cyan-500/20">Masuk Terminal</button>
-                <p class="text-[10px] opacity-60 text-white">Belum punya akun? <span onclick="switchAuth(true)" class="text-cyan-500 font-bold cursor-pointer hover:underline">Daftar sekarang!</span></p>
+                <button onclick="login()" class="w-full p-4 bg-cyan-600 capsule font-black uppercase text-xs btn-press text-white">Access Node</button>
+                <p class="text-[10px] opacity-60 text-white">Belum ada akun? <span onclick="switchAuth(true)" class="text-cyan-500 font-bold cursor-pointer">Daftar</span></p>
             </div>
         </div>
         <div id="reg-box" class="hidden glass capsule p-10 w-full max-w-sm text-center">
             <h1 class="text-2xl font-black mb-6 uppercase text-white">Create Node</h1>
-            <input type="text" id="r-u" placeholder="NEW USERNAME" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-4 outline-none text-center text-white">
-            <input type="password" id="r-p" placeholder="NEW PASSWORD" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-6 outline-none text-center text-white">
-            <button onclick="register()" class="w-full p-4 bg-fuchsia-600 capsule font-black uppercase text-xs btn-press text-white shadow-lg">DAFTAR DAN LOGIN</button>
-            <button onclick="switchAuth(false)" class="mt-4 text-[10px] opacity-40 block w-full text-white uppercase font-bold">Kembali</button>
+            <input type="text" id="r-u" placeholder="USERNAME BARU" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-4 outline-none text-center text-white">
+            <input type="password" id="r-p" placeholder="PASSWORD BARU" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-6 outline-none text-center text-white">
+            <button onclick="register()" class="w-full p-4 bg-fuchsia-600 capsule font-black uppercase text-xs btn-press text-white">Daftar & Login</button>
+            <button onclick="switchAuth(false)" class="mt-4 text-[10px] opacity-40 block w-full text-white">Kembali</button>
         </div>
     </div>
 
@@ -75,25 +58,20 @@
         <header class="p-4 border-b border-white/10 flex items-center justify-between glass z-10">
             <div class="flex items-center gap-3">
                 <div id="my-pfp" class="avatar-circle">?</div>
-                <div>
-                    <h2 id="my-name" class="text-xs font-black uppercase tracking-widest">User</h2>
-                    <div class="flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span><p class="text-[8px] text-green-500 font-bold uppercase">Encrypted</p></div>
-                </div>
+                <div><h2 id="my-name" class="text-xs font-black uppercase">User</h2><p class="text-[7px] text-green-500 font-bold uppercase">Encrypted</p></div>
             </div>
             <div class="flex gap-2">
                 <button onclick="toggleTheme()" class="w-10 h-10 glass capsule btn-press text-cyan-500"><i id="t-icon" class="fas fa-moon"></i></button>
-                <button onclick="openProfile()" class="w-10 h-10 glass capsule btn-press text-fuchsia-400"><i class="fas fa-user-gear"></i></button>
+                <button onclick="openProfile()" class="w-10 h-10 glass capsule btn-press text-fuchsia-400"><i class="fas fa-cog"></i></button>
             </div>
         </header>
 
         <div class="main-content">
-            <div id="sidebar" class="sidebar w-full md:w-85 border-r border-white/10 flex flex-col p-4 gap-4">
-                <button onclick="showAddModal()" class="w-full p-4 bg-cyan-600/10 border border-cyan-500/30 capsule text-[10px] font-black uppercase text-cyan-400 btn-press">
-                    <i class="fas fa-user-plus mr-2"></i> Tambah User Manual
-                </button>
-                <div class="flex justify-around text-[10px] font-black border-b border-white/5 pb-3 tracking-widest uppercase">
-                    <button onclick="showTab('chats', this)" class="tab-btn text-cyan-500 border-b-2 border-cyan-500 pb-1">Chats</button>
-                    <button onclick="showTab('reqs', this)" class="tab-btn opacity-40">Requests <span id="req-badge" class="text-cyan-500"></span></button>
+            <div id="sidebar" class="sidebar w-full md:w-80 border-r border-white/10 flex flex-col p-4 gap-4">
+                <button onclick="showAddModal()" class="w-full p-4 bg-cyan-600/10 border border-cyan-500/30 capsule text-[10px] font-black uppercase text-cyan-400 btn-press"><i class="fas fa-plus mr-2"></i> Tambah User</button>
+                <div class="flex justify-around text-[10px] font-black border-b border-white/5 pb-3">
+                    <button onclick="showTab('chats', this)" class="tab-btn text-cyan-500 border-b-2 border-cyan-500 pb-1">CHATS</button>
+                    <button onclick="showTab('reqs', this)" class="tab-btn opacity-40">REQUESTS <span id="req-badge"></span></button>
                 </div>
                 <div id="list-area" class="flex-1 overflow-y-auto space-y-3"></div>
             </div>
@@ -101,27 +79,22 @@
             <div id="chat-view" class="chat-container hidden md:flex">
                 <div class="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-md">
                     <div class="flex items-center gap-3">
-                        <button onclick="backToSidebar()" class="md:hidden mr-2 btn-press p-2"><i class="fas fa-chevron-left"></i></button>
+                        <button onclick="backToSidebar()" class="md:hidden mr-2 btn-press"><i class="fas fa-chevron-left"></i></button>
                         <div id="h-pfp" class="avatar-circle">?</div>
-                        <div>
-                            <h3 id="h-name" class="text-xs font-bold uppercase tracking-wider">Pilih Chat</h3>
-                            <p class="text-[7px] opacity-40 uppercase font-black">Secure Link Established</p>
-                        </div>
+                        <div><h3 id="h-name" class="text-xs font-bold uppercase">...</h3><p class="text-[7px] opacity-40 font-black">Secure Link</p></div>
                     </div>
-                    <div class="flex gap-5 text-gray-400 mr-2">
-                        <button onclick="startCall('voice')" class="btn-press hover:text-cyan-400"><i class="fas fa-phone-alt"></i></button>
-                        <button onclick="startCall('video')" class="btn-press hover:text-cyan-400"><i class="fas fa-video"></i></button>
+                    <div class="flex gap-5 text-gray-400">
+                        <button onclick="startCall('voice')" class="btn-press"><i class="fas fa-phone"></i></button>
+                        <button onclick="startCall('video')" class="btn-press"><i class="fas fa-video"></i></button>
                     </div>
                 </div>
-
                 <div id="flow-box"></div>
-
                 <div class="input-bar">
-                    <button onclick="document.getElementById('f-in').click()" class="w-10 h-10 text-cyan-400 btn-press"><i class="fas fa-plus-circle text-xl"></i></button>
+                    <button onclick="document.getElementById('f-in').click()" class="w-10 h-10 text-cyan-400 btn-press"><i class="fas fa-paperclip"></i></button>
                     <input type="file" id="f-in" class="hidden" onchange="uploadFile(this)">
-                    <input type="text" id="m-in" placeholder="Say something..." class="flex-1 p-3.5 capsule bg-black/20 border border-white/5 outline-none text-xs text-current focus:border-cyan-500/50 transition-all">
+                    <input type="text" id="m-in" placeholder="Ketik pesan..." class="flex-1 p-3 capsule bg-black/20 border border-white/5 outline-none text-xs text-current">
                     <button id="v-btn" class="w-10 h-10 glass rounded-full text-fuchsia-400 btn-press"><i class="fas fa-microphone"></i></button>
-                    <button onclick="sendMessage()" class="w-11 h-11 bg-cyan-600 rounded-full btn-press shadow-xl flex items-center justify-center"><i class="fas fa-paper-plane text-xs text-white"></i></button>
+                    <button onclick="sendMessage()" class="w-11 h-11 bg-cyan-600 rounded-full btn-press flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs text-white"></i></button>
                 </div>
             </div>
         </div>
@@ -129,125 +102,83 @@
 
     <div id="modal-add" class="fixed inset-0 bg-black/90 hidden z-[2000] flex items-center justify-center p-6">
         <div class="glass capsule p-8 w-full max-w-xs text-center border-white/10">
-            <h3 class="font-black text-xs uppercase mb-6 tracking-widest text-cyan-500">Add Manual Node</h3>
-            <input type="text" id="target-id" placeholder="USERNAME" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-6 outline-none text-center text-white uppercase font-bold">
+            <h3 class="font-black text-xs uppercase mb-6 tracking-widest text-cyan-500">Cari Username</h3>
+            <input type="text" id="target-id" placeholder="ID TARGET" class="w-full p-4 capsule bg-white/5 border border-white/10 mb-6 outline-none text-center text-white uppercase font-bold">
             <div class="flex gap-3">
-                <button onclick="closeModals()" class="flex-1 p-3 glass capsule text-[9px] font-bold uppercase">Batal</button>
-                <button onclick="sendRequest()" class="flex-1 p-3 bg-cyan-600 capsule text-[9px] font-black uppercase btn-press">Kirim Req</button>
+                <button onclick="closeModals()" class="flex-1 p-3 glass capsule text-[9px] font-bold">BATAL</button>
+                <button onclick="sendRequest()" class="flex-1 p-3 bg-cyan-600 capsule text-[9px] font-black btn-press">KIRIM</button>
             </div>
         </div>
     </div>
-
     <div id="modal-profile" class="fixed inset-0 bg-black/95 hidden z-[2000] flex items-center justify-center p-6">
         <div class="glass capsule p-10 w-full max-w-sm text-center border-white/10">
-            <h3 class="font-black text-xs mb-8 tracking-widest uppercase text-cyan-500">Profile Settings</h3>
+            <h3 class="font-black text-xs mb-8 uppercase text-cyan-500">Profil Saya</h3>
             <div class="relative w-28 h-28 mx-auto mb-8">
                 <div id="pfp-preview" class="w-full h-full rounded-full bg-gray-800 flex items-center justify-center text-3xl font-bold overflow-hidden border-2 border-cyan-500/50 shadow-2xl">?</div>
-                <label class="absolute bottom-1 right-1 bg-cyan-600 text-white w-9 h-9 rounded-full flex items-center justify-center cursor-pointer shadow-xl border-2 border-black">
-                    <i class="fas fa-camera text-xs"></i>
-                    <input type="file" class="hidden" accept="image/*" onchange="previewProfile(this)">
+                <label class="absolute bottom-1 right-1 bg-cyan-600 text-white w-9 h-9 rounded-full flex items-center justify-center cursor-pointer border-2 border-black">
+                    <i class="fas fa-camera text-xs"></i><input type="file" class="hidden" accept="image/*" onchange="previewProfile(this)">
                 </label>
             </div>
             <button onclick="saveProfile()" class="w-full p-4 bg-cyan-600 capsule text-xs font-black uppercase btn-press shadow-lg shadow-cyan-500/20">Update Profile</button>
-            <button onclick="closeModals()" class="mt-6 opacity-40 text-[9px] font-black uppercase tracking-widest block w-full">Tutup</button>
+            <button onclick="closeModals()" class="mt-6 opacity-40 text-[9px] font-black uppercase block w-full text-white">Tutup</button>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <script>
         const config = { apiKey: "AIzaSyD-1wEkNvg1pGy-klwSRcNbsAQRZYvJevM", databaseURL: "https://zchat-56639-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "zchat-56639" };
         firebase.initializeApp(config);
         const db = firebase.database();
-
         let me = localStorage.getItem('z_u') || "";
-        let to = "";
-        let currentTab = 'chats';
-        let rec, chunks = [];
+        let to = "", currentTab = 'chats', rec, chunks = [];
 
         if(me) { document.getElementById('auth-screen').style.display = 'none'; launch(); }
-
-        function notify(msg) {
-            const n = document.getElementById('z-notif');
-            document.getElementById('notif-text').innerText = msg;
-            n.classList.add('active');
-            setTimeout(() => n.classList.remove('active'), 3000);
-        }
-
-        function switchAuth(isReg) {
-            document.getElementById('login-box').classList.toggle('hidden', isReg);
-            document.getElementById('reg-box').classList.toggle('hidden', !isReg);
-        }
-
+        function notify(msg) { const n = document.getElementById('z-notif'); document.getElementById('notif-text').innerText = msg; n.classList.add('active'); setTimeout(() => n.classList.remove('active'), 3000); }
+        function switchAuth(isReg) { document.getElementById('login-box').classList.toggle('hidden', isReg); document.getElementById('reg-box').classList.toggle('hidden', !isReg); }
         function register() {
             const u = document.getElementById('r-u').value.trim().toLowerCase();
             const p = document.getElementById('r-p').value;
-            if(!u || !p) return notify("LENGKAPI DATA!");
+            if(!u || !p) return notify("ISI SEMUA!");
             db.ref('users/'+u).once('value', s => {
-                if(s.exists()) return notify("USERNAME SUDAH ADA!");
-                db.ref('users/'+u).set({ u, p, pfp: "" }, () => {
-                    notify("Pendaftaran berhasil silahkan login");
-                    document.getElementById('l-u').value = u;
-                    document.getElementById('l-p').value = p;
-                    switchAuth(false);
-                });
+                if(s.exists()) return notify("USER ADA!");
+                db.ref('users/'+u).set({ u, p, pfp: "" }, () => { notify("Berhasil! Silakan login."); document.getElementById('l-u').value=u; document.getElementById('l-p').value=p; switchAuth(false); });
             });
         }
-
         function login() {
             const u = document.getElementById('l-u').value.trim().toLowerCase();
             const p = document.getElementById('l-p').value;
             db.ref('users/'+u).once('value', s => {
-                if(!s.exists() || s.val().p !== p) return notify("LOGIN GAGAL!");
-                me = u;
-                localStorage.setItem('z_u', u);
-                document.getElementById('auth-screen').style.display = 'none';
-                launch();
+                if(!s.exists() || s.val().p !== p) return notify("GAGAL!");
+                me = u; localStorage.setItem('z_u', u); document.getElementById('auth-screen').style.display = 'none'; launch();
             });
         }
-
         function launch() {
             document.getElementById('my-name').innerText = me;
             db.ref('users/'+me).on('value', s => {
-                const u = s.val();
-                const el = document.getElementById('my-pfp');
-                if(u.pfp) el.innerHTML = `<img src="${u.pfp}">`;
-                else el.innerText = me[0].toUpperCase();
+                const u = s.val(); const el = document.getElementById('my-pfp');
+                if(u && u.pfp) el.innerHTML = `<img src="${u.pfp}">`; else el.innerText = me[0].toUpperCase();
             });
             loadLists();
         }
-
         function showAddModal() { document.getElementById('modal-add').classList.remove('hidden'); }
         function openProfile() { document.getElementById('modal-profile').classList.remove('hidden'); }
         function closeModals() { document.getElementById('modal-add').classList.add('hidden'); document.getElementById('modal-profile').classList.add('hidden'); }
-
         function sendRequest() {
             const tid = document.getElementById('target-id').value.trim().toLowerCase();
-            if(!tid || tid === me) return notify("INVALID USERNAME!");
+            if(!tid || tid === me) return notify("USER TIDAK VALID!");
             db.ref('users/'+tid).once('value', s => {
-                if(!s.exists()) return notify("USER TIDAK DITEMUKAN!");
-                db.ref(`requests/${tid}/${me}`).set({ status: 'pending' });
-                notify("REQUEST TERKIRIM!");
-                closeModals();
+                if(!s.exists()) return notify("USER GAK ADA!");
+                db.ref(`requests/${tid}/${me}`).set({ status: 'pending' }); notify("TERKIRIM!"); closeModals();
             });
         }
-
         function loadLists() {
             const listArea = document.getElementById('list-area');
+            db.ref(`requests/${me}`).off(); db.ref(`friends/${me}`).off();
             if(currentTab === 'reqs') {
                 db.ref(`requests/${me}`).on('value', snap => {
-                    listArea.innerHTML = "";
-                    let c = 0;
-                    snap.forEach(i => {
-                        if(i.val().status === 'pending') {
-                            c++;
-                            listArea.innerHTML += `<div class="glass capsule p-4 flex items-center justify-between border-white/5 animate-pulse">
-                                <span class="text-[10px] font-black uppercase text-cyan-500">${i.key}</span>
-                                <button onclick="accept('${i.key}')" class="bg-cyan-600 px-4 py-1.5 rounded-full text-[9px] font-black text-white">TERIMA</button>
-                            </div>`;
-                        }
-                    });
+                    listArea.innerHTML = ""; let c = 0;
+                    snap.forEach(i => { if(i.val().status === 'pending') { c++; listArea.innerHTML += `<div class="glass capsule p-4 flex items-center justify-between"><span class="text-[10px] font-black uppercase text-cyan-500">${i.key}</span><button onclick="accept('${i.key}')" class="bg-cyan-600 px-4 py-1.5 rounded-full text-[9px] font-black">TERIMA</button></div>`; } });
                     document.getElementById('req-badge').innerText = c > 0 ? `(${c})` : "";
                 });
             } else {
@@ -255,137 +186,29 @@
                     listArea.innerHTML = "";
                     snap.forEach(i => {
                         db.ref('users/'+i.key).once('value', us => {
-                            const u = us.val();
-                            const pfp = u.pfp ? `<img src="${u.pfp}">` : u.u[0].toUpperCase();
-                            listArea.innerHTML += `<div onclick="openChat('${u.u}', '${u.pfp}')" class="glass capsule p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-all">
-                                <div class="avatar-circle w-11 h-11 text-xs border-cyan-500/20">${pfp}</div>
-                                <div><h4 class="text-xs font-black uppercase tracking-tighter">${u.u}</h4><p class="text-[7px] text-cyan-500 font-bold uppercase">Online Node</p></div>
-                            </div>`;
+                            const u = us.val(); const pfp = (u && u.pfp) ? `<img src="${u.pfp}">` : i.key[0].toUpperCase();
+                            listArea.innerHTML += `<div onclick="openChat('${i.key}', '${u ? u.pfp : ''}')" class="glass capsule p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-all"><div class="avatar-circle w-11 h-11 text-xs">${pfp}</div><h4 class="text-xs font-black uppercase tracking-tighter">${i.key}</h4></div>`;
                         });
                     });
                 });
             }
         }
-
         function accept(uid) {
-            db.ref(`friends/${me}/${uid}`).set(true);
-            db.ref(`friends/${uid}/${me}`).set(true);
-            db.ref(`requests/${me}/${uid}`).update({ status: 'accepted' });
-            notify("KONEKSI BERHASIL!");
+            db.ref(`friends/${me}/${uid}`).set(true); db.ref(`friends/${uid}/${me}`).set(true);
+            db.ref(`requests/${me}/${uid}`).remove().then(() => { notify("KONEKSI BERHASIL!"); showTab('chats', document.querySelector('.tab-btn')); });
         }
-
         function openChat(target, pfpUrl) {
-            to = target;
-            document.getElementById('chat-view').classList.replace('hidden', 'flex');
-            document.getElementById('sidebar').classList.add('hide');
-            document.getElementById('h-name').innerText = target;
-            const hPfp = document.getElementById('h-pfp');
-            if(pfpUrl && pfpUrl !== "undefined") hPfp.innerHTML = `<img src="${pfpUrl}">`;
-            else hPfp.innerText = target[0].toUpperCase();
-
-            const path = `msgs/${[me, to].sort().join('_')}`;
-            db.ref(path).off();
+            to = target; document.getElementById('chat-view').classList.replace('hidden', 'flex'); document.getElementById('sidebar').classList.add('hide');
+            document.getElementById('h-name').innerText = target; const hPfp = document.getElementById('h-pfp');
+            if(pfpUrl && pfpUrl !== 'undefined' && pfpUrl !== '') hPfp.innerHTML = `<img src="${pfpUrl}">`; else hPfp.innerText = target[0].toUpperCase();
+            const path = `msgs/${[me, to].sort().join('_')}`; db.ref(path).off();
             db.ref(path).on('value', snap => {
-                const box = document.getElementById('flow-box');
-                box.innerHTML = "";
-                snap.forEach(m => {
-                    const d = m.val();
-                    const isMe = d.s === me;
-                    let body = d.t === 'text' ? `<p class="text-[13px] leading-relaxed">${d.c}</p>` :
-                               d.t === 'audio' ? `<audio controls src="${d.c}" class="max-w-[200px]"></audio>` :
-                               `<img src="${d.c}" class="rounded-xl max-w-full shadow-lg border border-white/10">`;
-
-                    box.innerHTML += `<div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                        <div class="max-w-[85%] p-3.5 capsule ${isMe ? 'bg-cyan-600 text-white shadow-cyan-500/10' : 'glass'}">
-                            ${body}
-                            <p class="text-[6px] opacity-40 mt-1.5 text-right font-bold uppercase">${new Date(d.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
-                        </div>
-                    </div>`;
-                });
-                box.scrollTop = box.scrollHeight;
-            });
-        }
-
-        function sendMessage() {
-            const val = document.getElementById('m-in').value.trim();
-            if(!val || !to) return;
-            pushMsg(val, 'text');
-            document.getElementById('m-in').value = "";
-        }
-
-        function uploadFile(input) {
-            if(input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => pushMsg(e.target.result, 'image');
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function pushMsg(c, t) {
-            const path = `msgs/${[me, to].sort().join('_')}`;
-            db.ref(path).push({ s: me, c: c, t: t, ts: Date.now() });
-        }
-
-        // --- VOICE NOTE ENGINE ---
-        const vBtn = document.getElementById('v-btn');
-        vBtn.onmousedown = async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                rec = new MediaRecorder(stream);
-                rec.ondataavailable = e => chunks.push(e.data);
-                rec.onstop = () => {
-                    const blob = new Blob(chunks, { type: 'audio/webm' });
-                    const r = new FileReader();
-                    r.onload = e => pushMsg(e.target.result, 'audio');
-                    r.readAsDataURL(blob);
-                    chunks = [];
-                };
-                rec.start();
-                vBtn.classList.add('rec-active');
-            } catch(e) { notify("Akses Mic Gagal!"); }
-        };
-        vBtn.onmouseup = () => { if(rec) { rec.stop(); vBtn.classList.remove('rec-active'); } };
-
-        // --- CALLS ENGINE ---
-        function startCall(type) {
-            const room = "Z_" + [me, to].sort().join("_");
-            document.getElementById('call-screen').style.display = "block";
-            const api = new JitsiMeetExternalAPI("meet.jit.si", {
-                roomName: room, parentNode: document.querySelector('#call-screen'),
-                configOverwrite: { prejoinPageEnabled: false, startWithVideoMuted: type === 'voice' },
-                interfaceConfigOverwrite: { TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup', 'fittoscreen'] }
-            });
-            api.addEventListener('videoConferenceLeft', () => {
-                document.getElementById('call-screen').style.display = "none";
-                document.getElementById('call-screen').innerHTML = "";
-            });
-        }
-
-        function showTab(t, btn) {
-            currentTab = t;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('opacity-40'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('text-cyan-500', 'border-b-2', 'border-cyan-500'));
-            btn.classList.remove('opacity-40');
-            btn.classList.add('text-cyan-500', 'border-b-2', 'border-cyan-500');
-            loadLists();
-        }
-
+                const box = document.getElementById('flow-box'); box.innerHTML = "";
+                snap.forEach(m => {function showTab(t, btn) { currentTab = t; document.querySelectorAll('.tab-btn').forEach(b => { b.classList.add('opacity-40'); b.classList.remove('text-cyan-500', 'border-b-2', 'border-cyan-500'); }); btn.classList.remove('opacity-40'); btn.classList.add('text-cyan-500', 'border-b-2', 'border-cyan-500'); loadLists(); }
         function backToSidebar() { document.getElementById('chat-view').classList.add('hidden'); document.getElementById('sidebar').classList.remove('hide'); }
         function toggleTheme() { document.body.classList.toggle('light-theme'); document.getElementById('t-icon').className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon'; }
-        function previewProfile(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    document.getElementById('pfp-preview').innerHTML = `<img src="${e.target.result}">`;
-                    document.getElementById('pfp-preview').dataset.base = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        function saveProfile() {
-            const base = document.getElementById('pfp-preview').dataset.base;
-            if(base) db.ref('users/'+me).update({ pfp: base }, () => { notify("PROFIL DIPERBARUI!"); closeModals(); });
-        }
+        function previewProfile(input) { if(input.files && input.files[0]) { const r = new FileReader(); r.onload = e => { document.getElementById('pfp-preview').innerHTML = `<img src="${e.target.result}">`; document.getElementById('pfp-preview').dataset.base = e.target.result; }; r.readAsDataURL(input.files[0]); } }
+        function saveProfile() { const b = document.getElementById('pfp-preview').dataset.base; if(b) db.ref('users/'+me).update({ pfp: b }, () => { notify("PROFIL UPDATE!"); closeModals(); }); }
     </script>
 </body>
 </html>
