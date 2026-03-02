@@ -2,116 +2,149 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZChat ZERO - Ultimate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZChat ZERO - Revolution</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://meet.jit.si/external_api.js"></script>
     <style>
-        :root { --bg: #05050a; --text: #ffffff; --glass: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.1); --cyan: #06b6d4; }
-        .light-theme { --bg: #f8fafc; --text: #0f172a; --glass: rgba(15,23,42,0.05); --border: rgba(15,23,42,0.1); }
+        :root { --bg: #05050a; --card: rgba(255,255,255,0.05); --text: #ffffff; --border: rgba(255,255,255,0.1); --cyan: #06b6d4; --input-bg: #0a0a14; }
+        .light-theme { --bg: #ffffff; --card: #f8fafc; --text: #0f172a; --border: #e2e8f0; --cyan: #0891b2; --input-bg: #f1f5f9; }
         
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; transition: 0.3s; height: 100vh; overflow: hidden; }
-        .glass { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); }
-        .capsule { border-radius: 20px; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100dvh; margin: 0; overflow: hidden; transition: 0.3s; }
+        .glass { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); }
+        .capsule { border-radius: 24px; }
         
-        #z-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 10000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* Fix Input Bar Tenggelam */
+        .app-container { display: flex; flex-direction: column; height: 100dvh; }
+        .chat-layout { display: flex; flex-direction: column; height: 100%; position: relative; }
+        #flow-box { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 12px; }
+        .input-area { position: absolute; bottom: 0; left: 0; right: 0; background: var(--bg); padding: 15px; z-index: 100; border-top: 1px solid var(--border); }
+
+        #z-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 10000; transition: 0.4s; width: 90%; max-width: 400px; }
         #z-notif.active { top: 20px; }
-        
-        .tab-content { display: none; height: 100%; overflow-y: auto; }
-        .tab-content.active { display: flex; flex-direction: column; }
         .nav-active { color: var(--cyan); border-bottom: 3px solid var(--cyan); opacity: 1 !important; }
-        
-        #call-box { position: fixed; inset: 0; z-index: 9999; display: none; background: #000; }
-        .recording-pulse { background: #ef4444 !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { box-shadow: 0 0 0 10px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+        .tab-content { display: none; height: 100%; }
+        .tab-content.active { display: block; }
+        #call-screen { position: fixed; inset: 0; z-index: 9999; display: none; background: #000; }
+        .pfp-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--cyan); }
     </style>
 </head>
 <body>
-    <div id="call-box"></div>
+    <div id="call-screen"></div>
 
-    <div id="z-notif" class="glass capsule px-8 py-4 flex items-center gap-4 shadow-2xl border-l-4 border-l-cyan-500">
-        <i class="fas fa-shield-halved text-cyan-500"></i>
-        <span id="notif-msg" class="text-xs font-bold uppercase tracking-widest"></span>
+    <div id="z-notif" class="glass capsule p-4 flex items-center gap-3 shadow-2xl border-l-4 border-cyan-500 text-sm font-bold uppercase">
+        <i class="fas fa-shield-check text-cyan-500"></i> <span id="notif-text"></span>
     </div>
 
-    <button onclick="toggleTheme()" class="fixed top-6 right-6 z-[1001] w-12 h-12 glass capsule flex items-center justify-center text-cyan-500 shadow-xl">
-        <i id="theme-icon" class="fas fa-moon"></i>
-    </button>
+    <div class="fixed top-4 right-4 z-[1000] flex gap-2">
+        <button onclick="toggleTheme()" class="w-10 h-10 glass capsule flex items-center justify-center text-cyan-500 shadow-lg">
+            <i id="t-icon" class="fas fa-moon"></i>
+        </button>
+        <button id="pfp-btn" onclick="openProfile()" class="hidden w-10 h-10 glass capsule overflow-hidden border border-cyan-500/50">
+            <img id="my-ava-top" src="" class="w-full h-full object-cover">
+        </button>
+    </div>
 
-    <div id="auth-page" class="h-screen flex items-center justify-center p-6">
-        <div id="login-form" class="glass capsule p-10 w-full max-w-md text-center border-white/10">
-            <h1 class="text-4xl font-black text-cyan-500 italic mb-2">ZChat <span class="opacity-50 text-current">ZERO</span></h1>
-            <p class="text-[9px] tracking-[4px] opacity-40 mb-8 font-bold uppercase">Authorized Access Only</p>
+    <div id="auth-screen" class="h-screen flex items-center justify-center p-6 bg-[#020205]">
+        <div id="l-box" class="glass capsule p-8 w-full max-w-sm text-center">
+            <h1 class="text-3xl font-black text-cyan-500 italic mb-6">ZChat <span class="text-white">ZERO</span></h1>
             <div class="space-y-4">
-                <input type="text" id="l-usn" placeholder="USERNAME" class="w-full p-4 capsule bg-black/20 border border-white/10 outline-none focus:border-cyan-500 text-center uppercase font-bold text-sm tracking-widest">
-                <input type="password" id="l-pw" placeholder="PASSWORD" class="w-full p-4 capsule bg-black/20 border border-white/10 outline-none focus:border-cyan-500 text-center">
-                <label class="flex items-center justify-center gap-2 text-[10px] opacity-60 cursor-pointer">
-                    <input type="checkbox" id="keep-log" class="accent-cyan-500"> KEEP LOGIN SESSION
+                <input type="text" id="l-u" placeholder="USERNAME" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none text-center font-bold text-white">
+                <input type="password" id="l-p" placeholder="PASSWORD" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none text-center text-white">
+                <label class="text-[10px] opacity-50 flex items-center justify-center gap-2 text-white">
+                    <input type="checkbox" id="k-l" class="accent-cyan-500"> KEEP LOGIN
                 </label>
-                <button onclick="handleLogin()" class="w-full p-4 bg-cyan-600 capsule font-black shadow-lg shadow-cyan-500/20 uppercase tracking-widest text-xs active:scale-95 transition">Login Terminal</button>
-                <p class="text-[10px] opacity-60 mt-4">Belum punya akun? <span onclick="switchAuth('reg')" class="text-cyan-500 font-bold cursor-pointer hover:underline">Daftar sekarang!</span></p>
+                <button onclick="login()" class="w-full p-4 bg-cyan-600 capsule font-black uppercase text-xs text-white">Access Node</button>
+                <p class="text-[10px] opacity-50 text-white">Belum punya akun? <span onclick="switchA(true)" class="text-cyan-500 cursor-pointer">Daftar</span></p>
             </div>
         </div>
-
-        <div id="reg-form" class="hidden glass capsule p-10 w-full max-w-md text-center border-white/10">
-            <h1 class="text-3xl font-black text-cyan-500 italic mb-6">CREATE <span class="opacity-50 text-current">NODE</span></h1>
+        <div id="r-box" class="hidden glass capsule p-8 w-full max-w-sm text-center">
+            <h1 class="text-2xl font-black mb-6 text-white uppercase">Register Node</h1>
             <div class="space-y-4">
-                <input type="text" id="r-usn" placeholder="NEW USERNAME" class="w-full p-4 capsule bg-black/20 border border-white/10 outline-none focus:border-cyan-500 text-center uppercase font-bold text-sm">
-                <input type="password" id="r-pw" placeholder="NEW PASSWORD" class="w-full p-4 capsule bg-black/20 border border-white/10 outline-none focus:border-cyan-500 text-center">
-                <button onclick="handleRegister()" class="w-full p-4 bg-fuchsia-600 capsule font-black shadow-lg shadow-fuchsia-500/20 uppercase tracking-widest text-xs active:scale-95 transition">Daftar Sekarang</button>
-                <button onclick="switchAuth('log')" class="w-full p-4 glass capsule text-[10px] font-bold uppercase tracking-widest">Kembali ke Login</button>
+                <input type="text" id="r-u" placeholder="NEW USERNAME" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none text-center text-white">
+                <input type="password" id="r-p" placeholder="NEW PASSWORD" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none text-center text-white">
+                <button onclick="register()" class="w-full p-4 bg-fuchsia-600 capsule font-black uppercase text-xs text-white">Daftar Sekarang</button>
+                <button onclick="switchA(false)" class="text-[10px] opacity-50 text-white">Kembali ke Login</button>
             </div>
         </div>
     </div>
 
-    <div id="main-app" class="h-screen flex hidden p-2 md:p-4 gap-4">
-        <div id="side-p" class="w-full md:w-[400px] flex flex-col gap-4">
+    <div id="app-screen" class="hidden h-screen flex flex-col md:flex-row p-2 md:p-4 gap-4">
+        <div id="side" class="w-full md:w-96 flex flex-col gap-4">
             <div class="glass capsule p-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div id="my-ava" class="w-12 h-12 rounded-full bg-cyan-600 flex items-center justify-center font-bold text-xl border border-white/10">?</div>
-                    <div><h2 id="me-name" class="font-bold text-sm uppercase"></h2><p class="text-[8px] text-green-500 font-black uppercase">Encrypted</p></div>
+                    <div class="w-10 h-10 rounded-full bg-cyan-600 flex items-center justify-center overflow-hidden border border-white/10">
+                        <img id="my-ava-side" src="" class="w-full h-full object-cover">
+                    </div>
+                    <span id="my-id" class="font-bold text-xs uppercase"></span>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="joinGroup()" class="w-10 h-10 glass rounded-full text-purple-400"><i class="fas fa-link"></i></button>
-                    <button onclick="openTab('status', document.getElementById('btn-st'))" class="w-10 h-10 glass rounded-full text-cyan-400"><i class="fas fa-circle-notch"></i></button>
-                </div>
+                <button onclick="showAddManual()" class="w-10 h-10 glass rounded-full text-cyan-400"><i class="fas fa-user-plus"></i></button>
             </div>
 
             <div class="glass capsule flex-1 flex flex-col overflow-hidden">
-                <div class="flex justify-around p-3 text-[10px] font-black border-b border-white/5 bg-white/5">
-                    <button onclick="openTab('chats', this)" class="nav-btn nav-active py-2 px-4 uppercase tracking-widest">Chats</button>
-                    <button onclick="openTab('groups', this)" class="nav-btn py-2 px-4 opacity-50 uppercase tracking-widest">Groups</button>
-                    <button id="btn-st" onclick="openTab('status', this)" class="nav-btn py-2 px-4 opacity-50 uppercase tracking-widest">Status</button>
+                <div class="flex justify-around p-3 border-b border-white/5 text-[10px] font-black uppercase">
+                    <button onclick="tab('t-chat', this)" class="t-btn nav-active py-2 px-4">Chats</button>
+                    <button onclick="tab('t-req', this)" class="t-btn opacity-40 py-2 px-4">Requests <span id="req-count" class="text-cyan-500 font-black"></span></button>
                 </div>
-                <div id="chats" class="tab-content active p-2 space-y-2"></div>
-                <div id="groups" class="tab-content p-2 space-y-2"></div>
-                <div id="status" class="tab-content p-2 space-y-2"></div>
+                <div id="t-chat" class="tab-content active p-2 overflow-y-auto"></div>
+                <div id="t-req" class="tab-content p-2 overflow-y-auto"></div>
             </div>
         </div>
 
-        <div id="chat-p" class="hidden md:flex flex-1 glass capsule flex flex-col overflow-hidden relative">
+        <div id="main-chat" class="hidden md:flex flex-1 glass capsule chat-layout">
             <div class="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">
-                <div class="flex items-center gap-4">
-                    <button onclick="backToMenu()" class="md:hidden opacity-50"><i class="fas fa-arrow-left"></i></button>
-                    <div id="tar-ava" class="w-11 h-11 rounded-full bg-gray-800 flex items-center justify-center font-bold text-lg border border-white/10">?</div>
-                    <div><h3 id="tar-name" class="font-bold uppercase text-sm tracking-widest text-cyan-500"></h3><p class="text-[9px] opacity-40 uppercase">E2E Secure Link</p></div>
+                <div class="flex items-center gap-3">
+                    <button onclick="closeChat()" class="md:hidden"><i class="fas fa-arrow-left"></i></button>
+                    <div id="h-av-box" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden border border-white/10">
+                        <img id="h-av-img" src="" class="w-full h-full object-cover">
+                    </div>
+                    <div><h3 id="h-name" class="font-bold text-xs uppercase"></h3><p class="text-[8px] text-cyan-500">PROTOCOL ENCRYPTED</p></div>
                 </div>
-                <div class="flex gap-6 text-gray-400 mr-2">
-                    <button onclick="callNode('voice')" class="hover:text-cyan-400"><i class="fas fa-phone"></i></button>
-                    <button onclick="callNode('video')" class="hover:text-cyan-400"><i class="fas fa-video"></i></button>
-                    <button onclick="clearChat()" class="text-red-500/30 hover:text-red-500 text-[9px] font-black uppercase">Clear</button>
+                <div class="flex gap-4">
+                    <button onclick="call('voice')"><i class="fas fa-phone"></i></button>
+                    <button onclick="call('video')"><i class="fas fa-video"></i></button>
                 </div>
             </div>
 
-            <div id="flow-box" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4"></div>
+            <div id="flow-box"></div>
 
-            <div class="p-4 bg-white/5 border-t border-white/10 flex items-center gap-3">
-                <input type="file" id="media-f" class="hidden" accept="image/*,video/*" onchange="sendMedia(this)">
-                <button onclick="document.getElementById('media-f').click()" class="text-cyan-400 px-2"><i class="fas fa-plus-circle text-xl"></i></button>
-                <input type="text" id="txt-in" placeholder="Say something..." class="flex-1 bg-black/20 p-4 capsule border border-white/5 outline-none focus:border-cyan-500/40 text-sm">
-                <button id="vn-trigger" class="w-12 h-12 glass rounded-full flex items-center justify-center border border-white/10"><i class="fas fa-microphone"></i></button>
-                <button onclick="send()" class="w-12 h-12 bg-cyan-600 rounded-full shadow-lg active:scale-90 transition flex items-center justify-center"><i class="fas fa-paper-plane text-xs"></i></button>
+            <div class="input-area">
+                <div class="flex items-center gap-2">
+                    <input type="file" id="f-in" class="hidden" onchange="upFile(this)">
+                    <button onclick="document.getElementById('f-in').click()" class="p-2 text-cyan-400"><i class="fas fa-paperclip"></i></button>
+                    <input type="text" id="m-in" placeholder="Type message..." class="flex-1 bg-black/20 p-3 capsule border border-white/10 outline-none text-sm text-current">
+                    <button id="v-trig" class="w-10 h-10 glass rounded-full flex items-center justify-center"><i class="fas fa-microphone"></i></button>
+                    <button onclick="send()" class="w-10 h-10 bg-cyan-600 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs text-white"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="m-profile" class="fixed inset-0 bg-black/90 hidden z-[2000] flex items-center justify-center p-6">
+        <div class="glass capsule p-8 w-full max-w-sm text-center">
+            <h3 class="font-bold mb-6 uppercase text-sm tracking-widest">Update Profile</h3>
+            <div class="relative inline-block mb-6">
+                <img id="pfp-preview-img" src="https://i.ibb.co/4pGm9Yh/default-ava.png" class="pfp-preview">
+                <label for="pfp-input" class="absolute bottom-0 right-0 bg-cyan-600 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer border-2 border-black">
+                    <i class="fas fa-camera text-[10px]"></i>
+                </label>
+                <input type="file" id="pfp-input" class="hidden" accept="image/*" onchange="previewPFP(this)">
+            </div>
+            <div class="space-y-3">
+                <button onclick="savePFP()" class="w-full p-4 bg-cyan-600 capsule font-black text-xs uppercase">Simpan Perubahan</button>
+                <button onclick="document.getElementById('m-profile').style.display='none'" class="w-full p-4 glass capsule text-xs uppercase opacity-50">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="m-add" class="fixed inset-0 bg-black/80 hidden z-[200] flex items-center justify-center p-6">
+        <div class="glass capsule p-8 w-full max-w-xs text-center">
+            <h3 class="font-bold mb-4 uppercase text-xs">Tambah Teman Manual</h3>
+            <input type="text" id="target-id" class="w-full p-4 capsule bg-black/40 border border-white/10 mb-4 outline-none text-center uppercase text-white" placeholder="USERNAME TARGET">
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('m-add').style.display='none'" class="flex-1 p-3 glass capsule text-[10px]">BATAL</button>
+                <button onclick="sendRequest()" class="flex-1 p-3 bg-cyan-600 capsule text-[10px] font-bold">KIRIM REQUEST</button>
             </div>
         </div>
     </div>
@@ -120,234 +153,215 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        const cfg = { apiKey: "AIzaSyD-1wEkNvg1pGy-klwSRcNbsAQRZYvJevM", databaseURL: "https://zchat-56639-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "zchat-56639" };
-        firebase.initializeApp(cfg);
+        const config = { apiKey: "AIzaSyD-1wEkNvg1pGy-klwSRcNbsAQRZYvJevM", databaseURL: "https://zchat-56639-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "zchat-56639" };
+        firebase.initializeApp(config);
         const db = firebase.database();
 
-        let myUsn = localStorage.getItem('z_usn') || "";
-        let curTarget = "";
-        let isG = false;
+        let me = localStorage.getItem('z_u') || "";
+        let to = "";
+        let myPFP = "https://i.ibb.co/4pGm9Yh/default-ava.png";
         let rec, chunks = [];
 
-        if(myUsn) { document.getElementById('auth-page').style.display='none'; start(); }
+        if(me) { document.getElementById('auth-screen').style.display='none'; launch(); }
 
-        // --- THEME ENGINE ---
-        function toggleTheme() {
-            const b = document.body;
-            const i = document.getElementById('theme-icon');
-            b.classList.toggle('light-theme');
-            if(b.classList.contains('light-theme')) {
-                i.classList.replace('fa-moon', 'fa-sun');
-            } else {
-                i.classList.replace('fa-sun', 'fa-moon');
-            }
-        }
-
-        // --- AUTH ENGINE ---
-        function showNotif(m) {
+        function alertZ(m) {
             const n = document.getElementById('z-notif');
-            document.getElementById('notif-msg').innerText = m;
+            document.getElementById('notif-text').innerText = m;
             n.classList.add('active');
             setTimeout(() => n.classList.remove('active'), 3000);
         }
 
-        function switchAuth(t) {
-            document.getElementById('login-form').classList.toggle('hidden', t === 'reg');
-            document.getElementById('reg-form').classList.toggle('hidden', t === 'log');
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const i = document.getElementById('t-icon');
+            i.className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon';
         }
 
-        function handleRegister() {
-            const u = document.getElementById('r-usn').value.trim().toLowerCase();
-            const p = document.getElementById('r-pw').value;
-            if(!u || !p) return showNotif("Lengkapi data!");
+        function switchA(r) {
+            document.getElementById('l-box').classList.toggle('hidden', r);
+            document.getElementById('r-box').classList.toggle('hidden', !r);
+        }
 
+        // --- PROFILE SYSTEM ---
+        function openProfile() {
+            document.getElementById('m-profile').style.display = 'flex';
+            document.getElementById('pfp-preview-img').src = myPFP;
+        }
+
+        function previewPFP(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById('pfp-preview-img').src = e.target.result;
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function savePFP() {
+            const base64 = document.getElementById('pfp-preview-img').src;
+            db.ref('users/'+me).update({ pfp: base64 }, () => {
+                alertZ("Profil diperbarui!");
+                document.getElementById('m-profile').style.display = 'none';
+                myPFP = base64;
+                updatePFPDoms();
+            });
+        }
+
+        function updatePFPDoms() {
+            document.getElementById('my-ava-top').src = myPFP;
+            document.getElementById('my-ava-side').src = myPFP;
+        }
+
+        // --- AUTH & CORE ---
+        function register() {
+            const u = document.getElementById('r-u').value.trim().toLowerCase();
+            const p = document.getElementById('r-p').value;
+            if(!u || !p) return alertZ("Isi data!");
             db.ref('users/'+u).once('value', s => {
-                if(s.exists()) return showNotif("Username sudah ada!");
-                db.ref('users/'+u).set({usn: u, pw: p}, () => {
-                    showNotif("Pendaftaran berhasil silahkan login");
-                    document.getElementById('l-usn').value = u;
-                    document.getElementById('l-pw').value = p;
-                    switchAuth('log');
+                if(s.exists()) return alertZ("User sudah ada!");
+                db.ref('users/'+u).set({u, p, pfp: "https://i.ibb.co/4pGm9Yh/default-ava.png"}, () => {
+                    alertZ("Pendaftaran berhasil silahkan login");
+                    document.getElementById('l-u').value = u;
+                    document.getElementById('l-p').value = p;
+                    switchA(false);
                 });
             });
         }
 
-        function handleLogin() {
-            const u = document.getElementById('l-usn').value.trim().toLowerCase();
-            const p = document.getElementById('l-pw').value;
-            if(!u || !p) return showNotif("Isi username & password!");
-
+        function login() {
+            const u = document.getElementById('l-u').value.trim().toLowerCase();
+            const p = document.getElementById('l-p').value;
             db.ref('users/'+u).once('value', s => {
-                if(!s.exists() || s.val().pw !== p) return showNotif("Login Gagal: Data Salah!");
-                myUsn = u;
-                if(document.getElementById('keep-log').checked) localStorage.setItem('z_usn', u);
-                document.getElementById('auth-page').style.display='none';
-                start();
+                if(!s.exists() || s.val().p !== p) return alertZ("Data salah!");
+                me = u;
+                if(document.getElementById('k-l').checked) localStorage.setItem('z_u', u);
+                document.getElementById('auth-screen').style.display='none';
+                launch();
             });
         }
 
-        // --- CORE CHAT & MEDIA ---
-        function start() {
-            document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('me-name').innerText = myUsn;
-            document.getElementById('my-ava').innerText = myUsn[0].toUpperCase();
-            syncData();
+        function launch() {
+            document.getElementById('app-screen').classList.replace('hidden', 'flex');
+            document.getElementById('pfp-btn').classList.remove('hidden');
+            document.getElementById('my-id').innerText = me;
+            db.ref('users/'+me).on('value', s => {
+                if(s.exists() && s.val().pfp) { myPFP = s.val().pfp; updatePFPDoms(); }
+            });
+            loadLists();
         }
 
-        function openTab(t, b) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('nav-active'));
-            document.getElementById(t).classList.add('active');
-            b.classList.add('nav-active');
+        function showAddManual() { document.getElementById('m-add').style.display = 'flex'; }
+
+        function sendRequest() {
+            const target = document.getElementById('target-id').value.trim().toLowerCase();
+            if(!target || target === me) return alertZ("Username tidak valid!");
+            db.ref('users/'+target).once('value', s => {
+                if(!s.exists()) return alertZ("USER TIDAK ADA!");
+                db.ref(`requests/${target}/${me}`).set({ status: 'pending' });
+                alertZ("Request terkirim!");
+                document.getElementById('m-add').style.display = 'none';
+            });
         }
 
-        function send() {
-            const val = document.getElementById('txt-in').value.trim();
-            if(val) push(val, 'text');
-            document.getElementById('txt-in').value = "";
+        function loadLists() {
+            // Requests (Persetujuan)
+            db.ref(`requests/${me}`).on('value', snap => {
+                const list = document.getElementById('t-req'); list.innerHTML = "";
+                let count = 0;
+                snap.forEach(c => {
+                    if(c.val().status === 'pending') {
+                        count++;
+                        list.innerHTML += `<div class="glass capsule p-4 mb-2 flex items-center justify-between border-white/5">
+                            <span class="font-bold text-[10px] uppercase">${c.key}</span>
+                            <button onclick="accept('${c.key}')" class="bg-cyan-600 px-4 py-1 rounded-full text-[10px] font-black">TERIMA</button>
+                        </div>`;
+                    }
+                });
+                document.getElementById('req-count').innerText = count > 0 ? `(${count})` : "";
+            });
+
+            // Friends (Hanya yang sudah disetujui)
+            db.ref(`friends/${me}`).on('value', snap => {
+                const list = document.getElementById('t-chat'); list.innerHTML = "";
+                snap.forEach(c => {
+                    db.ref('users/'+c.key).once('value', uSnap => {
+                        const uData = uSnap.val();
+                        list.innerHTML += `<div onclick="openChat('${c.key}', '${uData.pfp}')" class="glass capsule p-4 mb-2 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition">
+                            <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center overflow-hidden border border-white/10">
+                                <img src="${uData.pfp}" class="w-full h-full object-cover">
+                            </div>
+                            <span class="font-bold text-xs uppercase">${c.key}</span>
+                        </div>`;
+                    });
+                });
+            });
         }
 
-        function sendMedia(input) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const type = file.type.startsWith('video') ? 'video' : 'image';
-                push(e.target.result, type);
-            };
-            reader.readAsDataURL(file);
+        function accept(user) {
+            db.ref(`friends/${me}/${user}`).set(true);
+            db.ref(`friends/${user}/${me}`).set(true);
+            db.ref(`requests/${me}/${user}`).update({ status: 'accepted' });
+            alertZ("Berhasil Terhubung!");
         }
 
-        // --- VN ENGINE ---
-        const vnBtn = document.getElementById('vn-trigger');
-        vnBtn.onmousedown = async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                rec = new MediaRecorder(stream);
-                rec.ondataavailable = e => chunks.push(e.data);
-                rec.onstop = () => {
-                    const b = new Blob(chunks, { type: 'audio/webm' });
-                    const r = new FileReader();
-                    r.onload = (e) => push(e.target.result, 'audio');
-                    r.readAsDataURL(b);
-                    chunks = [];
-                };
-                rec.start();
-                vnBtn.classList.add('recording-pulse');
-            } catch(e) { showNotif("Akses Mic Ditolak"); }
-        };
-        vnBtn.onmouseup = () => { if(rec) { rec.stop(); vnBtn.classList.remove('recording-pulse'); } };
-
-        function push(c, t) {
-            if(!curTarget) return;
-            const path = isG ? `gr_msg/${curTarget}` : `pv_msg/${[myUsn, curTarget].sort().join('_')}`;
-            db.ref(path).push({ s: myUsn, c: c, t: t, d: Date.now() });
-        }
-
-        function openChat(t, g = false) {
-            curTarget = t; isG = g;
-            document.getElementById('chat-p').classList.remove('hidden');
-            document.getElementById('chat-p').classList.add('flex');
-            document.getElementById('tar-name').innerText = t;
-            document.getElementById('tar-ava').innerText = t[0].toUpperCase();
-            if(window.innerWidth < 768) document.getElementById('side-p').classList.add('hidden');
-
-            const path = g ? `gr_msg/${t}` : `pv_msg/${[myUsn, t].sort().join('_')}`;
+        function openChat(target, pfp) {
+            to = target;
+            document.getElementById('main-chat').classList.replace('hidden', 'flex');
+            document.getElementById('h-name').innerText = target;
+            document.getElementById('h-av-img').src = pfp;
+            if(window.innerWidth < 768) document.getElementById('side').classList.add('hidden');
+            
+            const path = `msgs/${[me, to].sort().join('_')}`;
             db.ref(path).off();
             db.ref(path).on('value', snap => {
                 const box = document.getElementById('flow-box'); box.innerHTML = "";
-                snap.forEach(child => {
-                    const m = child.val();
-                    const isMe = m.s === myUsn;
-                    let body = m.t === 'text' ? `<p>${m.c}</p>` : 
+                snap.forEach(c => {
+                    const m = c.val();
+                    const isMe = m.s === me;
+                    let body = m.t === 'text' ? `<p class="text-sm">${m.c}</p>` :
                                m.t === 'audio' ? `<audio controls src="${m.c}" class="max-w-full"></audio>` :
-                               m.t === 'video' ? `<video controls src="${m.c}" class="rounded-lg max-w-full"></video>` :
-                               `<img src="${m.c}" class="rounded-lg max-w-full border border-white/10 shadow-xl">`;
+                               m.t === 'image' ? `<img src="${m.c}" class="rounded-lg max-w-full shadow-lg border border-white/10">` : 
+                               `<p class="text-[10px] opacity-50 italic">File sent: ${m.c.substring(0,20)}...</p>`;
 
-                    box.innerHTML += `
-                        <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                            <div class="max-w-[85%] p-3 px-4 capsule ${isMe ? 'bg-cyan-600 text-white' : 'glass'}">
-                                ${g && !isMe ? `<p class="text-[7px] font-black text-cyan-400 mb-1 uppercase">${m.s}</p>` : ''}
-                                ${body}
-                                <p class="text-[6px] opacity-40 mt-1 text-right font-bold">${new Date(m.d).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
-                            </div>
-                        </div>`;
+                    box.innerHTML += `<div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                        <div class="p-3 px-4 capsule max-w-[85%] ${isMe ? 'bg-cyan-600 text-white' : 'glass'} shadow-md">
+                            ${body}
+                            <p class="text-[6px] opacity-40 mt-1 text-right">${new Date(m.d).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
+                        </div>
+                    </div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
         }
 
-        // --- CALLS & MISC ---
-        function callNode(t) {
-            if(!curTarget) return;
-            const room = "Z_" + [myUsn, curTarget].sort().join("_");
-            document.getElementById('call-box').style.display = "block";
+        function send() {
+            const v = document.getElementById('m-in').value.trim();
+            if(v) push(v, 'text');
+            document.getElementById('m-in').value = "";
+        }
+
+        function push(c, t) {
+            if(!to) return;
+            const path = `msgs/${[me, to].sort().join('_')}`;
+            db.ref(path).push({ s: me, c: c, t: t, d: Date.now() });
+        }
+
+        // --- CALLS (NO PIN) ---
+        function call(type) {
+            const room = "ZChat_" + [me, to].sort().join("_");
+            document.getElementById('call-screen').style.display = "block";
             const api = new JitsiMeetExternalAPI("meet.jit.si", {
-                roomName: room, parentNode: document.querySelector('#call-box'),
-                configOverwrite: { startWithVideoMuted: t === 'voice' },
+                roomName: room,
+                parentNode: document.querySelector('#call-screen'),
+                configOverwrite: { prejoinPageEnabled: false, startWithVideoMuted: type === 'voice' },
                 interfaceConfigOverwrite: { TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup'] }
             });
-            api.addEventListener('videoConferenceLeft', () => { document.getElementById('call-box').style.display = "none"; document.getElementById('call-box').innerHTML = ""; });
-        }
-
-        function createGroup() {
-            const n = prompt("Nama Grup:");
-            if(n) {
-                const id = "G" + Math.random().toString(36).substr(2, 6).toUpperCase();
-                db.ref('all_gr/'+id).set({name: n, admin: myUsn});
-                db.ref(`u_gr/${myUsn}/${id}`).set(true);
-                showNotif("Grup Dibuat! ID: " + id);
-            }
-        }
-
-        function joinGroup() {
-            const id = prompt("Masukkan ID Grup:");
-            if(id) {
-                db.ref('all_gr/'+id).once('value', s => {
-                    if(s.exists()) { db.ref(`u_gr/${myUsn}/${id}`).set(true); showNotif("Berhasil Join!"); }
-                    else showNotif("ID Tidak Valid");
-                });
-            }
-        }
-
-        function postStatus(input) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                db.ref('status_node/'+myUsn).set({ u: myUsn, m: e.target.result, t: file.type, d: Date.now() });
-                showNotif("Status Terkirim!");
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function syncData() {
-            db.ref('users').on('value', snap => {
-                const list = document.getElementById('chats'); list.innerHTML = "";
-                snap.forEach(c => {
-                    if(c.key !== myUsn) list.innerHTML += `<div onclick="openChat('${c.key}')" class="glass capsule p-4 mb-2 flex items-center gap-4 cursor-pointer active:scale-95 transition border-white/5">
-                        <div class="w-10 h-10 rounded-full bg-cyan-900/40 flex items-center justify-center font-bold text-xs">${c.key[0].toUpperCase()}</div>
-                        <div><h4 class="font-bold text-xs uppercase">${c.key}</h4><p class="text-[8px] text-cyan-500 font-bold uppercase">Ready</p></div>
-                    </div>`;
-                });
-            });
-
-            db.ref(`u_gr/${myUsn}`).on('value', snap => {
-                const list = document.getElementById('groups');
-                list.innerHTML = `<button onclick="createGroup()" class="w-full p-4 glass capsule mb-3 text-cyan-500 font-bold text-[10px] uppercase border-cyan-500/20">+ Create Private Node</button>`;
-                snap.forEach(c => list.innerHTML += `<div onclick="openChat('${c.key}', true)" class="glass capsule p-4 mb-2 flex items-center gap-4 cursor-pointer active:scale-95 transition border-white/5">
-                    <div class="w-10 h-10 rounded-full bg-fuchsia-900/40 flex items-center justify-center border border-white/10"><i class="fas fa-users text-xs"></i></div>
-                    <h4 class="font-bold text-xs uppercase">${c.key}</h4>
-                </div>`);
-            });
-
-            db.ref('status_node').on('value', snap => {
-                const list = document.getElementById('status');
-                list.innerHTML = `<button onclick="document.getElementById('s-up').click()" class="w-full p-4 glass capsule mb-4 text-cyan-400 font-bold text-[10px] border-cyan-500/20 uppercase">+ Post Media Pulse</button><input type="file" id="s-up" class="hidden" accept="image/*,video/*" onchange="postStatus(this)">`;
-                snap.forEach(c => list.innerHTML += `<div class="glass capsule p-4 mb-2 flex items-center gap-4 border-white/5"><div class="w-10 h-10 rounded-full border-2 border-cyan-500 p-0.5"><div class="w-full h-full bg-gray-800 rounded-full flex items-center justify-center font-bold text-[10px] text-cyan-400">${c.val().u[0].toUpperCase()}</div></div><div><h4 class="font-bold text-[10px] uppercase">${c.val().u}</h4><p class="text-[8px] opacity-40 uppercase">Pulse Active</p></div></div>`);
+            api.addEventListener('videoConferenceLeft', () => {
+                document.getElementById('call-screen').style.display = "none";
+                document.getElementById('call-screen').innerHTML = "";
             });
         }
 
-        function backToMenu() { document.getElementById('chat-p').classList.add('hidden'); document.getElementById('side-p').classList.remove('hidden'); }
-        function clearChat() { if(confirm("Wipe Chat?")) db.ref(isG ? `gr_msg/${curTarget}` : `pv_msg/${[myUsn, curTarget].sort().join('_')}`).remove(); }
+        function closeChat() { document.getElementById('main-chat').classList.add('hidden'); document.getElementById('side').classList.remove('hidden'); }
     </script>
 </body>
 </html>
