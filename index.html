@@ -6,158 +6,135 @@
     <title>ZChat ZERO Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        :root {
-            --glass: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.15);
-        }
-
+        :root { --glass: rgba(255, 255, 255, 0.08); --blur: blur(20px); }
         body {
-            margin: 0;
-            background: #050505;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            overflow: hidden;
+            background: #020205; color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            height: 100vh; overflow: hidden; margin: 0;
         }
-
-        /* Nebula Background Animation */
-        .nebula {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                radial-gradient(circle at 20% 30%, #1e3a8a 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, #581c87 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, #0f172a 0%, #000 100%);
-            z-index: -1;
-            filter: blur(40px);
-            animation: nebula-move 15s ease-infinite alternate;
+        .nebula-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at 20% 30%, #1e1b4b 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, #4c1d95 0%, transparent 40%);
+            filter: blur(60px); opacity: 0.6; animation: drift 20s infinite alternate;
         }
-
-        @keyframes nebula-move {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
-
-        .capsule { border-radius: 28px; }
-        .glass { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); }
-        .glass-dark { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); }
+        @keyframes drift { from { transform: scale(1); } to { transform: scale(1.1) rotate(2deg); } }
         
-        /* Custom Button Transparan */
-        .btn-action {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: 0.3s;
+        /* UI Kapsul & Glass */
+        .capsule { border-radius: 35px; }
+        .glass { background: var(--glass); backdrop-filter: var(--blur); border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* Animasi Klik */
+        .btn-click:active { transform: scale(0.92); transition: 0.1s; }
+        .btn-trans { background: rgba(255,255,255,0.05); transition: 0.3s; }
+        .btn-trans:hover { background: rgba(255,255,255,0.15); }
+
+        /* Notifikasi Custom */
+        #custom-alert {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .btn-action:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
+        #custom-alert.show { top: 30px; }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-
-        .hidden { display: none !important; }
+        .tab-content { display: none; }
+        .tab-content.active { display: flex; flex-direction: column; height: 100%; }
+        .active-tab-btn { color: #60a5fa; border-bottom: 2px solid #60a5fa; }
     </style>
 </head>
-<body class="flex flex-col p-4 md:p-6 h-screen">
-    <div class="nebula"></div>
+<body>
+    <div class="nebula-bg"></div>
 
-    <div id="login-view" class="m-auto w-full max-w-md glass-dark capsule p-8 text-center animate-fade-in">
-        <h1 class="text-4xl font-bold tracking-tighter mb-1">ZChat <span class="text-blue-500">ZERO</span></h1>
-        <p class="text-xs text-gray-400 mb-8 opacity-70">Versi 2.1.0 - Stable Edition</p>
-        
-        <div class="space-y-4">
-            <input type="text" id="usn" placeholder="USERNAME" class="w-full bg-white/5 border border-white/10 p-4 capsule outline-none focus:ring-2 ring-blue-500/50 transition">
-            <div class="relative">
-                <input type="password" id="pw" placeholder="PASSWORD" class="w-full bg-white/5 border border-white/10 p-4 capsule outline-none focus:ring-2 ring-blue-500/50 transition">
-                <button onclick="togglePW()" class="absolute right-4 top-4 text-gray-500"><i class="fas fa-eye"></i></button>
-            </div>
+    <div id="custom-alert" class="glass capsule px-8 py-4 flex items-center gap-4 border-l-4 border-l-red-500 shadow-2xl">
+        <i class="fas fa-exclamation-triangle text-red-500"></i>
+        <div>
+            <h4 class="font-bold text-sm" id="alert-title">Sistem Peringatan</h4>
+            <p class="text-xs text-gray-300" id="alert-msg">Pesan error di sini</p>
+        </div>
+        <button onclick="hideAlert()" class="ml-4 opacity-50"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div id="login-screen" class="h-screen flex items-center justify-center p-6">
+        <div class="glass capsule p-10 w-full max-w-md text-center border-white/20">
+            <h1 class="text-4xl font-black tracking-tighter mb-1">ZChat <span class="text-blue-500">ZERO</span></h1>
+            <p class="text-[10px] tracking-[4px] text-gray-500 mb-8 uppercase">Nebula Protocol v2.5</p>
             
-            <label class="flex items-center justify-center gap-2 cursor-pointer py-2 group">
-                <input type="checkbox" id="keep-login" class="w-4 h-4 accent-blue-500">
-                <span class="text-sm text-gray-400 group-hover:text-white transition">KEEP LOGIN</span>
-            </label>
+            <div class="space-y-4">
+                <input type="text" id="login-usn" placeholder="USERNAME" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none focus:border-blue-500 transition text-center">
+                <input type="password" id="login-pw" placeholder="PASSWORD" class="w-full p-4 capsule bg-black/40 border border-white/10 outline-none focus:border-blue-500 transition text-center">
+                
+                <div class="flex items-center justify-center gap-2 text-xs text-gray-400">
+                    <input type="checkbox" id="keep-login" class="accent-blue-500">
+                    <label for="keep-login">KEEP LOGIN (Save Identity)</label>
+                </div>
 
-            <button onclick="doLogin()" class="w-full bg-blue-600 hover:bg-blue-500 p-4 capsule font-bold transition shadow-lg shadow-blue-600/20">MASUK</button>
+                <button onclick="handleLogin()" class="btn-click w-full p-4 bg-blue-600 capsule font-bold shadow-lg shadow-blue-500/20">ACCESS TERMINAL</button>
+            </div>
         </div>
     </div>
 
-    <div id="main-view" class="hidden h-full flex flex-col md:flex-row gap-4 overflow-hidden">
-        <div class="w-full md:w-1/3 flex flex-col gap-4">
+    <div id="main-app" class="h-screen flex hidden p-4 gap-4">
+        <div class="w-full md:w-[400px] flex flex-col gap-4">
             <div class="glass capsule p-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 border-2 border-white/20"></div>
-                    <div>
-                        <h2 id="my-display-name" class="font-bold">User</h2>
-                        <span class="text-[10px] text-green-400">● ONLINE</span>
-                    </div>
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-fuchsia-600 shadow-inner"></div>
+                    <h2 id="my-name" class="font-bold">User</h2>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="openAddModal()" class="w-10 h-10 btn-action rounded-full"><i class="fas fa-plus"></i></button>
-                    <button onclick="logout()" class="w-10 h-10 btn-action rounded-full"><i class="fas fa-sign-out-alt"></i></button>
-                </div>
+                <button onclick="showAddModal()" class="btn-click btn-trans w-12 h-12 rounded-full"><i class="fas fa-plus"></i></button>
             </div>
 
             <div class="glass capsule flex-1 flex flex-col overflow-hidden">
-                <div class="flex justify-around p-3 border-b border-white/5 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    <button class="text-blue-400 border-b border-blue-400 pb-1">CHATS</button>
-                    <button>GROUPS</button>
-                    <button>STATUS</button>
-                    <button>CHANNELS</button>
+                <div class="flex justify-around p-4 text-[10px] font-bold border-b border-white/5">
+                    <button onclick="switchTab('chats')" class="tab-btn active-tab-btn px-4 py-2">CHATS</button>
+                    <button onclick="switchTab('groups')" class="tab-btn px-4 py-2">GROUPS</button>
+                    <button onclick="switchTab('status')" class="tab-btn px-4 py-2">STATUS</button>
+                    <button onclick="switchTab('channels')" class="tab-btn px-4 py-2">CHANNELS</button>
                 </div>
 
-                <div id="request-container" class="p-3 space-y-2 hidden border-b border-yellow-500/20 bg-yellow-500/5">
-                    <p class="text-[9px] font-bold text-yellow-500">CHAT REQUEST:</p>
-                    <div id="request-list"></div>
+                <div id="req-box" class="p-4 bg-blue-500/10 hidden">
+                    <p class="text-[9px] font-bold text-blue-400 mb-2 tracking-widest">PERMINTAAN BARU:</p>
+                    <div id="req-list" class="space-y-2"></div>
                 </div>
 
-                <div id="chat-list" class="flex-1 overflow-y-auto p-2">
-                    </div>
+                <div id="chats" class="tab-content active p-2 overflow-y-auto"></div>
+                <div id="groups" class="tab-content p-8 text-center text-gray-500 italic">Grup belum tersedia di versi ini.</div>
+                <div id="status" class="tab-content p-8 text-center text-gray-500 italic">Fitur Status segera hadir.</div>
+                <div id="channels" class="tab-content p-8 text-center text-gray-500 italic">Saluran belum dibuat.</div>
             </div>
         </div>
 
-        <div class="hidden md:flex flex-1 glass capsule flex-col overflow-hidden relative" id="chat-container">
-            <div id="no-chat" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
-                <i class="fas fa-comments text-5xl mb-4 opacity-20"></i>
-                <p>Pilih teman untuk memulai ZChat</p>
+        <div class="flex-1 glass capsule flex flex-col overflow-hidden relative">
+            <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-gray-600">
+                <i class="fas fa-satellite-dish text-6xl mb-4 animate-pulse"></i>
+                <p>Menunggu Koneksi...</p>
             </div>
 
-            <div id="active-chat-box" class="hidden flex flex-col h-full">
-                <div class="p-4 glass border-b border-white/5 flex justify-between items-center">
+            <div id="chat-active" class="hidden flex flex-col h-full">
+                <div class="p-4 border-b border-white/5 flex items-center justify-between glass">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"><i class="fas fa-user"></i></div>
-                        <span id="target-name" class="font-bold text-lg">Username</span>
+                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/20"></div>
+                        <span id="chat-with" class="font-bold">Username</span>
                     </div>
-                    <div class="flex gap-4 text-gray-400">
-                        <button class="hover:text-blue-400 transition"><i class="fas fa-phone"></i></button>
-                        <button class="hover:text-blue-400 transition"><i class="fas fa-video"></i></button>
-                        <button class="hover:text-red-400 transition"><i class="fas fa-ellipsis-v"></i></button>
+                    <div class="flex gap-4">
+                        <button class="btn-click opacity-50 hover:opacity-100"><i class="fas fa-phone"></i></button>
+                        <button class="btn-click opacity-50 hover:opacity-100"><i class="fas fa-video"></i></button>
                     </div>
                 </div>
-
-                <div id="msg-display" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4"></div>
-
-                <div class="p-4 bg-black/20 flex items-center gap-3">
-                    <button class="w-10 h-10 btn-action rounded-full"><i class="fas fa-paperclip"></i></button>
-                    <input type="text" id="msg-input" placeholder="Ketik pesan..." class="flex-1 bg-white/5 p-4 capsule border border-white/10 outline-none focus:border-blue-500">
-                    <button id="vn-btn" class="w-10 h-10 btn-action rounded-full text-blue-400"><i class="fas fa-microphone"></i></button>
-                    <button onclick="sendMsg()" class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
+                <div id="msg-flow" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4"></div>
+                <div class="p-4 glass flex gap-3">
+                    <input type="text" id="msg-input" placeholder="Ketik pesan..." class="flex-1 bg-black/20 p-4 capsule outline-none border border-white/5">
+                    <button onclick="send()" class="btn-click w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="modal-add" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-6 z-[100]">
-        <div class="glass-dark capsule p-8 w-full max-w-sm text-center">
-            <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500 text-3xl">
-                <i class="fas fa-user-plus"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Tambah Kontak</h3>
-            <p class="text-xs text-gray-400 mb-6">Masukkan username yang terdaftar</p>
-            <input type="text" id="target-usn" placeholder="@username" class="w-full bg-white/5 border border-white/10 p-4 capsule outline-none mb-4 text-center">
+    <div id="modal-add" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-6 z-[999]">
+        <div class="glass capsule p-8 w-full max-w-sm text-center">
+            <h3 class="text-xl font-bold mb-6">Connect New User</h3>
+            <input type="text" id="target-usn" placeholder="Target Username" class="w-full p-4 capsule bg-white/5 border border-white/10 outline-none text-center mb-4">
             <div class="flex gap-2">
-                <button onclick="closeAddModal()" class="flex-1 p-3 btn-action capsule">BATAL</button>
-                <button onclick="handleAddContact()" class="flex-1 p-3 bg-blue-600 capsule font-bold">TAMBAH</button>
+                <button onclick="closeAddModal()" class="flex-1 p-4 btn-trans capsule">BATAL</button>
+                <button onclick="addUser()" class="btn-click flex-1 p-4 bg-blue-600 capsule font-bold">TAMBAH</button>
             </div>
         </div>
     </div>
@@ -166,7 +143,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // CONFIG FIREBASE (Sesuai punya lo)
         const firebaseConfig = {
             apiKey: "AIzaSyD-1wEkNvg1pGy-klwSRcNbsAQRZYvJevM",
             authDomain: "zchat-56639.firebaseapp.com",
@@ -180,166 +156,145 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let myUsn = localStorage.getItem('zchat_session') || "";
-        let activeTarget = "";
+        let myUsn = "";
+        let currentChat = "";
 
         // -- AUTO LOGIN --
-        if(myUsn) {
-            loginProcess(myUsn);
+        const saved = localStorage.getItem('zchat_zero_usn');
+        if(saved) {
+            myUsn = saved;
+            launchApp();
         }
 
-        function doLogin() {
-            const u = document.getElementById('usn').value.trim();
-            const p = document.getElementById('pw').value;
-            if(!u || !p) return alert("Lengkapi data!");
+        function handleLogin() {
+            const u = document.getElementById('login-usn').value.trim();
+            if(!u) return showAlert("Error", "Isi Username!");
             
-            // Simpan session & user
-            if(document.getElementById('keep-login').checked) {
-                localStorage.setItem('zchat_session', u);
-            }
             myUsn = u;
+            if(document.getElementById('keep-login').checked) localStorage.setItem('zchat_zero_usn', u);
             
-            // Daftarkan username ke DB agar bisa dicari orang lain
-            db.ref('users/' + u).update({
-                username: u,
-                lastSeen: Date.now(),
-                status: 'online'
-            });
-
-            loginProcess(u);
+            // PENTING: Daftarkan diri ke node 'users' biar temen lo bisa nemuin lo!
+            db.ref('users/' + u).set({ username: u, online: true });
+            launchApp();
         }
 
-        function loginProcess(u) {
-            document.getElementById('login-view').classList.add('hidden');
-            document.getElementById('main-view').classList.remove('hidden');
-            document.getElementById('my-display-name').innerText = u;
-            listenForRequests();
+        function launchApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('my-name').innerText = "@" + myUsn;
+            loadRequests();
             loadContacts();
         }
 
-        // -- LOGIC TAMBAH & PERSETUJUAN --
-        function openAddModal() { document.getElementById('modal-add').classList.remove('hidden'); }
-        function closeAddModal() { document.getElementById('modal-add').classList.add('hidden'); }
-
-        function handleAddContact() {
+        // -- SYNC LOGIC (NYAMBUNG KE TEMEN) --
+        function addUser() {
             const target = document.getElementById('target-usn').value.trim();
             if(!target || target === myUsn) return;
 
-            // Cek apakah user ada di DB
-            db.ref('users/' + target).once('value', snapshot => {
-                if(snapshot.exists()) {
-                    // Kirim request chat (Fitur Persetujuan)
+            // Cek path 'users/' (Path standar web temen lo)
+            db.ref('users/' + target).once('value', snap => {
+                if(snap.exists()) {
                     db.ref(`requests/${target}/${myUsn}`).set({ from: myUsn, time: Date.now() });
-                    alert("Permintaan dikirim! Tunggu dia setuju.");
+                    showAlert("Sukses", "Permintaan terkirim ke " + target);
                     closeAddModal();
                 } else {
-                    // ALERT CUSTOM MIRIP SCREENSHOT LO
-                    alert("USER TIDAK ADA!\nUsername '" + target + "' tidak ditemukan.");
+                    showAlert("USER TIDAK ADA!", "Username '" + target + "' tidak ditemukan di database ZChat.");
                 }
             });
         }
 
-        function listenForRequests() {
+        function loadRequests() {
             db.ref(`requests/${myUsn}`).on('value', snap => {
-                const container = document.getElementById('request-container');
-                const list = document.getElementById('request-list');
+                const box = document.getElementById('req-box');
+                const list = document.getElementById('req-list');
                 list.innerHTML = "";
                 if(snap.exists()) {
-                    container.classList.remove('hidden');
-                    snap.forEach(child => {
-                        const from = child.key;
-                        const div = document.createElement('div');
-                        div.className = "flex items-center justify-between glass p-2 capsule text-xs";
-                        div.innerHTML = `<span>@${from}</span> 
+                    box.classList.remove('hidden');
+                    snap.forEach(c => {
+                        const from = c.key;
+                        list.innerHTML += `<div class="flex items-center justify-between glass p-2 capsule">
+                            <span class="text-xs ml-2">${from}</span>
                             <div class="flex gap-1">
-                                <button onclick="acceptChat('${from}')" class="bg-green-600 px-2 py-1 rounded-full"><i class="fas fa-check"></i></button>
-                                <button onclick="rejectChat('${from}')" class="bg-red-600 px-2 py-1 rounded-full"><i class="fas fa-times"></i></button>
-                            </div>`;
-                        list.appendChild(div);
+                                <button onclick="confirmChat('${from}', true)" class="w-8 h-8 bg-green-600 rounded-full text-[10px]"><i class="fas fa-check"></i></button>
+                                <button onclick="confirmChat('${from}', false)" class="w-8 h-8 bg-red-600 rounded-full text-[10px]"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>`;
                     });
-                } else { container.classList.add('hidden'); }
+                } else box.classList.add('hidden');
             });
         }
 
-        function acceptChat(sender) {
-            db.ref(`contacts/${myUsn}/${sender}`).set(true);
-            db.ref(`contacts/${sender}/${myUsn}`).set(true);
-            db.ref(`requests/${myUsn}/${sender}`).remove();
+        function confirmChat(user, accept) {
+            if(accept) {
+                db.ref(`contacts/${myUsn}/${user}`).set(true);
+                db.ref(`contacts/${user}/${myUsn}`).set(true);
+            }
+            db.ref(`requests/${myUsn}/${user}`).remove();
         }
 
-        function rejectChat(sender) {
-            db.ref(`requests/${myUsn}/${sender}`).remove();
-        }
-
-        // -- CHAT CORE --
         function loadContacts() {
             db.ref(`contacts/${myUsn}`).on('value', snap => {
-                const list = document.getElementById('chat-list');
-                list.innerHTML = "";
-                snap.forEach(child => {
-                    const name = child.key;
-                    const div = document.createElement('div');
-                    div.className = "p-4 glass capsule mb-2 cursor-pointer flex items-center gap-3 btn-action";
-                    div.innerHTML = `<div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">${name[0].toUpperCase()}</div> <div><p class="font-bold text-sm">${name}</p><p class="text-[10px] opacity-50">Klik untuk chat</p></div>`;
-                    div.onclick = () => openChat(name);
-                    list.appendChild(div);
+                const container = document.getElementById('chats');
+                container.innerHTML = "";
+                snap.forEach(c => {
+                    const name = c.key;
+                    container.innerHTML += `<div onclick="openChat('${name}')" class="btn-click glass capsule p-4 mb-2 flex items-center gap-4 btn-trans cursor-pointer">
+                        <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center font-bold">${name[0]}</div>
+                        <div class="flex-1"><h4 class="font-bold text-sm">${name}</h4><p class="text-[10px] opacity-40">Tap to encrypted chat</p></div>
+                    </div>`;
                 });
             });
         }
 
         function openChat(target) {
-            activeTarget = target;
-            document.getElementById('no-chat').classList.add('hidden');
-            document.getElementById('active-chat-box').classList.remove('hidden');
-            document.getElementById('target-name').innerText = target;
+            currentChat = target;
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('chat-active').classList.remove('hidden');
+            document.getElementById('chat-with').innerText = target;
             
             const chatID = [myUsn, target].sort().join("_");
-            
             db.ref(`chats/${chatID}`).on('value', snap => {
-                const display = document.getElementById('msg-display');
-                display.innerHTML = "";
-                snap.forEach(child => {
-                    const data = child.val();
-                    const isMe = data.sender === myUsn;
-                    const bubble = document.createElement('div');
-                    bubble.className = `max-w-[80%] p-3 px-5 capsule ${isMe ? 'self-end bg-blue-600 shadow-lg' : 'self-start glass'}`;
-                    bubble.innerHTML = `<p class="text-sm">${data.text}</p><span class="text-[8px] opacity-50 block text-right mt-1">${new Date(data.time).toLocaleTimeString()}</span>`;
-                    
-                    // Fitur hapus/salin (Tap n Hold / Right Click)
-                    bubble.oncontextmenu = (e) => {
-                        e.preventDefault();
-                        if(confirm("Salin pesan ini?")) navigator.clipboard.writeText(data.text);
-                        if(isMe && confirm("Hapus pesan untuk semua?")) db.ref(`chats/${chatID}/${child.key}`).remove();
-                    };
-
-                    display.appendChild(bubble);
+                const flow = document.getElementById('msg-flow');
+                flow.innerHTML = "";
+                snap.forEach(c => {
+                    const m = c.val();
+                    const isMe = m.sender === myUsn;
+                    flow.innerHTML += `<div class="max-w-[75%] p-3 px-5 capsule text-sm ${isMe ? 'self-end bg-blue-600 shadow-lg' : 'self-start glass'}">
+                        ${m.text}
+                        <span class="text-[8px] opacity-40 block text-right mt-1">${new Date(m.time).toLocaleTimeString()}</span>
+                    </div>`;
                 });
-                display.scrollTop = display.scrollHeight;
+                flow.scrollTop = flow.scrollHeight;
             });
         }
 
-        function sendMsg() {
+        function send() {
             const input = document.getElementById('msg-input');
-            if(!input.value || !activeTarget) return;
-
-            const chatID = [myUsn, activeTarget].sort().join("_");
-            db.ref(`chats/${chatID}`).push({
-                sender: myUsn,
-                text: input.value,
-                time: Date.now()
-            });
+            if(!input.value || !currentChat) return;
+            const chatID = [myUsn, currentChat].sort().join("_");
+            db.ref(`chats/${chatID}`).push({ sender: myUsn, text: input.value, time: Date.now() });
             input.value = "";
         }
 
-        function togglePW() {
-            const p = document.getElementById('pw');
-            p.type = p.type === 'password' ? 'text' : 'password';
+        // -- UI HELPERS --
+        function showAlert(title, msg) {
+            const a = document.getElementById('custom-alert');
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-msg').innerText = msg;
+            a.classList.add('show');
+            setTimeout(hideAlert, 4000);
+        }
+        function hideAlert() { document.getElementById('custom-alert').classList.remove('show'); }
+        
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab-btn'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active-tab-btn');
         }
 
-        function logout() {
-            localStorage.removeItem('zchat_session');
-            location.reload();
-        }
+        function showAddModal() { document.getElementById('modal-add').classList.remove('hidden'); }
+        function closeAddModal() { document.getElementById('modal-add').classList.add('hidden'); }
     </script>
 </body>
 </html>
