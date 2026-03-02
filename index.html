@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZChat ZERO Version</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: radial-gradient(circle at bottom, #1B2735 0%, #090A0F 100%);
+            overflow: hidden;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* Nebula Effect */
+        .nebula {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(70, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0, 255, 255, 0.1) 0%, transparent 40%);
+            z-index: -1;
+            filter: blur(50px);
+            animation: move 20s infinite alternate;
+        }
+
+        @keyframes move { from { transform: scale(1); } to { transform: scale(1.2); } }
+
+        .capsule { border-radius: 50px; }
+        .glass { 
+            background: rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-trans {
+            background: rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+        .btn-trans:hover { background: rgba(255, 255, 255, 0.2); }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="nebula"></div>
+
+    <div id="login-screen" class="h-screen flex items-center justify-center p-4">
+        <div class="glass p-10 capsule w-full max-w-md text-center">
+            <h1 class="text-3xl font-bold tracking-widest">ZChat <span class="text-blue-400">ZERO</span></h1>
+            <p class="text-xs text-gray-400 mb-8">Versi 1.0.4 (Latest)</p>
+            
+            <div class="space-y-4">
+                <input type="text" id="usn" placeholder="USERNAME" class="w-full bg-white/5 border border-white/10 p-4 capsule outline-none focus:border-blue-500 transition">
+                <div class="relative">
+                    <input type="password" id="pw" placeholder="PASSWORD" class="w-full bg-white/5 border border-white/10 p-4 capsule outline-none focus:border-blue-500 transition">
+                </div>
+                
+                <div class="flex items-center justify-center gap-3 py-2">
+                    <input type="checkbox" id="keep-login" class="w-4 h-4 rounded-full accent-blue-500">
+                    <label for="keep-login" class="text-sm text-gray-300">KEEP LOGIN (Device Auth)</label>
+                </div>
+
+                <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-500 p-4 capsule font-bold shadow-lg shadow-blue-500/20">MASUK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-screen" class="h-screen flex p-4 gap-4 hidden">
+        <div class="w-1/3 glass capsule flex flex-col overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full"></div>
+                    <span id="my-name" class="font-bold">User</span>
+                </div>
+                <button onclick="showAddModal()" class="btn-trans w-10 h-10 rounded-full"><i class="fas fa-plus"></i></button>
+            </div>
+            
+            <div id="contact-list" class="flex-1 overflow-y-auto p-4 space-y-2">
+                </div>
+        </div>
+
+        <div class="flex-1 glass capsule flex flex-col overflow-hidden relative">
+            <div id="no-chat" class="absolute inset-0 flex items-center justify-center text-gray-500">
+                Pilih teman untuk memulai ZChat
+            </div>
+
+            <div id="chat-window" class="flex flex-col h-full hidden">
+                <div class="p-4 border-b border-white/10 glass flex items-center gap-3">
+                    <div class="w-10 h-10 bg-zinc-700 rounded-full"></div>
+                    <span id="chat-target-name" class="font-bold text-lg">Username</span>
+                </div>
+
+                <div id="messages" class="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
+                    </div>
+
+                <div class="p-4 flex gap-2">
+                    <input type="text" id="msg-input" placeholder="Ketik pesan..." class="flex-1 bg-white/5 p-4 capsule border border-white/10 outline-none">
+                    <button onclick="sendMessage()" class="bg-blue-600 w-14 h-14 rounded-full flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-add" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden p-4">
+        <div class="glass p-8 capsule max-w-sm w-full">
+            <h3 class="text-xl font-bold mb-4">Tambah Kontak</h3>
+            <input type="text" id="search-usn" placeholder="Masukkan Username..." class="w-full bg-white/5 border border-white/10 p-4 capsule outline-none mb-4">
+            <div class="flex gap-2">
+                <button onclick="closeModal()" class="flex-1 p-3 btn-trans capsule text-sm">BATAL</button>
+                <button onclick="confirmAdd()" class="flex-1 p-3 bg-blue-600 capsule text-sm font-bold">TAMBAH</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        // --- CONFIGURASI FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-1wEkNvg1pGy-klwSRcNbsAQRZYvJevM",
+            authDomain: "zchat-56639.firebaseapp.com",
+            databaseURL: "https://zchat-56639-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "zchat-56639",
+            storageBucket: "zchat-56639.firebasestorage.app",
+            messagingSenderId: "773931983053",
+            appId: "1:773931983053:web:a1c825be9a972e53dcc984",
+            measurementId: "G-ZDMK1DWV6S"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentUser = localStorage.getItem('zchat_user') || null;
+        let activeChat = null;
+
+        // --- LOGIC AUTH ---
+        if(currentUser) {
+            loginSuccess(currentUser);
+        }
+
+        function handleLogin() {
+            const usn = document.querySelector('#usn').value.trim();
+            const pw = document.querySelector('#pw').value;
+            const keep = document.querySelector('#keep-login').checked;
+
+            if(usn && pw) {
+                // Simpan ke DB sebagai user baru (atau cek jika sudah ada)
+                db.ref('users/' + usn).set({
+                    username: usn,
+                    status: 'online',
+                    lastSeen: Date.now()
+                });
+
+                if(keep) localStorage.setItem('zchat_user', usn);
+                currentUser = usn;
+                loginSuccess(usn);
+            } else {
+                alert("Isi username dan password!");
+            }
+        }
+
+        function loginSuccess(usn) {
+            document.querySelector('#login-screen').classList.add('hidden');
+            document.querySelector('#app-screen').classList.remove('hidden');
+            document.querySelector('#my-name').innerText = usn;
+            loadContacts();
+        }
+
+        // --- LOGIC KONTAK ---
+        function showAddModal() { document.querySelector('#modal-add').classList.remove('hidden'); }
+        function closeModal() { document.querySelector('#modal-add').classList.add('hidden'); }
+
+        function confirmAdd() {
+            const target = document.querySelector('#search-usn').value.trim();
+            if(!target) return;
+
+            // Cek apakah user ada di database
+            db.ref('users/' + target).once('value', snapshot => {
+                if(snapshot.exists()) {
+                    db.ref(`contacts/${currentUser}/${target}`).set(true);
+                    alert("Kontak Berhasil Ditambah!");
+                    closeModal();
+                } else {
+                    alert("⚠️ PERINGATAN: Username tidak ditemukan!");
+                }
+            });
+        }
+
+        function loadContacts() {
+            db.ref(`contacts/${currentUser}`).on('value', snapshot => {
+                const list = document.querySelector('#contact-list');
+                list.innerHTML = "";
+                snapshot.forEach(child => {
+                    const name = child.key;
+                    const div = document.createElement('div');
+                    div.className = "p-4 glass capsule btn-trans cursor-pointer flex items-center gap-3";
+                    div.innerHTML = `<div class="w-10 h-10 bg-zinc-700 rounded-full"></div> <span>${name}</span>`;
+                    div.onclick = () => openChat(name);
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        // --- LOGIC CHAT ---
+        function openChat(target) {
+            activeChat = target;
+            document.querySelector('#no-chat').classList.add('hidden');
+            document.querySelector('#chat-window').classList.remove('hidden');
+            document.querySelector('#chat-target-name').innerText = target;
+            
+            const chatID = [currentUser, target].sort().join('_');
+            
+            db.ref(`messages/${chatID}`).on('value', snapshot => {
+                const msgBox = document.querySelector('#messages');
+                msgBox.innerHTML = "";
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    const isMe = data.sender === currentUser;
+                    const bubble = document.createElement('div');
+                    bubble.className = isMe ? "self-end bg-blue-600 p-3 px-5 capsule max-w-xs shadow-lg" 
+                                           : "self-start glass p-3 px-5 capsule max-w-xs";
+                    bubble.innerText = data.text;
+                    msgBox.appendChild(bubble);
+                });
+                msgBox.scrollTop = msgBox.scrollHeight;
+            });
+        }
+
+        function sendMessage() {
+            const input = document.querySelector('#msg-input');
+            if(!input.value || !activeChat) return;
+
+            const chatID = [currentUser, activeChat].sort().join('_');
+            db.ref(`messages/${chatID}`).push({
+                sender: currentUser,
+                text: input.value,
+                time: Date.now()
+            });
+            input.value = "";
+        }
+    </script>
+</body>
+</html>
