@@ -1,221 +1,144 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZChat Zero Edition - Official God Mode</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZChat Zero - God Edition</title>
     <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-storage-compat.js"></script>
-
     <style>
-        :root { 
-            --p: #a855f7; --g: #bf00ff; --bg: #050505; --text: #fff; 
-            --glass: rgba(255, 255, 255, 0.04); --border: rgba(255,255,255,0.08);
-            --p-trans: rgba(168, 85, 247, 0.5);
-        }
-        [data-theme="light"] {
-            --bg: #ffffff; --text: #1d1d1f; --glass: rgba(0, 0, 0, 0.05); --border: rgba(0,0,0,0.1);
-        }
-
-        * { font-family: 'SF Pro Display', 'Apple Color Emoji', sans-serif; box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; width: 100vw; transition: background 0.5s; }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
-
-        /* STARFIELD ENGINE (ANTI LAG) */
+        :root { --p: #a855f7; --g: #bf00ff; --bg: #050505; --text: #fff; --glass: rgba(255,255,255,0.04); --border: rgba(255,255,255,0.1); }
+        [data-theme="light"] { --bg: #f5f5f7; --text: #1d1d1f; --glass: rgba(0,0,0,0.05); --border: rgba(0,0,0,0.1); }
+        * { font-family: 'SF Pro Display', sans-serif; box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; transition: background 0.3s, color 0.3s; }
+        body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; width: 100vw; }
         canvas#stars { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-
-        /* LOADING ANIMATION */
-        #z-loader { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; }
-        .z-spin { width: 50px; height: 50px; border: 4px solid var(--glass); border-top: 4px solid var(--p); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* TOAST NOTIF */
-        #z-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--p); padding: 15px 40px; border-radius: 50px; z-index: 1000000; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: bold; border: 1.5px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-
-        /* INTRO ADMIN KAPSUL (TIKTOK STYLE) */
-        #z-intro { position: fixed; inset: 0; z-index: 99999; background: #000; display: none; align-items: center; justify-content: center; }
-        .vid-kapsul { width: 85%; height: 80%; border-radius: 65px; border: 5px solid var(--p); overflow: hidden; transform: scale(0.1); opacity: 0; transition: 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 100px var(--g); clip-path: inset(0 0 0 0 round 60px); }
-        .vid-kapsul.open { transform: scale(1); opacity: 1; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-
-        /* UI ELEMENTS */
-        .cap { background: var(--glass); backdrop-filter: blur(40px); border-radius: 35px; border: 1.5px solid var(--border); transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .in { width: 100%; border-radius: 50px; padding: 18px 25px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: #fff; margin-bottom: 12px; font-size: 16px; transition: 0.3s; }
-        .in:focus { border-color: var(--p); box-shadow: 0 0 20px var(--p-trans); }
-        .btn { width: 100%; border-radius: 50px; padding: 18px; border: none; background: linear-gradient(45deg, var(--p), var(--g)); color: #fff; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3); }
-        .btn:active { transform: scale(0.94); }
-        .btn-t { background: var(--glass); border: 1.5px solid var(--border); color: var(--text); }
-
-        /* PAGES */
-        .page { display: none; height: 100vh; animation: pageIn 0.6s cubic-bezier(0.23, 1, 0.32, 1); position: relative; z-index: 10; }
-        @keyframes pageIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
-        /* CLOCK IPHONE */
-        .iphone-clock { margin-bottom: 30px; text-align: center; }
-        #t-time { font-size: 65px; font-weight: 900; background: linear-gradient(to bottom, #fff, var(--p)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -3px; }
-        #t-date { font-size: 13px; opacity: 0.5; font-weight: bold; letter-spacing: 1px; }
-
-        /* CHAT INTERFACE */
-        .app-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; height: calc(100vh - 140px); padding: 0 20px; }
-        .sidebar { display: flex; flex-direction: column; gap: 15px; }
-        .chat-room { display: flex; flex-direction: column; overflow: hidden; position: relative; background: var(--glass); border-radius: 35px; border: 1px solid var(--border); }
-        .msg-box { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
-        
-        .bubble { max-width: 75%; padding: 14px 20px; border-radius: 25px; font-size: 15px; position: relative; line-height: 1.5; word-wrap: break-word; animation: popIn 0.3s ease; }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .me { align-self: flex-end; background: var(--p); border-bottom-right-radius: 5px; color: #fff; box-shadow: 0 5px 15px var(--p-trans); }
-        .him { align-self: flex-start; background: var(--glass); border-bottom-left-radius: 5px; border: 1.5px solid var(--border); }
-        
-        .badge { font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 10px; text-transform: uppercase; margin-top: 4px; display: inline-block; }
-        .b-member { background: rgba(255,255,255,0.1); }
-        .b-vip { background: #eab308; color: #000; }
-        .b-vvip { background: #3b82f6; }
-        .b-zvip { background: var(--g); box-shadow: 0 0 15px var(--g); }
-
-        /* ADMIN PANEL */
-        #p-admin { padding: 40px; overflow-y: auto; display: none; height: 100vh; background: #000; position: relative; z-index: 100; }
-        .user-card { background: var(--glass); padding: 20px; border-radius: 30px; border: 1px solid var(--border); margin-bottom: 15px; display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; align-items: center; gap: 15px; font-size: 14px; }
+        #z-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--p); padding: 15px 35px; border-radius: 50px; z-index: 100000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 900; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        #z-loader { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s; }
+        .spin { width: 60px; height: 60px; border: 5px solid var(--glass); border-top: 5px solid var(--p); border-radius: 50%; animation: s 1s linear infinite; }
+        @keyframes s { to { transform: rotate(360deg); } }
+        .cap { background: var(--glass); backdrop-filter: blur(30px); border-radius: 30px; border: 1.5px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .in { width: 100%; border-radius: 15px; padding: 15px 20px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: #fff; margin-bottom: 12px; font-size: 15px; }
+        .btn { width: 100%; border-radius: 15px; padding: 15px; border: none; background: linear-gradient(45deg, var(--p), var(--g)); color: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 5px 20px rgba(168, 85, 247, 0.4); }
+        .btn:active { transform: scale(0.96); }
+        .btn-t { background: var(--glass); border: 1px solid var(--border); color: var(--text); box-shadow: none; }
+        .page { display: none; height: 100vh; width: 100%; animation: f 0.5s ease; position: relative; z-index: 10; }
+        @keyframes f { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .app-grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; height: calc(100vh - 140px); padding: 0 25px; }
+        .sidebar { display: flex; flex-direction: column; overflow: hidden; padding: 20px; }
+        .main-chat { display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .msg-box { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 12px; }
+        .bubble { max-width: 75%; padding: 14px 20px; border-radius: 22px; font-size: 15px; position: relative; animation: p 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes p { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .me { align-self: flex-end; background: var(--p); color: #fff; border-bottom-right-radius: 4px; }
+        .him { align-self: flex-start; background: var(--glass); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .online { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
+        .offline { background: #ef4444; }
+        #p-admin { padding: 40px; overflow-y: auto; background: #000; z-index: 9999; }
+        .u-card { background: var(--glass); padding: 20px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr 1fr auto; align-items: center; gap: 15px; }
+        .badge { font-size: 10px; font-weight: 900; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; background: var(--p); }
     </style>
 </head>
 <body>
 
 <canvas id="stars"></canvas>
-<div id="z-loader"><div class="z-spin"></div><h2 style="margin-top:20px; letter-spacing:5px; color:var(--p)">ZCHAT</h2><p style="font-size:10px; opacity:0.4">ZERO EDITION</p></div>
 <div id="z-toast">Notification</div>
+<div id="z-loader"><div class="spin"></div><h2 style="margin-top:20px; letter-spacing:8px; color:var(--p)">ZCHAT</h2></div>
 
-<div id="z-intro">
-    <div class="vid-kapsul" id="v-frame">
-        <video id="v-adm" src="introadm.mp4" playsinline></video>
-    </div>
-</div>
-
-<div id="p-auth" class="page" style="display: flex; align-items: center; justify-content: center;">
-    <div onclick="unlockMaster()" style="position:fixed; top:30px; right:30px; opacity:0.05; cursor:pointer; font-size:30px">🔑</div>
-    <div class="cap" style="width: 420px; padding: 45px; text-align: center;">
-        <h1 style="letter-spacing: 12px; font-weight: 900; margin-bottom: 5px;">ZERO</h1>
-        <p style="font-size:10px; opacity:0.4; margin-bottom:25px">ZCHAT OFFICIAL v1.0</p>
-        
-        <div class="iphone-clock">
-            <div id="t-time">00:00</div>
-            <div id="t-date">LOADING...</div>
-        </div>
-
+<div id="p-auth" class="page" style="display:flex; align-items:center; justify-content:center">
+    <div class="cap" style="width:400px; padding:45px; text-align:center">
+        <h1 style="letter-spacing:15px; margin-bottom:10px">ZERO</h1>
+        <p id="t-clock" style="font-size:50px; font-weight:900; margin-bottom:25px; background:linear-gradient(to bottom, #fff, var(--p)); -webkit-background-clip:text; -webkit-text-fill-color:transparent">00:00</p>
         <div id="box-login">
             <input type="text" id="l-u" class="in" placeholder="Username">
             <input type="password" id="l-p" class="in" placeholder="Password">
-            <button class="btn" onclick="auth('login')">Masuk Ke ZChat</button>
-            <p style="margin-top:20px; font-size:14px">Gak punya akun? <span onclick="swAuth('reg')" style="color:var(--p); cursor:pointer; font-weight:900">Daftar</span></p>
+            <button class="btn" onclick="handleAuth('login')">Access ZChat</button>
+            <p style="margin-top:20px; font-size:13px; opacity:0.6">New here? <span onclick="swAuth('reg')" style="color:var(--p); cursor:pointer; font-weight:bold">Create Account</span></p>
         </div>
-
         <div id="box-reg" style="display:none">
-            <input type="text" id="r-u" class="in" placeholder="Buat Username">
-            <input type="password" id="r-p" class="in" placeholder="Buat Password">
-            <button class="btn" onclick="auth('reg')">Daftar Akun Baru</button>
-            <p style="margin-top:20px; font-size:14px">Sudah punya akun? <span onclick="swAuth('login')" style="color:var(--p); cursor:pointer; font-weight:900">Login</span></p>
+            <input type="text" id="r-u" class="in" placeholder="Choose Username">
+            <input type="password" id="r-p" class="in" placeholder="Set Password">
+            <button class="btn" onclick="handleAuth('reg')">Register Now</button>
+            <p style="margin-top:20px; font-size:13px; opacity:0.6">Back to <span onclick="swAuth('login')" style="color:var(--p); cursor:pointer; font-weight:bold">Login</span></p>
         </div>
-
-        <div style="margin-top:30px; border-top:1.5px solid var(--border); padding-top:20px">
-            <p style="font-size:12px; opacity:0.5; cursor:pointer" onclick="showRoles()">LIHAT LIST ROLE & FITUR</p>
-            <p style="font-size:11px; color:var(--p); margin-top:8px; cursor:pointer; font-weight:bold" onclick="window.location.href='https://t.me/ZMTzermodzteam'">Beli role? Klik disini untuk membeli</p>
+        <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px">
+            <small onclick="triggerAdmin()" style="opacity:0.2; cursor:pointer">System God Mode</small>
         </div>
     </div>
 </div>
 
-<div id="p-app" class="page" style="padding: 25px; flex-direction: column;">
+<div id="p-app" class="page" style="flex-direction:column; padding:25px">
     <header class="cap" style="display:flex; justify-content:space-between; align-items:center; padding:15px 40px; margin-bottom:25px">
-        <div style="display:flex; align-items:center; gap:15px">
-            <img id="my-pfp" src="default.png" style="width:55px; height:55px; border-radius:50%; border:2.5px solid var(--p); cursor:pointer; object-fit: cover;" onclick="openProfile()">
+        <div style="display:flex; align-items:center; gap:18px">
+            <div id="my-pfp-container" style="position:relative; cursor:pointer" onclick="changePfp()">
+                <div id="pfp-fallback" style="width:55px; height:55px; border-radius:50%; background:var(--p); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px">Z</div>
+                <img id="my-pfp-img" style="width:55px; height:55px; border-radius:50%; object-fit:cover; border:2px solid var(--p); display:none">
+            </div>
             <div>
-                <div id="my-usn-disp" style="font-weight:900; font-size:18px; text-transform:uppercase">USER: -</div>
-                <div id="my-role-disp" class="badge b-member">ROLE: Member</div>
+                <div id="disp-usn" style="font-weight:900; font-size:20px; text-transform:uppercase">User</div>
+                <span id="disp-role" class="badge">Member</span>
             </div>
         </div>
         <div style="display:flex; gap:12px">
-            <button class="btn btn-t" style="width:auto; padding:10px 25px" onclick="openDev()">DEVELOPER</button>
             <button class="btn btn-t" style="width:auto; padding:10px 20px" onclick="toggleTheme()">🌓</button>
-            <button class="btn" style="width:auto; padding:10px 25px" onclick="logout()">LOGOUT</button>
+            <button class="btn" style="width:auto; padding:10px 25px" onclick="logout()">Logout</button>
         </div>
     </header>
 
-    <div class="app-layout">
-        <div class="sidebar cap" style="padding: 25px; flex:1; display:flex; flex-direction:column">
+    <div class="app-grid">
+        <aside class="sidebar cap">
             <div style="display:flex; gap:10px; margin-bottom:20px">
-                <button class="btn" style="font-size:11px; flex:1" onclick="setTab('chat')">CHATS</button>
-                <button class="btn btn-t" style="font-size:11px; flex:1" onclick="setTab('group')">GROUPS</button>
-                <button class="btn btn-t" style="font-size:11px; flex:1; position:relative" onclick="setTab('req')">
-                    REQ <span id="req-cnt" style="display:none; position:absolute; top:-5px; right:-5px; background:red; padding:2px 6px; border-radius:50%; font-size:9px; color:white">0</span>
-                </button>
+                <button class="btn" style="padding:12px; font-size:11px" onclick="setTab('chat')">CHATS</button>
+                <button class="btn btn-t" style="padding:12px; font-size:11px" onclick="setTab('group')">GROUPS</button>
             </div>
-            
-            <div id="search-box">
-                <input type="text" id="add-target" class="in" placeholder="Username Teman...">
-                <button class="btn" style="font-size:12px; padding:12px" onclick="sendRequest()">ADD CONTACT</button>
+            <div id="side-ctrl">
+                <input type="text" id="target-find" class="in" placeholder="Search user...">
+                <button class="btn" style="padding:12px; font-size:12px" onclick="addFriend()">ADD FRIEND</button>
             </div>
+            <div id="list-render" style="flex:1; overflow-y:auto; margin-top:20px; display:flex; flex-direction:column; gap:10px"></div>
+        </aside>
 
-            <div id="list-render" style="margin-top:20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:10px">
+        <main class="main-chat cap">
+            <div id="chat-header" style="padding:20px 35px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.1)">
+                <div>
+                    <b id="chat-name" style="font-size:18px">ZChat Zero</b>
+                    <div id="chat-stat" style="font-size:11px; opacity:0.5">Select a conversation</div>
                 </div>
-        </div>
-
-        <div class="chat-room">
-            <div style="padding:20px 35px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2)">
-                <div style="display:flex; align-items:center; gap:10px">
-                    <img id="chat-target-pfp" src="default.png" style="width:40px;height:40px;border-radius:50%;display:none;object-fit:cover">
-                    <div>
-                        <span id="chat-target-name" style="font-weight:900; font-size:18px">ZCHAT ZERO</span>
-                        <div id="chat-target-status" style="font-size:11px; opacity:0.5">Pilih kontak atau grup</div>
-                    </div>
-                </div>
-                <div id="role-powers" style="display:none; gap:10px">
-                    </div>
+                <div id="chat-actions"></div>
             </div>
-
-            <div id="chat-msgs" class="msg-box">
-                <div style="text-align:center; margin-top:100px; opacity:0.3; font-size:13px">
-                    <h1 style="font-size:50px">🔒</h1><br>
-                    Pesan dienkripsi secara End-to-End.<br>Hanya lu dan penerima yang bisa baca.
-                </div>
+            <div id="chat-msgs" class="msg-box"></div>
+            <div id="chat-input-area" style="padding:25px; display:flex; gap:15px; background:rgba(0,0,0,0.1); border-top:1px solid var(--border)">
+                <input type="file" id="f-media" style="display:none" onchange="handleMedia(this)">
+                <button class="btn btn-t" style="width:60px; height:55px; font-size:22px" onclick="document.getElementById('f-media').click()">📎</button>
+                <input type="text" id="m-input" class="in" style="margin:0; flex:1" placeholder="Type a message...">
+                <button class="btn" style="width:100px" onclick="sendMsg()">SEND</button>
             </div>
-
-            <div id="reply-preview" style="display:none; padding:10px 30px; background:rgba(255,255,255,0.05); border-top:1px solid var(--border); position:relative; animation:slideUp 0.3s ease">
-                <small style="opacity:0.6">Membalas:</small>
-                <div id="reply-text" style="font-size:13px; opacity:0.9; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">Pesan...</div>
-                <span style="position:absolute; top:10px; right:20px; cursor:pointer; font-size:18px" onclick="cancelReply()">✕</span>
-            </div>
-
-            <div style="padding:20px 30px; display:flex; gap:15px; align-items:center; background:rgba(0,0,0,0.2); border-top:1px solid var(--border)">
-                <input type="file" id="up-file" style="display:none" onchange="handleFileUpload(this)">
-                <button class="btn btn-t" style="width:55px; height:55px; border-radius:50%; padding:0; font-size:22px" onclick="document.getElementById('up-file').click()">📎</button>
-                <input type="text" id="m-input" class="in" style="margin:0; flex:1" placeholder="Ketik pesan manja...">
-                <button class="btn" style="width:80px; padding:15px" onclick="sendMessage()">Kirim</button>
-            </div>
-        </div>
+        </main>
     </div>
 </div>
 
-<div id="p-admin">
+<div id="p-admin" class="page">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px">
-        <h1 style="letter-spacing:5px; font-weight:900">MASTER CONTROL</h1>
-        <button class="btn btn-t" style="width:auto; padding:10px 30px" onclick="location.reload()">BACK TO REALITY</button>
+        <h1 style="letter-spacing:5px">GOD CONTROL PANEL</h1>
+        <button class="btn btn-t" style="width:auto; padding:10px 30px" onclick="location.reload()">Back to Earth</button>
     </div>
-    
-    <div class="cap" style="padding:30px">
-        <div id="admin-actions" style="margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
-            </div>
-        <h3 style="margin-bottom:20px">DATABASE PENGGUNA (REALTIME)</h3>
-        <div id="admin-users-box">
-            </div>
+    <div style="display:grid; grid-template-columns: 1fr 2fr; gap:30px">
+        <div class="cap" style="padding:25px">
+            <h3>GLOBAL ACTIONS</h3><br>
+            <button class="btn" style="margin-bottom:10px" onclick="spyGlobal()">🕵️ GLOBAL SPY MODE</button>
+            <button class="btn btn-t" style="margin-bottom:10px" onclick="broadcastMsg()">📢 BROADCAST SYSTEM</button>
+            <button class="btn btn-t" style="background:red; color:#fff" onclick="nukeChats()">☢️ NUKE ALL CHATS</button>
+        </div>
+        <div class="cap" style="padding:25px">
+            <h3>DATABASE USERS</h3><br>
+            <div id="admin-user-list"></div>
+        </div>
     </div>
 </div>
 
 <script>
-// --- PART 1: UI ENGINE, AUTH, INTRO, & BASE APP ---
-
-// --- CONFIG FIREBASE (GANTI PAKE PUNYA LU!) ---
+// --- CORE CONFIG ---
 const firebaseConfig = {
     apiKey: "AIzaSyDZMFlfu8ObuuEpicbbkUyKWn_gUFnY_SQ",
     authDomain: "project-aaa14b70-7347-4232-8a0.firebaseapp.com",
@@ -229,439 +152,185 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const st = firebase.storage();
 
-// --- GLOBALS ---
+// --- STATE ---
 let me = localStorage.getItem('z_usn');
 let myData = null;
 let currentChat = null;
-let replyData = null;
-
-// --- UI ENGINE: STARFIELD ---
-const canvas = document.getElementById('stars');
-const ctx = canvas.getContext('2d');
-let stars = [];
-function initStars() {
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    stars = [];
-    for(let i=0; i<150; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5, d: Math.random()*0.3 + 0.1});
-}
-function drawStars() {
-    ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "#fff";
-    stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill(); s.y += s.d; if(s.y > canvas.height) s.y = 0; });
-    requestAnimationFrame(drawStars);
-}
-window.addEventListener('resize', initStars); initStars(); drawStars();
+let currentTab = 'chat';
 
 // --- UTILS ---
-function toast(m) { const t = document.getElementById('z-toast'); t.innerText = m; t.style.top = '40px'; setTimeout(() => t.style.top = '-100px', 3000); }
+function toast(m) { const t = document.getElementById('z-toast'); t.innerText=m; t.style.top='30px'; setTimeout(()=>t.style.top='-100px',3000); }
+function swAuth(x) { document.getElementById('box-login').style.display=x==='login'?'block':'none'; document.getElementById('box-reg').style.display=x==='reg'?'block':'none'; }
+function logout() { localStorage.clear(); location.reload(); }
+function toggleTheme() { const b=document.body; const t=b.getAttribute('data-theme')==='light'?'dark':'light'; b.setAttribute('data-theme',t); }
+
+// --- BACKGROUND STARFIELD ---
+const cvs=document.getElementById('stars'); const cx=cvs.getContext('2d');
+let stars=[]; function initStars() { cvs.width=window.innerWidth; cvs.height=window.innerHeight; stars=[]; for(let i=0;i<120;i++)stars.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height,s:Math.random()*2,d:Math.random()*0.5}); }
+function drawStars() { cx.clearRect(0,0,cvs.width,cvs.height); cx.fillStyle="#fff"; stars.forEach(s=>{cx.beginPath();cx.arc(s.x,s.y,s.s,0,Math.PI*2);cx.fill();s.y+=s.d;if(s.y>cvs.height)s.y=0;}); requestAnimationFrame(drawStars); }
+window.onresize=initStars; initStars(); drawStars();
 
 // --- CLOCK ---
-setInterval(() => {
-    const d = new Date();
-    document.getElementById('t-time').innerText = d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-    document.getElementById('t-date').innerText = d.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
-    if(me) db.ref('users/'+me+'/lastOnline').set(Date.now());
-}, 1000);
+setInterval(()=>{ document.getElementById('t-clock').innerText=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); if(me)db.ref('users/'+me+'/lastOnline').set(Date.now()); },1000);
 
-// --- AUTH SYSTEM ---
-async function auth(type) {
-    const u = document.getElementById(type==='login'?'l-u':'r-u').value.trim().toLowerCase();
-    const p = document.getElementById(type==='login'?'l-p':'r-p').value.trim();
-    if(!u || !p) return toast("ISI SEMUA DATA!");
-    const s = await db.ref('users/'+u).get();
-    if(type === 'reg') {
-        if(s.exists()) return toast("USERNAME SUDAH ADA!");
-        if(u.length < 4) return toast("USN MIN 4 HURUF!");
-        const ipReq = await fetch('https://api.ipify.org?format=json').then(r=>r.json());
-        await db.ref('users/'+u).set({password: p, role: 'Member', status: 'active', ip: ipReq.ip, lastOnline: Date.now(), pfp: 'default.png', theme: 'dark'});
-        toast("DAFTAR BERHASIL! LOGIN."); swAuth('login');
-    } else {
-        if(s.exists() && s.val().password === p) {
-            const data = s.val(); if(data.status === 'ban') return toast("ANDA DI-BAN!");
-            localStorage.setItem('z_usn', u); location.reload();
-        } else toast("USER/PASS SALAH!");
-    }
-}
-function swAuth(p) { document.getElementById('box-login').style.display = p==='login'?'block':'none'; document.getElementById('box-reg').style.display = p==='reg'?'block':'none'; }
-
-// --- BOOTSTRAP ---
+// --- APP INITIALIZE ---
 window.onload = () => {
-    setTimeout(() => {
-        document.getElementById('z-loader').style.opacity = '0';
-        setTimeout(() => document.getElementById('z-loader').style.display = 'none', 500);
-        if(me) {
-            db.ref('users/'+me).on('value', s => {
-                if(!s.exists()) return logout();
-                myData = s.val(); if(myData.status === 'ban') logout();
-                initAppUI();
-            });
-        } else { document.getElementById('p-auth').style.display = 'flex'; }
-    }, 1500);
+    const lTimeout = setTimeout(() => { if(!myData) { document.getElementById('z-loader').style.display='none'; if(!me) document.getElementById('p-auth').style.display='flex'; } }, 3500);
+    if(me) {
+        db.ref('users/'+me).on('value', s => {
+            if(!s.exists()) return logout();
+            myData = s.val(); if(myData.status === 'ban') { alert("YOU ARE BANNED!"); logout(); }
+            clearTimeout(lTimeout);
+            document.getElementById('z-loader').style.display='none';
+            document.getElementById('p-app').style.display='flex';
+            document.getElementById('disp-usn').innerText = me;
+            document.getElementById('disp-role').innerText = myData.role;
+            if(myData.pfp) { document.getElementById('pfp-fallback').style.display='none'; document.getElementById('my-pfp-img').src=myData.pfp; document.getElementById('my-pfp-img').style.display='block'; }
+            setTab('chat'); listenSystemActions();
+        });
+    } else { clearTimeout(lTimeout); document.getElementById('z-loader').style.display='none'; document.getElementById('p-auth').style.display='flex'; }
 };
 
-// --- REQUEST SYSTEM (FIX VALIDATION) ---
-async function sendRequest() {
-    const t = document.getElementById('add-target').value.trim().toLowerCase();
-    if(!t || t === me) return toast("INVALID!");
-    const c = await db.ref('users/'+t).get();
-    if(!c.exists()) return toast("USER GAK ADA! 😹");
-    await db.ref('requests/'+t+'/'+me).set({status: 'pending', time: Date.now()});
-    toast("REQUEST SENT!"); document.getElementById('add-target').value = '';
-}
-
-// --- ADMIN UNLOCK (TIKTOK KAPSUL) ---
-function unlockMaster() {
-    const k = prompt("ENTER MASTER KEY:");
-    if(k === 'zmtrrr') {
-        const v = document.getElementById('v-adm');
-        document.getElementById('z-intro').style.display = 'flex'; v.play();
-        setTimeout(() => document.getElementById('v-frame').classList.add('open'), 100);
-        v.onended = () => {
-            document.getElementById('v-frame').classList.remove('open');
-            setTimeout(() => {
-                document.getElementById('z-intro').style.display = 'none';
-                document.getElementById('p-auth').style.display = 'none';
-                document.getElementById('p-app').style.display = 'none';
-                document.getElementById('p-admin').style.display = 'block';
-                renderAdminPanel(); // Dari Part 2
-            }, 800);
-        }
-    } else toast("WRONG!");
-}
-
-function logout() { localStorage.clear(); location.reload(); }
-    // --- PART 2: LOGIC CORE, CHAT E2EE, GROUP, SADAP, & ADMIN GOD MODE ---
-
-// --- GLOBALS PART 2 ---
-let currentTab = 'chat';
-let replyToMsg = null;
-
-// 1. APP UI INITIALIZE
-function initAppUI() {
-    document.getElementById('p-auth').style.display = 'none';
-    document.getElementById('p-app').style.display = 'flex';
-    document.getElementById('my-usn-disp').innerText = "USER: " + me;
-    document.getElementById('my-role-disp').innerText = "ROLE: " + myData.role;
-    document.getElementById('my-role-disp').className = "badge b-" + myData.role.toLowerCase();
-    document.getElementById('my-pfp').src = myData.pfp || 'default.png';
-    document.body.setAttribute('data-theme', myData.theme || 'dark');
-    
-    setTab('chat');
-    listenToRequests();
-    listenStatusActions(); // Mute/Crash handler
-}
-
-// 2. TAB MANAGEMENT
-function setTab(t) {
-    currentTab = t;
-    const box = document.getElementById('list-render');
-    const search = document.getElementById('search-box');
-    const reqCnt = document.getElementById('req-cnt');
-    
-    // Reset Active States
-    document.querySelectorAll('.sidebar .btn').forEach(b => b.classList.add('btn-t'));
-    
-    box.innerHTML = '<div class="z-spin" style="margin:20px auto"></div>';
-    
-    if(t === 'chat') {
-        document.querySelector('.sidebar .btn:nth-child(1)').classList.remove('btn-t');
-        search.style.display = 'block';
-        search.innerHTML = `<input type="text" id="add-target" class="in" placeholder="Username Teman..."><button class="btn" style="font-size:12px; padding:12px" onclick="sendRequest()">ADD CONTACT</button>`;
-        loadContacts();
-    } else if(t === 'group') {
-        document.querySelector('.sidebar .btn:nth-child(2)').classList.remove('btn-t');
-        search.style.display = 'block';
-        search.innerHTML = `
-            <input type="text" id="grp-code" class="in" style="margin-bottom:8px" placeholder="Kode Grup Unik...">
-            <div style="display:flex; gap:10px">
-                <button class="btn" style="font-size:11px; padding:12px; flex:1" onclick="joinGroup()">JOIN</button>
-                <button class="btn btn-t" style="font-size:11px; padding:12px; flex:1" onclick="createGroup()">CREATE</button>
-            </div>
-        `;
-        loadGroups();
-    } else if(t === 'req') {
-        document.querySelector('.sidebar .btn:nth-child(3)').classList.remove('btn-t');
-        search.style.display = 'none';
-        loadRequestsTab();
+// --- AUTH LOGIC ---
+async function handleAuth(t) {
+    const u=document.getElementById(t==='login'?'l-u':'r-u').value.trim().toLowerCase();
+    const p=document.getElementById(t==='login'?'l-p':'r-p').value.trim();
+    if(!u||!p) return toast("Empty fields!");
+    const s = await db.ref('users/'+u).get();
+    if(t==='reg') {
+        if(s.exists()) return toast("User already exists!");
+        await db.ref('users/'+u).set({password:p, role:'Member', status:'active', lastOnline:Date.now(), pfp:''});
+        toast("Success! Please Login."); swAuth('login');
+    } else {
+        if(s.exists() && s.val().password === p) { localStorage.setItem('z_usn', u); location.reload(); }
+        else toast("Invalid credentials!");
     }
 }
 
-// 3. CONTACTS & REQUESTS LOGIC
-function loadContacts() {
-    db.ref('contacts/' + me).on('value', s => {
-        const box = document.getElementById('list-render'); box.innerHTML = '';
-        if(!s.exists()) return box.innerHTML = '<p style="text-align:center; opacity:0.4; font-size:12px; margin-top:20px">Belum ada teman.<br>Add usn di atas.</p>';
+// --- TAB & LIST LOGIC ---
+function setTab(t) {
+    currentTab = t;
+    const box = document.getElementById('list-render'); box.innerHTML='';
+    const ctrl = document.getElementById('side-ctrl');
+    if(t==='chat') {
+        ctrl.innerHTML = `<input type="text" id="target-find" class="in" placeholder="Search user..."><button class="btn" onclick="addFriend()">ADD FRIEND</button>`;
+        loadFriends();
+    } else {
+        ctrl.innerHTML = `<input type="text" id="grp-code" class="in" placeholder="Group Code..."><button class="btn" onclick="joinGroup()">JOIN / CREATE</button>`;
+        loadGroups();
+    }
+}
+
+function loadFriends() {
+    db.ref('contacts/'+me).on('value', s => {
+        const box = document.getElementById('list-render'); box.innerHTML='';
+        if(!s.exists()) box.innerHTML = '<p align="center" style="opacity:0.3; margin-top:20px">No friends yet.</p>';
         s.forEach(c => {
-            db.ref('users/' + c.key).once('value', us => {
-                const u = us.val();
-                if(!u) return;
-                const isOnline = (Date.now() - u.lastOnline) < 12000;
-                const item = document.createElement('div');
-                item.className = 'cap';
-                item.style = 'padding:12px 18px; display:flex; align-items:center; gap:12px; cursor:pointer; animation:popIn 0.3s ease';
-                item.innerHTML = `
-                    <div style="position:relative">
-                        <img src="${u.pfp||'default.png'}" style="width:45px;height:45px;border-radius:50%;object-fit:cover;border:2px solid ${isOnline?'#22c55e':var(--border)}">
-                        <div style="width:12px;height:12px;border-radius:50%;background:${isOnline?'#22c55e':'#ef4444'};position:absolute;bottom:0;right:0;border:2px solid #000"></div>
-                    </div>
-                    <div>
-                        <div style="font-weight:900; font-size:15px; text-transform:uppercase; color:var(--text)">${c.key}</div>
-                        <div style="font-size:11px; opacity:0.6; font-weight:bold">${isOnline?'Online':'Offline'} | ${u.role}</div>
-                    </div>
-                `;
-                item.onclick = () => openChat(c.key, 'private');
-                box.appendChild(item);
+            db.ref('users/'+c.key).once('value', us => {
+                const u = us.val(); const isOn = (Date.now() - u.lastOnline) < 10000;
+                const div = document.createElement('div'); div.className='cap'; div.style='padding:15px; display:flex; align-items:center; gap:12px; cursor:pointer';
+                div.innerHTML = `<div class="status-dot ${isOn?'online':'offline'}"></div>
+                <div><b style="text-transform:uppercase">${c.key}</b><br><small style="opacity:0.5">${isOn?'Online':'Offline'}</small></div>`;
+                div.onclick = () => openChat(c.key, 'private'); box.appendChild(div);
             });
         });
     });
 }
 
-function listenToRequests() {
-    db.ref('requests/' + me).on('value', s => {
-        const badge = document.getElementById('req-cnt');
-        const cnt = s.exists() ? s.numChildren() : 0;
-        if(cnt > 0) {
-            badge.innerText = cnt; badge.style.display = 'block';
-            toast(`ADA ${cnt} PERMINTAAN PERTEMANAN!`);
-        } else badge.style.display = 'none';
-    });
-}
-
-function loadRequestsTab() {
-    db.ref('requests/' + me).on('value', s => {
-        const box = document.getElementById('list-render'); box.innerHTML = '<h3 style="margin-bottom:15px">Requests:</h3>';
-        if(!s.exists()) return box.innerHTML += '<p style="opacity:0.5;text-align:center">No pending reqs.</p>';
-        s.forEach(r => {
-            const d = document.createElement('div');
-            d.className = 'cap'; d.style = 'padding:15px; display:flex; justify-content:space-between; align-items:center';
-            d.innerHTML = `
-                <b style="text-transform:uppercase">${r.key}</b>
-                <div style="display:flex; gap:8px">
-                    <button class="btn" style="width:auto; padding:8px 15px; font-size:10px" onclick="acceptReq('${r.key}')">ACCEPT</button>
-                    <button class="btn btn-t" style="width:auto; padding:8px 15px; font-size:10px" onclick="db.ref('requests/${me}/${r.key}').remove()">X</button>
-                </div>
-            `;
-            box.appendChild(d);
-        });
-    });
-}
-
-async function acceptReq(t) {
-    await db.ref('contacts/'+me+'/'+t).set(true); await db.ref('contacts/'+t+'/'+me).set(true);
-    await db.ref('requests/'+me+'/'+t).remove(); toast("KONTAK DITAMBAHKAN!"); setTab('chat');
-}
-
-// 4. CHAT ENGINE (E2EE, ROLE TOOLS, GROUP)
-function openChat(target, type) {
-    currentChat = { id: target, type: type }; replyToMsg = null; cancelReply();
-    document.getElementById('chat-msgs').innerHTML = '<div class="z-spin" style="margin:100px auto"></div>';
-    document.getElementById('chat-target-name').innerText = type==='group' ? target : target.toUpperCase();
-    document.getElementById('chat-target-status').innerText = type==='private' ? 'End-to-End Encrypted' : 'Group Chat';
-    
-    // UI Cleanup
-    const targetPfp = document.getElementById('chat-target-pfp');
-    targetPfp.style.display = 'none';
-    
-    // Role Power Check (Private Only)
-    const powerBox = document.getElementById('role-powers'); powerBox.innerHTML = '';
-    if(type === 'private' && myData.role !== 'Member') {
-        powerBox.style.display = 'flex';
-        targetPfp.style.display = 'block';
-        db.ref('users/'+target+'/pfp').once('value', s => targetPfp.src = s.val() || 'default.png');
-        
-        if(['VIP','VVIP','ZVip'].includes(myData.role)) powerBox.innerHTML += `<button class="btn btn-t" style="width:auto; padding:5px 12px; font-size:10px" onclick="roleAction('${target}','crash')">💥 CRASH</button>`;
-        if(['VVIP','ZVip'].includes(myData.role)) powerBox.innerHTML += `<button class="btn btn-t" style="width:auto; padding:5px 12px; font-size:10px" onclick="sadapTarget('${target}')">👁️ SADAP</button>`;
-        if(myData.role === 'ZVip') powerBox.innerHTML += `<button class="btn btn-t" style="width:auto; padding:5px 12px; font-size:10px" onclick="roleAction('${target}','mute')">🔇 MUTE</button>`;
-    }
-
-    const chatId = type === 'private' ? (me < target ? me+'_'+target : target+'_'+me) : 'group_'+target;
-    db.ref('chats/'+chatId).off(); // Kill old listener
-    db.ref('chats/'+chatId).on('value', s => {
-        const box = document.getElementById('chat-msgs'); box.innerHTML = '';
-        if(!s.exists()) box.innerHTML = '<div style="text-align:center;margin-top:100px;opacity:0.2">Belum ada pesan.<br>Mulai chat manja lu.</div>';
+// --- CHAT ENGINE (E2EE) ---
+function openChat(id, type) {
+    currentChat = { id, type };
+    document.getElementById('chat-name').innerText = id.toUpperCase();
+    document.getElementById('chat-stat').innerText = type==='private'?'End-to-End Encrypted':'Group Session';
+    const cid = type==='private' ? (me<id?me+'_'+id:id+'_'+me) : 'grp_'+id;
+    db.ref('chats/'+cid).off();
+    db.ref('chats/'+cid).on('value', s => {
+        const box = document.getElementById('chat-msgs'); box.innerHTML='';
         s.forEach(m => {
-            const d = m.val();
-            const b = document.createElement('div');
-            b.className = `bubble ${d.from === me ? 'me' : 'him'}`;
-            // Decrypt E2EE (Base64)
-            let msgText = "Error decription"; try { msgText = atob(d.msg); } catch(e){}
-            b.innerHTML = `
-                ${d.reply ? `<div style="background:rgba(0,0,0,0.15); padding:6px 10px; border-radius:12px; font-size:11px; border-left:3px solid #fff; margin-bottom:8px; opacity:0.8">"${d.reply}"</div>` : ''}
-                ${type === 'group' ? `<div style="font-size:10px; font-weight:900; color:var(--p); margin-bottom:4px; text-transform:uppercase">${d.from}</div>` : ''}
-                ${msgText}
-                <div style="font-size:9px; opacity:0.4; text-align:right; margin-top:6px">${new Date(d.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-            `;
-            // Reply Trigger
-            b.onclick = () => { triggerReply(msgText); };
+            const d = m.val(); const b = document.createElement('div');
+            b.className = `bubble ${d.from===me?'me':'him'}`;
+            try { b.innerHTML = (type==='group'?`<small style="font-weight:900; color:var(--g)">${d.from}</small><br>`:'') + atob(d.msg); } catch(e) { b.innerText="Encrypted Message"; }
             box.appendChild(b);
         });
         box.scrollTop = box.scrollHeight;
     });
 }
 
-function triggerReply(txt) { replyToMsg = txt; document.getElementById('reply-preview').style.display = 'block'; document.getElementById('reply-text').innerText = txt; document.getElementById('m-input').focus(); }
-function cancelReply() { replyToMsg = null; document.getElementById('reply-preview').style.display = 'none'; }
-
-async function sendMessage() {
-    const text = document.getElementById('m-input').value.trim();
-    if(!text || !currentChat) return;
-    if(myData.status === 'mute') return toast("LU DI-MUTE ADMIN! 😂");
-    
-    const chatId = currentChat.type === 'private' ? (me < currentChat.id ? me+'_'+currentChat.id : currentChat.id+'_'+me) : 'group_'+currentChat.id;
-    const enc = btoa(text); // Simple E2EE
-    
-    await db.ref('chats/'+chatId).push({ from: me, msg: enc, time: Date.now(), reply: replyToMsg });
-    document.getElementById('m-input').value = ''; cancelReply();
+async function sendMsg() {
+    const txt = document.getElementById('m-input').value.trim(); if(!txt||!currentChat) return;
+    const cid = currentChat.type==='private' ? (me<currentChat.id?me+'_'+currentChat.id:currentChat.id+'_'+me) : 'grp_'+currentChat.id;
+    await db.ref('chats/'+cid).push({ from:me, msg:btoa(txt), time:Date.now() });
+    document.getElementById('m-input').value='';
 }
 
-// 5. MEDIA UPLOAD (MAX 15MB)
-async function handleFileUpload(input) {
-    const file = input.files[0];
-    if(!file || !currentChat) return;
-    if(myData.status === 'mute') return toast("LU DI-MUTE!");
-    if(file.size > 15 * 1024 * 1024) return toast("KEGEDEAN! MAX 15MB.");
-    
-    toast("Uploading media...");
-    const path = `chats/${Date.now()}_${me}_${file.name}`;
-    const ref = st.ref(path);
-    await ref.put(file);
-    const url = await ref.getDownloadURL();
-    
-    const chatId = currentChat.type === 'private' ? (me < currentChat.id ? me+'_'+currentChat.id : currentChat.id+'_'+me) : 'group_'+currentChat.id;
-    const type = file.type.startsWith('image/') ? '📷 Foto' : (file.type.startsWith('video/') ? '🎥 Video' : '📁 File');
-    const msg = btoa(`<a href="${url}" target="_blank" style="color:#fff; text-decoration:underline">${type}: ${file.name}</a>`);
-    
-    await db.ref('chats/'+chatId).push({ from: me, msg: msg, time: Date.now() });
-    toast("Media terkirim!");
+async function handleMedia(input) {
+    const file = input.files[0]; if(!file||file.size > 15*1024*1024) return toast("Max 15MB!");
+    toast("Uploading...");
+    const ref = st.ref(`zmedia/${Date.now()}_${file.name}`);
+    await ref.put(file); const url = await ref.getDownloadURL();
+    const msg = btoa(`<a href="${url}" target="_blank" style="color:#fff">📂 File: ${file.name}</a>`);
+    const cid = currentChat.type==='private' ? (me<currentChat.id?me+'_'+currentChat.id:currentChat.id+'_'+me) : 'grp_'+currentChat.id;
+    await db.ref('chats/'+cid).push({ from:me, msg:msg, time:Date.now() });
 }
 
-// 6. ROLE ACTIONS, SADAP, MUTE
-function roleAction(t, act) {
-    if(confirm(`Yakin mau ${act.toUpperCase()} si ${t}?`)) {
-        db.ref('users/'+t+'/status').set(act); toast(`AKSI ${act.toUpperCase()} DIKIRIM!`);
-    }
-}
-
-async function sadapTarget(t) {
-    toast(`Mencoba sadap kontak ${t}...`);
-    const s = await db.ref('contacts/'+t).get();
-    if(!s.exists()) return alert(`Target ${t} gak punya teman. Kasian 😹`);
-    let list = `DAFTAR KONTAK ${t.toUpperCase()}:\n`;
-    s.forEach(c => list += `- ${c.key}\n`);
-    alert(list);
-}
-
-// 7. ADMIN PANEL GOD MODE (FULL REQUEST)
-function renderAdminPanel() {
-    // 7a. Admin Actions (Spy Global)
-    const actionBox = document.getElementById('admin-actions'); actionBox.innerHTML = '';
-    const spyBtn = document.createElement('button'); spyBtn.className = 'btn'; spyBtn.style='width:auto;background:red;padding:12px 20px';
-    spyBtn.innerHTML = '🕵️ GLOBAL SPY (BACA CHAT)'; spyBtn.onclick = globalSpyMode; actionBox.appendChild(spyBtn);
-    
-    // 7b. User Table
-    db.ref('users').on('value', s => {
-        const box = document.getElementById('admin-users-box'); box.innerHTML = '';
-        s.forEach(u => {
-            const d = u.val();
-            if(u.key === 'zero' || u.key === 'zerr4f') return; // Protect Devs
-            const card = document.createElement('div');card.className = 'user-card cap';
-            card.innerHTML = `
-                <div><b>${u.key.toUpperCase()}</b><br><small style="opacity:0.5">${d.ip||'0.0.0.0'}</small></div>
-                <div>PW: <span style="color:var(--p)">${d.password}</span></div>
-                <div>
-                    <select class="in" style="margin:0; padding:5px; font-size:12px" onchange="db.ref('users/${u.key}/role').set(this.value)">
-                        <option ${d.role==='Member'?'selected':''}>Member</option>
-                        <option ${d.role==='VIP'?'selected':''}>VIP</option>
-                        <option ${d.role==='VVIP'?'selected':''}>VVIP</option>
-                        <option ${d.role==='ZVip'?'selected':''}>ZVip</option>
-                    </select>
-                </div>
-                <div style="display:flex; gap:5px">
-                    <button class="btn" style="padding:5px; background:${d.status==='ban'?'var(--g)':'red'}" onclick="roleAction('${u.key}','${d.status==='ban'?'active':'ban'}')">${d.status==='ban'?'UNBAN':'BAN'}</button>
-                    <button class="btn btn-t" style="padding:5px; background:rgba(255,0,0,0.1); border-color:red" onclick="confirm('Hapus Akun ${u.key}?') && db.ref('users/${u.key}').remove()">DEL</button>
-                </div>
-            `;
-            box.appendChild(card);
-        });
-    });
-}
-
-async function globalSpyMode() {
-    const u1 = prompt("Username User 1:").toLowerCase();
-    const u2 = prompt("Username User 2:").toLowerCase();
-    if(!u1 || !u2) return;
-    const cid = u1 < u2 ? u1+'_'+u2 : u2+'_'+u1;
-    toast("Membuka database chat...");
-    db.ref('chats/'+cid).once('value', s => {
-        if(!s.exists()) return alert("Tidak ada riwayat chat pribadi.");
-        let log = `HISTORY CHAT: ${u1} & ${u2}\n${'='.repeat(30)}\n`;
-        s.forEach(m => {
-            let txt = "Err decript"; try{txt=atob(m.val().msg)}catch(e){}
-            log += `[${m.val().from}]: ${txt}\n`;
-        });
-        const w = window.open("", "_blank", "width=500,height=700");
-        w.document.write(`<body style="background:#000;color:#0f0;font-family:monospace;padding:20px"><h2>LOG SADAP</h2><pre>${log}</pre></body>`);
-    });
-}
-
-// 8. GROUP SYSTEM
-async function createGroup() {
-    const code = document.getElementById('grp-code').value.trim();
-    if(!code || code.length < 3) return toast("MIN 3 HURUF!");
-    const s = await db.ref('groups/'+code).get(); if(s.exists()) return toast("KODE DIPAKE!");
-    toast("Menciptakan Grup...");
-    await db.ref('groups/'+code).set({ admin: me, time: Date.now(), members: { [me]: true } });
-    toast(`GRUP ${code} DIBUAT!`); loadGroups();
+// --- SOCIAL ---
+async function addFriend() {
+    const t = document.getElementById('target-find').value.trim().toLowerCase();
+    if(!t||t===me) return; const s=await db.ref('users/'+t).get(); if(!s.exists()) return toast("User not found!");
+    await db.ref('contacts/'+me+'/'+t).set(true); await db.ref('contacts/'+t+'/'+me).set(true);
+    toast("Friend Added!");
 }
 
 async function joinGroup() {
-    const code = document.getElementById('grp-code').value.trim();
-    if(!code) return;
-    const s = await db.ref('groups/'+code).get();
-    if(!s.exists()) return toast("GRUP GAK ADA!");
-    await db.ref('groups/'+code+'/members/'+me).set(true);
-    toast("JOINED!"); loadGroups();
+    const c = document.getElementById('grp-code').value.trim().toLowerCase(); if(!c) return;
+    await db.ref('groups/'+c+'/members/'+me).set(true); setTab('group'); toast("Joined Group!");
 }
 
 function loadGroups() {
     db.ref('groups').on('value', s => {
-        const box = document.getElementById('list-render'); box.innerHTML = '';
-        if(!s.exists()) return box.innerHTML = '<p style="text-align:center; opacity:0.4">No groups.</p>';
-        s.forEach(g => {
-            const d = g.val();
-            if(d.members && d.members[me]) {
-                const memCnt = Object.keys(d.members).length;
-                const item = document.createElement('div'); item.className='cap'; item.style='padding:15px; cursor:pointer';
-                item.innerHTML = `<b>👥 ${g.key}</b><br><small style="opacity:0.6">${memCnt} Anggota | Admin: ${d.admin}</small>`;
-                item.onclick = () => openChat(g.key, 'group'); box.appendChild(item);
-            }
+        const box = document.getElementById('list-render'); box.innerHTML='';
+        s.forEach(g => { if(g.val().members && g.val().members[me]) {
+            const div = document.createElement('div'); div.className='cap'; div.style='padding:15px; margin-bottom:10px; cursor:pointer; text-align:center';
+            div.innerHTML = `<b>👥 ${g.key.toUpperCase()}</b>`; div.onclick=()=>openChat(g.key,'group'); box.appendChild(div);
+        }});
+    });
+}
+
+// --- GOD MODE LOGIC ---
+function triggerAdmin() { if(prompt("God Key:")==='zmtrrr') { document.getElementById('p-auth').style.display='none'; document.getElementById('p-app').style.display='none'; document.getElementById('p-admin').style.display='block'; renderAdminPanel(); } }
+
+function renderAdminPanel() {
+    db.ref('users').on('value', s => {
+        const box = document.getElementById('admin-user-list'); box.innerHTML='';
+        s.forEach(u => {
+            const d = u.val(); const div = document.createElement('div'); div.className='u-card';
+            div.innerHTML = `<div><b>${u.key}</b><br><small>${d.password}</small></div>
+            <div>${d.role}</div><div>${d.status}</div>
+            <div style="display:flex; gap:5px">
+                <button class="btn" style="padding:5px; background:red" onclick="db.ref('users/${u.key}/status').set('crash')">Crash</button>
+                <button class="btn" style="padding:5px; background:orange" onclick="db.ref('users/${u.key}/status').set('ban')">Ban</button>
+                <button class="btn btn-t" style="padding:5px" onclick="db.ref('users/${u.key}/status').set('active')">Fix</button>
+            </div>`;
+            box.appendChild(div);
         });
     });
 }
 
-// 9. EXTRA: THEME, PROFILE, DEV
-function toggleTheme() {
-    const t = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    document.body.setAttribute('data-theme', t); db.ref('users/'+me+'/theme').set(t);
+async function spyGlobal() {
+    const u1=prompt("User 1:"), u2=prompt("User 2:"); if(!u1||!u2) return;
+    const cid = u1<u2?u1+'_'+u2:u2+'_'+u1;
+    const s = await db.ref('chats/'+cid).get(); let log="--- LOG SPY ---\n";
+    s.forEach(m=>{ log += `[${m.val().from}]: ${atob(m.val().msg)}\n`; });
+    alert(log || "Empty chat history.");
 }
-function openProfile() { const p = prompt("URL Foto Profil Baru (Kosongin buat default):", myData.pfp); if(p!==null) db.ref('users/'+me+'/pfp').set(p||'default.png'); }
-function openDev() { alert("ZCHAT ZERO EDITION v1.0\nDev: Zero & Zerr4F\nTema Modern Kapsul\nFull Features No Crop!"); }
-function showRoles() { alert("=== ROLE & FITUR ===\n\nMEMBER: Standard Chat\nVIP: Crash Power\nVVIP: Crash + Sadap Power\nZVip: Dev Power + Bypass Mute"); }
 
-// 10. CRASH & MUTE LISTENER (REALTIME ACTION)
-function listenStatusActions() {
-    // Listener Crash
+function listenSystemActions() {
     db.ref('users/'+me+'/status').on('value', s => {
-        if(s.val() === 'crash') {
-            document.body.innerHTML = `
-                <div style="background:#000;color:red;height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;font-family:monospace;padding:20px">
-                    <h1 style="font-size:60px; text-shadow:0 0 20px red">CRASHED</h1>
-                    <p style="margin-top:20px">Kena mental lu sama Admin? 😂<br>Sistem lu dibekukan.</p>
-                    <button onclick="db.ref('users/'+me+'/status').set('active'); location.reload()" style="margin-top:30px; padding:15px 40px; border-radius:50px; border:none; background:red; color:#fff; font-weight:900; cursor:pointer">REBOOT SYSTEM</button>
-                </div>`;
-        }
+        if(s.val()==='crash') { document.body.innerHTML = `<div style="background:red; color:white; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center"><h1>SYSTEM CRASHED BY GOD</h1><p>Your access is revoked.</p><button onclick="location.reload()">Try Recovery</button></div>`; }
     });
 }
 
+function changePfp() { const u=prompt("Image URL:"); if(u) db.ref('users/'+me+'/pfp').set(u); }
 </script>
 </body>
 </html>
