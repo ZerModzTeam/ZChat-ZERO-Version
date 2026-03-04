@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZChat Zero Edition - Full Version No Crop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZChat Zero Edition - Official</title>
     <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
@@ -11,376 +11,418 @@
 
     <style>
         :root { 
-            --p: #a855f7; 
-            --g: #bf00ff; 
-            --glass: rgba(255, 255, 255, 0.05);
-            --bg: #000;
+            --p: #a855f7; --g: #bf00ff; --bg: #000; --text: #fff; 
+            --glass: rgba(255, 255, 255, 0.08); --border: rgba(255,255,255,0.1);
+        }
+        [data-theme="light"] {
+            --bg: #f5f5f7; --text: #1d1d1f; --glass: rgba(0, 0, 0, 0.05); --border: rgba(0,0,0,0.1);
         }
 
-        /* Reset Total & Style iPhone */
-        * { 
-            font-family: 'SF Pro Display', 'Apple Color Emoji', sans-serif; 
-            box-sizing: border-box; margin: 0; padding: 0; outline: none; 
-            -webkit-tap-highlight-color: transparent; 
-            user-select: none;
-        }
+        * { font-family: 'SF Pro Display', sans-serif; box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; transition: 0.4s; }
 
-        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; width: 100vw; }
+        /* LOADING ANIMATION */
+        #loader { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spin { width: 40px; height: 40px; border: 4px solid var(--glass); border-top-color: var(--p); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Custom Scrollbar (Biar Gak Google Banget) */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
+        /* BACKGROUND EFFECTS */
+        #bg-grid { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(var(--p) 1px, transparent 1px), linear-gradient(90deg, var(--p) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.15; animation: mv 10s linear infinite; }
+        #bg-bh { position: fixed; inset: 0; z-index: -2; display: none; align-items: center; justify-content: center; }
+        .bh { width: 280px; height: 280px; background: #000; border-radius: 50%; box-shadow: 0 0 100px 20px var(--g), inset 0 0 50px #000; animation: pulse 3s infinite alternate; }
+        @keyframes mv { from { transform: translateY(0); } to { transform: translateY(40px); } }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); box-shadow: 0 0 140px 40px var(--g); } }
 
-        /* Animation System */
-        .anim-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* UI COMPONENTS */
+        .cap { background: var(--glass); backdrop-filter: blur(30px); border-radius: 30px; border: 1px solid var(--border); padding: 20px; }
+        .in { width: 100%; border-radius: 50px; padding: 14px 22px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: var(--text); margin-bottom: 12px; font-size: 15px; }
+        .btn { width: 100%; border-radius: 50px; padding: 14px; border: none; background: var(--p); color: #fff; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .btn:active { transform: scale(0.95); }
+        .btn-t { background: var(--glass); border: 1px solid var(--border); color: var(--text); }
 
-        /* UI CAPSULE & INPUT */
-        .cap { background: var(--glass); backdrop-filter: blur(30px); border-radius: 35px; border: 1px solid rgba(255,255,255,0.1); padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-        .in { width: 100%; border-radius: 50px; padding: 16px 25px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; margin-bottom: 12px; font-size: 16px; transition: 0.3s; }
-        .in:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
-        .btn { width: 100%; border-radius: 50px; padding: 16px; border: none; background: var(--p); color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3); letter-spacing: 1px; }
-        .btn:active { transform: scale(0.95); opacity: 0.8; }
-        .btn-t { background: rgba(255,255,255,0.05); box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
+        /* PAGES */
+        .page { display: none; height: 100vh; animation: up 0.5s ease-out; position: relative; z-index: 10; }
+        @keyframes up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 1. INTRO LAYER (FULL HD KAPSUL) */
-        #z-intro {
-            position: fixed; inset: 0; z-index: 99999; background: #000;
-            display: none; align-items: center; justify-content: center;
-        }
-        .vid-frame {
-            width: 88vw; height: 88vh; border-radius: 60px; /* BORDER KAPSUL */
-            border: 6px solid rgba(255,255,255,0.1); overflow: hidden;
-            box-shadow: 0 0 80px var(--g); transform: scale(0.9); opacity: 0;
-            transition: 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .vid-frame.active { transform: scale(1); opacity: 1; }
-        #v-adm { width: 100%; height: 100%; object-fit: cover; }
+        /* INTRO ADMIN KAPSUL */
+        #z-intro { position: fixed; inset: 0; z-index: 99999; background: #000; display: none; align-items: center; justify-content: center; }
+        .vid-kapsul { width: 85%; height: 80%; border-radius: 60px; border: 4px solid var(--p); overflow: hidden; transform: scale(0.2); opacity: 0; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .vid-kapsul.active { transform: scale(1); opacity: 1; }
+        video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 2. ADMIN PANEL (MASTER MODE) */
-        #z-admin {
-            position: fixed; inset: 0; z-index: 88888; background: #000;
-            display: none; flex-direction: column; padding: 40px; overflow-y: auto;
-        }
-        .user-card { 
-            background: rgba(255,255,255,0.03); padding: 20px; border-radius: 30px; 
-            margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);
-            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; align-items: center; gap: 10px;
-        }
+        /* CHAT BUBBLES & LAYOUT */
+        .chat-container { display: grid; grid-template-columns: 320px 1fr; gap: 15px; height: calc(100vh - 120px); }
+        .list-user { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .user-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 20px; background: var(--glass); cursor: pointer; transition: 0.3s; position: relative; }
+        .user-item:hover { background: rgba(168, 85, 247, 0.1); }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; position: absolute; bottom: 12px; left: 45px; border: 2px solid #000; }
+        .online { background: #22c55e; } .offline { background: #ef4444; }
 
-        /* 3. APP INTERFACE */
-        #z-app { display: none; height: 100vh; flex-direction: column; padding: 20px; }
-        .app-grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; flex: 1; overflow: hidden; }
+        .chat-main { display: flex; flex-direction: column; background: var(--glass); border-radius: 30px; border: 1px solid var(--border); overflow: hidden; }
+        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { max-width: 70%; padding: 12px 16px; border-radius: 20px; font-size: 15px; position: relative; line-height: 1.4; }
+        .me { align-self: flex-end; background: var(--p); border-bottom-right-radius: 4px; }
+        .him { align-self: flex-start; background: var(--glass); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+        .reply-box { font-size: 11px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 8px; margin-bottom: 5px; border-left: 3px solid #fff; }
+
+        #z-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--p); padding: 14px 30px; border-radius: 50px; z-index: 1000000; transition: 0.5s; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* Message Area */
-        .scroller { flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 15px; }
-        .bubble { padding: 12px 18px; border-radius: 25px; max-width: 75%; line-height: 1.4; position: relative; font-size: 15px; }
-        .bubble.me { align-self: flex-end; background: var(--p); border-bottom-right-radius: 5px; box-shadow: 0 5px 15px rgba(168, 85, 247, 0.2); }
-        .bubble.him { align-self: flex-start; background: rgba(255,255,255,0.1); border-bottom-left-radius: 5px; }
-
-        /* Effects */
-        #bg-grid { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(var(--p) 1px, transparent 1px), linear-gradient(90deg, var(--p) 1px, transparent 1px); background-size: 45px 45px; opacity: 0.12; animation: gridMove 12s linear infinite; }
-        @keyframes gridMove { from { transform: translateY(0); } to { transform: translateY(45px); } }
-        
-        .bh-v { position: fixed; inset: 0; z-index: -2; display: none; align-items: center; justify-content: center; }
-        .bh { width: 320px; height: 320px; background: #000; border-radius: 50%; box-shadow: 0 0 120px 30px var(--g), inset 0 0 80px #000; animation: bhP 3s infinite alternate; }
-        @keyframes bhP { from { transform: scale(1); } to { transform: scale(1.1); box-shadow: 0 0 180px 50px var(--g); } }
-
-        #z-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--p); padding: 15px 35px; border-radius: 50px; z-index: 1000000; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: bold; }
+        /* ADMIN UI */
+        .adm-card { background: var(--glass); padding: 15px; border-radius: 20px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; align-items: center; font-size: 13px; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
+<div id="loader"><div class="spin"></div></div>
 <div id="z-toast">ZChat Notification</div>
+<div id="bg-grid"></div>
+<div id="bg-bh"><div class="bh"></div></div>
 
 <div id="z-intro">
-    <div class="vid-frame" id="v-frame">
-        <video id="v-adm" src="introadm.mp4" playsinline></video>
+    <div class="vid-kapsul" id="v-frame">
+        <video id="v-adm" src="introadm.mp4"></video>
     </div>
 </div>
 
-<div id="bg-grid"></div>
-<div class="bh-v" id="bg-bh"><div class="bh"></div></div>
-
-<div id="p-login" style="display:flex; height:100vh; align-items:center; justify-content:center" class="anim-pop">
-    <div onclick="unlockMaster()" style="position:fixed; top:25px; right:25px; font-size:24px; cursor:pointer; opacity:0.2">🔑</div>
-    
-    <div class="cap" style="width:380px; text-align:center">
-        <h1 style="letter-spacing:8px; margin-bottom:5px">ZCHAT</h1>
-        <p style="font-size:10px; opacity:0.4; margin-bottom:25px">ZERO EDITION V1.0</p>
-        
-        <div id="iphone-clock" style="margin-bottom:30px">
-            <div id="t-clock" style="font-size:45px; font-weight:bold; color:var(--p)">00:00</div>
-            <div id="t-date" style="font-size:12px; opacity:0.5">...</div>
+<div id="p-login" class="page" style="display: flex; align-items: center; justify-content: center;">
+    <div onclick="unlockAdm()" style="position:fixed; top:20px; right:20px; font-size:24px; cursor:pointer; opacity:0.1">🔑</div>
+    <div class="cap" style="width: 380px; text-align: center;">
+        <h1 style="letter-spacing: 8px;">ZCHAT</h1>
+        <div style="margin: 20px 0;">
+            <div id="j-jam" style="font-size: 45px; font-weight: bold; color: var(--p);">00:00</div>
+            <div id="j-tgl" style="font-size: 12px; opacity: 0.6;">LOADING...</div>
         </div>
-
-        <div id="l-box">
-            <input type="text" id="lu" class="in" placeholder="Username">
-            <input type="password" id="lp" class="in" placeholder="Password">
-            <button class="btn" onclick="auth('login')">LOGIN SEKARANG</button>
-            <p style="font-size:13px; margin-top:20px">Gak punya akun? <span style="color:var(--p); font-weight:bold; cursor:pointer" onclick="swP('r')">Daftar</span></p>
-            <p style="font-size:11px; margin-top:10px; opacity:0.4; cursor:pointer" onclick="showRoleModal()">LIHAT LIST ROLE & FITUR</p>
-        </div>
-
-        <div id="r-box" style="display:none">
-            <input type="text" id="ru" class="in" placeholder="Username Baru">
-            <input type="password" id="rp" class="in" placeholder="Password Baru">
-            <button class="btn" onclick="auth('reg')">DAFTAR AKUN</button>
-            <p style="font-size:13px; margin-top:15px; cursor:pointer" onclick="swP('l')">Kembali Login</p>
-        </div>
-    </div>
-</div>
-
-<div id="z-admin">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
-        <h1 style="letter-spacing:3px">MASTER CONTROL PANEL</h1>
-        <button class="btn" style="width:auto; padding:10px 30px" onclick="location.reload()">EXIT PANEL</button>
-    </div>
-    
-    <div class="cap anim-pop">
-        <h3 style="margin-bottom:20px">DATA PENGGUNA (IP & STATUS)</h3>
-        <div id="admin-user-render">
+        <div id="auth-forms">
+            <div id="f-login">
+                <input type="text" id="l-u" class="in" placeholder="Username">
+                <input type="password" id="l-p" class="in" placeholder="Password">
+                <button class="btn" onclick="handleAuth('login')">LOGIN</button>
+                <p style="margin-top:15px; font-size:13px" onclick="toggleF('reg')">Belum punya akun? <b style="color:var(--p); cursor:pointer">Ayo daftar</b></p>
             </div>
+            <div id="f-reg" style="display:none">
+                <input type="text" id="r-u" class="in" placeholder="Username">
+                <input type="password" id="r-p" class="in" placeholder="Password">
+                <button class="btn" onclick="handleAuth('reg')">DAFTAR</button>
+                <p style="margin-top:15px; font-size:13px" onclick="toggleF('login')">Sudah punya akun? <b style="color:var(--p); cursor:pointer">Login</b></p>
+            </div>
+        </div>
+        <p style="margin-top:20px; font-size:12px; opacity:0.6; cursor:pointer" onclick="alert('VIP 120K: Crash\nVVIP 170K: Crash, Sadap\nZVIP 200K: Crash, Sadap, Mute')">LIHAT LIST ROLE</p>
+        <p style="margin-top:10px; font-size:11px; color:var(--p); cursor:pointer" onclick="window.location.href='https://t.me/ZMTzermodzteam'">Beli role? Klik disini untuk membeli</p>
     </div>
 </div>
 
-<div id="z-app">
-    <header class="cap" style="display:flex; justify-content:space-between; align-items:center; padding:15px 30px; margin-bottom:20px">
-        <div style="display:flex; align-items:center; gap:15px">
-            <img id="my-pfp" src="default.png" style="width:50px; height:50px; border-radius:50%; border:2px solid var(--p)">
-            <div style="text-align:left">
-                <div id="my-usn" style="font-weight:bold; font-size:16px">Pookie User</div>
-                <div id="my-role" style="font-size:11px; color:var(--p); font-weight:bold">ROLE: MEMBER</div>
-            </div>
+<div id="p-app" class="page" style="padding: 20px; flex-direction: column;">
+    <div class="cap" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <div style="font-weight:bold" id="u-display">USER: -</div>
+            <div style="font-size:11px; font-weight:bold; color:var(--p)" id="r-display">ROLE: Member</div>
         </div>
         <div style="display:flex; gap:10px">
-            <button class="btn btn-t" style="width:auto; padding:8px 20px" onclick="openDev()">DEV</button>
-            <button class="btn" style="width:auto; padding:8px 20px" onclick="logout()">KELUAR</button>
+            <button class="btn btn-t" style="width:auto; padding:8px 15px" onclick="showDev()">DEVELOPER</button>
+            <button class="btn btn-t" style="width:auto; padding:8px 15px" onclick="toggleTheme()">🌓</button>
+            <button class="btn" style="width:auto; padding:8px 15px" onclick="logout()">LOGOUT</button>
         </div>
-    </header>
+    </div>
 
-    <div class="app-grid">
-        <div class="cap" style="display:flex; flex-direction:column">
-            <div style="display:flex; gap:10px; margin-bottom:20px">
-                <button class="btn" style="font-size:12px" onclick="tab('c')">CHATS</button>
-                <button class="btn btn-t" style="font-size:12px" onclick="tab('q')">REQ <span id="q-cnt">0</span></button>
+    <div class="chat-container">
+        <div class="cap" style="display: flex; flex-direction: column;">
+            <div style="display:flex; gap:8px; margin-bottom:15px">
+                <button class="btn" style="font-size:11px" onclick="loadTab('chat')">CHATS</button>
+                <button class="btn btn-t" style="font-size:11px" onclick="loadTab('group')">GROUPS</button>
+                <button class="btn btn-t" style="font-size:11px; position:relative" onclick="loadTab('req')">REQ <span id="req-badge" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:9px">!</span></button>
             </div>
-            <div id="chat-list-area" class="scroller">
-                <input type="text" id="add-f" class="in" placeholder="Username Target...">
-                <button class="btn" style="margin-bottom:20px" onclick="addFriend()">ADD CONTACT</button>
-                <div id="render-kontak"></div>
+            <div class="list-user" id="user-list-render">
+                <input type="text" id="target-add" class="in" placeholder="Add Username...">
+                <button class="btn" onclick="sendReq()">ADD CONTACT</button>
+                <div id="items-box"></div>
             </div>
         </div>
-
-        <div class="cap" style="display:flex; flex-direction:column">
-            <div id="target-name" style="padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:15px; font-weight:bold">ZCHAT ROOM</div>
-            <div id="msg-render" class="scroller">
-                </div>
-            <div id="role-tools" style="padding:10px 0; display:none; gap:10px"></div>
-            
-            <div style="display:flex; gap:12px; margin-top:15px">
-                <button class="btn btn-t" style="width:60px" onclick="uploadMedia()">📎</button>
-                <input type="text" id="m-in" class="in" style="margin-bottom:0" placeholder="Ketik pesan manja...">
-                <button class="btn" style="width:90px" onclick="sendMsg()">KIRIM</button>
+        <div class="chat-main">
+            <div id="chat-header" style="padding:15px 25px; border-bottom:1px solid var(--border); font-weight:bold; display:flex; justify-content:space-between">
+                <span id="target-name">Pilih Kontak</span>
+                <span id="target-status" style="font-size:10px; opacity:0.6"></span>
+            </div>
+            <div class="chat-msgs" id="chat-box"></div>
+            <div id="role-extra" style="padding:10px 20px; display:none; gap:10px; border-top:1px solid var(--border)"></div>
+            <div style="padding:15px 20px; display:flex; gap:10px">
+                <input type="file" id="file-in" style="display:none" onchange="upFile(this)">
+                <button class="btn btn-t" style="width:50px" onclick="document.getElementById('file-in').click()">📎</button>
+                <input type="text" id="msg-in" class="in" style="margin:0" placeholder="Ketik pesan...">
+                <button class="btn" style="width:80px" onclick="send()">➤</button>
             </div>
         </div>
     </div>
+</div>
+
+<div id="p-adm" class="page" style="padding: 30px; flex-direction: column; overflow-y:auto">
+    <div style="display:flex; justify-content:space-between; margin-bottom:30px">
+        <h2>MASTER PANEL</h2>
+        <button class="btn btn-t" style="width:auto" onclick="location.reload()">EXIT</button>
+    </div>
+    <div class="cap" id="adm-render"></div>
 </div>
 
 <script>
-// --- CONFIG FIREBASE LU (GANTI SESUAI PUNYA LU) ---
-const firebaseConfig = {
-  apiKey: "AIzaSyDZMFlfu8ObuuEpicbbkUyKWn_gUFnY_SQ",
-  authDomain: "project-aaa14b70-7347-4232-8a0.firebaseapp.com",
-  databaseURL: "https://project-aaa14b70-7347-4232-8a0-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "project-aaa14b70-7347-4232-8a0",
-  storageBucket: "project-aaa14b70-7347-4232-8a0.firebasestorage.app",
-  messagingSenderId: "283427772761",
-  appId: "1:283427772761:web:52a4bfd1cbb39589ac9448"
-};
+    // --- CONFIG FIREBASE ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDZMFlfu8ObuuEpicbbkUyKWn_gUFnY_SQ",
+        authDomain: "project-aaa14b70-7347-4232-8a0.firebaseapp.com",
+        databaseURL: "https://project-aaa14b70-7347-4232-8a0-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "project-aaa14b70-7347-4232-8a0",
+        storageBucket: "project-aaa14b70-7347-4232-8a0.firebasestorage.app",
+        messagingSenderId: "283427772761",
+        appId: "1:283427772761:web:52a4bfd1cbb39589ac9448"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const st = firebase.storage();
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const store = firebase.storage();
+    let me = localStorage.getItem('z_usn');
+    let myData = null;
+    let curChat = null;
+    let replyTo = null;
 
-let me = localStorage.getItem('z_usn') || null;
-let currentTarget = null;
-let myRole = "Member";
+    // --- UTILS ---
+    function toast(m) {
+        const t = document.getElementById('z-toast');
+        t.innerText = m; t.style.top = '30px';
+        setTimeout(() => t.style.top = '-100px', 3000);
+    }
 
-// --- UTILS ---
-function toast(m) {
-    const t = document.getElementById('z-toast');
-    t.innerText = m; t.style.top = '40px';
-    setTimeout(() => t.style.top = '-100px', 3000);
-}
+    // --- TIME & CLOCK ---
+    setInterval(() => {
+        const d = new Date();
+        document.getElementById('j-jam').innerText = d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('j-tgl').innerText = d.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
+        if(me) db.ref('users/'+me+'/last').set(Date.now());
+    }, 1000);
 
-// --- CLOCK REALTIME ---
-setInterval(() => {
-    const d = new Date();
-    document.getElementById('t-clock').innerText = d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-    document.getElementById('t-date').innerText = d.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
-}, 1000);
-
-// --- UNLOCK MASTER (ADMIN INTRO) ---
-function unlockMaster() {
-    const k = prompt("MASUKKAN MASTER KEY:");
-    if(k === 'zmtrrr') {
-        const intro = document.getElementById('z-intro');
-        const frame = document.getElementById('v-frame');
-        const video = document.getElementById('v-adm');
-
-        intro.style.display = 'flex';
-        video.load();
-        
-        // Sync Audio & Video
-        video.oncanplaythrough = () => {
-            frame.classList.add('active');
-            video.play();
-        };
-
-        video.onended = () => {
-            frame.classList.remove('active');
-            setTimeout(() => {
-                intro.style.display = 'none';
+    // --- ADMIN INTRO SCRIPT ---
+    function unlockAdm() {
+        if(prompt("MASTER KEY:") === 'zmtrrr') {
+            const v = document.getElementById('v-adm');
+            document.getElementById('z-intro').style.display = 'flex';
+            v.play();
+            setTimeout(() => document.getElementById('v-frame').classList.add('active'), 100);
+            v.onended = () => {
+                document.getElementById('z-intro').style.display = 'none';
                 document.getElementById('p-login').style.display = 'none';
-                document.getElementById('z-admin').style.display = 'flex';
-                toast("WELCOME MASTER ZERO");
-                renderAdminUsers();
-            }, 800);
-        };
-    } else toast("KUNCI SALAH!");
-}
+                document.getElementById('p-adm').style.display = 'flex';
+                loadAdmPanel();
+            }
+        } else toast("AKSES DITOLAK!");
+    }
 
-// --- AUTH LOGIC ---
-async function auth(type) {
-    const u = type==='login' ? document.getElementById('lu').value : document.getElementById('ru').value;
-    const p = type==='login' ? document.getElementById('lp').value : document.getElementById('rp').value;
-    
-    if(!u || !p) return toast("ISI SEMUA DATA!");
+    // --- AUTH ---
+    async function handleAuth(t) {
+        const u = document.getElementById(t==='login'?'l-u':'r-u').value.trim();
+        const p = document.getElementById(t==='login'?'l-p':'r-p').value.trim();
+        if(!u || !p) return toast("LENGKAPI DATA!");
 
-    if(type === 'reg') {
-        const check = await db.ref('users/'+u).get();
-        if(check.exists()) return toast("USER UDAH ADA!");
-        const ipReq = await fetch('https://api.ipify.org?format=json').then(r=>r.json());
-        await db.ref('users/'+u).set({
-            password: p, 
-            role: 'Member', 
-            status: 'active', 
-            ip: ipReq.ip, 
-            last: Date.now(),
-            pfp: 'default.png'
-        });
-        toast("DAFTAR BERHASIL!"); swP('l');
-    } else {
         const s = await db.ref('users/'+u).get();
-        if(s.exists() && s.val().password === p) {
-            if(s.val().status === 'ban') return toast("LU KENA BAN!");
-            localStorage.setItem('z_usn', u);
-            location.reload();
-        } else toast("USER/PASS SALAH!");
-    }
-}
-
-// --- APP CORE (NO CROP FITUR) ---
-function initApp(data) {
-    document.getElementById('p-login').style.display = 'none';
-    document.getElementById('z-app').style.display = 'flex';
-    document.getElementById('bg-grid').style.display = 'none';
-    document.getElementById('bg-bh').style.display = 'flex';
-    
-    myRole = data.role;
-    document.getElementById('my-usn').innerText = me;
-    document.getElementById('my-role').innerText = "ROLE: " + myRole;
-    
-    // Listen status (Crash/Ban/Mute)
-    db.ref('users/'+me).on('value', s => {
-        const v = s.val();
-        if(v.status === 'crash') {
-            toast("NOTIF: SYSTEM CRASHED BY ADMIN!");
-            db.ref('users/'+me+'/status').set('active');
-            setTimeout(() => { localStorage.clear(); location.reload(); }, 2000);
-        }
-        if(v.status === 'ban') { toast("NOTIF: LU KENA BAN!"); location.reload(); }
-        if(v.status === 'mute') {
-            document.getElementById('m-in').disabled = true;
-            document.getElementById('m-in').placeholder = "LU LAGI DI MUTE ADMIN";
+        if(t === 'reg') {
+            if(s.exists()) return toast("USERNAME SUDAH ADA!");
+            const ip = await fetch('https://api.ipify.org?format=json').then(r=>r.json());
+            await db.ref('users/'+u).set({password:p, role:'Member', status:'active', ip:ip.ip, last:Date.now(), theme:'dark'});
+            toast("DAFTAR BERHASIL!"); toggleF('login');
         } else {
-            document.getElementById('m-in').disabled = false;
-            document.getElementById('m-in').placeholder = "Ketik pesan manja...";
+            if(s.exists() && s.val().password === p) {
+                if(s.val().status === 'ban' || s.val().status === 'bl') return toast("AKUN TERBLOKIR!");
+                localStorage.setItem('z_usn', u); location.reload();
+            } else toast("USER/PASS SALAH!");
         }
-    });
-
-    loadContacts();
-    setupRoleTools();
-}
-
-function setupRoleTools() {
-    const tools = document.getElementById('role-tools');
-    tools.innerHTML = '';
-    if(myRole !== 'Member') {
-        tools.style.display = 'flex';
-        if(['VIP', 'VVIP', 'ZVIP'].includes(myRole)) tools.innerHTML += `<button class="btn btn-t" style="width:auto; font-size:10px" onclick="roleAction('crash')">CRASH</button>`;
-        if(['VVIP', 'ZVIP'].includes(myRole)) tools.innerHTML += `<button class="btn btn-t" style="width:auto; font-size:10px" onclick="roleAction('sadap')">SADAP</button>`;
-        if(myRole === 'ZVIP') tools.innerHTML += `<button class="btn btn-t" style="width:auto; font-size:10px" onclick="roleAction('mute')">MUTE</button>`;
     }
-}
 
-// Fitur Tambah Teman (Request System)
-async function addFriend() {
-    const target = document.getElementById('add-f').value;
-    if(!target || target === me) return toast("USER INVALID!");
-    const check = await db.ref('users/'+target).get();
-    if(!check.exists()) return toast("USER GAK ADA!");
+    // --- CHAT LOGIC ---
+    function initApp() {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('p-login').style.display = 'none';
+        document.getElementById('p-app').style.display = 'flex';
+        document.getElementById('bg-grid').style.display = 'none';
+        document.getElementById('bg-bh').style.display = 'flex';
+        
+        db.ref('users/'+me).on('value', s => {
+            myData = s.val();
+            document.getElementById('u-display').innerText = "USER: "+me;
+            document.getElementById('r-display').innerText = "ROLE: "+myData.role;
+            if(myData.status === 'crash') {
+                alert("APPLICATION CRASHED BY SYSTEM!");
+                db.ref('users/'+me+'/status').set('active');
+                location.reload();
+            }
+            if(myData.status === 'ban') { alert("YOU ARE BANNED!"); logout(); }
+        });
+        loadContacts();
+        listenReq();
+    }
+
+    async function send() {
+        const m = document.getElementById('msg-in').value;
+        if(!m || !curChat) return;
+        const id = me < curChat ? me+'_'+curChat : curChat+'_'+me;
+        const enc = btoa(m); // Simple "E2EE" Base64
+        await db.ref('chats/'+id).push({from:me, msg:enc, time:Date.now(), reply:replyTo});
+        document.getElementById('msg-in').value = '';
+        replyTo = null;
+    }
+
+    function loadContacts() {
+        db.ref('contacts/'+me).on('value', s => {
+            const box = document.getElementById('items-box');
+            box.innerHTML = '';
+            s.forEach(c => {
+                const name = c.key;
+                db.ref('users/'+name).once('value', us => {
+                    const u = us.val();
+                    const item = document.createElement('div');
+                    item.className = 'user-item';
+                    const isOnline = (Date.now() - u.last) < 10000;
+                    item.innerHTML = `
+                        <img src="default.png" style="width:40px;height:40px;border-radius:50%">
+                        <div class="status-dot ${isOnline?'online':'offline'}"></div>
+                        <div><b>${name}</b><br><small>${u.role}</small></div>
+                    `;
+                    item.onclick = () => startChat(name);
+                    box.appendChild(item);
+                });
+            });
+        });
+    }
+
+    function startChat(t) {
+        curChat = t;
+        document.getElementById('target-name').innerText = t;
+        const id = me < t ? me+'_'+t : t+'_'+me;
+        db.ref('chats/'+id).on('value', s => {
+            const box = document.getElementById('chat-box');
+            box.innerHTML = '';
+            s.forEach(m => {
+                const d = m.val();
+                const b = document.createElement('div');
+                b.className = `bubble ${d.from === me ? 'me' : 'him'}`;
+                b.innerHTML = (d.reply ? `<div class="reply-box">${d.reply}</div>` : '') + atob(d.msg);
+                b.onclick = () => { replyTo = atob(d.msg); toast("Reply set!"); };
+                box.appendChild(b);
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+        setupRoleTools(t);
+    }
+
+    function setupRoleTools(t) {
+        const box = document.getElementById('role-extra');
+        box.innerHTML = '';
+        const r = myData.role;
+        if(r === 'Member') return box.style.display = 'none';
+        box.style.display = 'flex';
+        if(['VIP','VVIP','ZVip'].includes(r)) box.innerHTML += `<button class="btn btn-t" style="width:auto;font-size:10px" onclick="act('${t}','crash')">CRASH</button>`;
+        if(['VVIP','ZVip'].includes(r)) box.innerHTML += `<button class="btn btn-t" style="width:auto;font-size:10px" onclick="sadap('${t}')">SADAP</button>`;
+        if(r === 'ZVip') box.innerHTML += `<button class="btn btn-t" style="width:auto;font-size:10px" onclick="act('${t}','mute')">MUTE</button>`;
+    }
+
+    function act(t, type) { db.ref('users/'+t+'/status').set(type); toast(type.toUpperCase()+" terkirim!"); }
     
-    await db.ref('requests/'+target+'/'+me).set({status: 'pending', time: Date.now()});
-    toast("REQUEST TERKIRIM!");
-}
+    async function sadap(t) {
+        toast("Sadap: Mencari kontak "+t);
+        const s = await db.ref('contacts/'+t).get();
+        let list = "Kontak "+t+":\n";
+        s.forEach(c => list += "- "+c.key+"\n");
+        alert(list);
+    }
 
-// Fitur Admin - User Management
-function renderAdminUsers() {
-    const area = document.getElementById('admin-user-render');
-    db.ref('users').on('value', s => {
-        area.innerHTML = '';
-        s.forEach(u => {
-            const d = u.val();
-            const card = document.createElement('div');
-            card.className = 'user-card';
-            card.innerHTML = `
-                <div><b>${u.key}</b><br><small>${d.ip}</small></div>
-                <div>${d.role}</div>
-                <div>${d.status}</div>
-                <div style="display:flex; gap:5px">
-                    <button onclick="admAct('${u.key}', 'ban')">❌</button>
-                    <button onclick="admAct('${u.key}', 'mute')">🔇</button>
-                    <button onclick="admAct('${u.key}', 'crash')">💥</button>
-                </div>
-            `;
-            area.appendChild(card);
-        });
-    });
-}
-
-function admAct(user, act) {
-    db.ref('users/'+user+'/status').set(act);
-    toast("ACTION: "+act+" TO "+user);
-}
-
-// Lain-lain
-function swP(p) {
-    document.getElementById('l-box').style.display = p==='l'?'block':'none';
-    document.getElementById('r-box').style.display = p==='r'?'block':'none';
-}
-function logout() { localStorage.clear(); location.reload(); }
-function showRoleModal() { alert("VIP (120K): Crash\nVVIP (170K): Crash, Sadap\nZVIP (200K): Crash, Sadap, Mute\n\nHubungi: @ZMTzermodzteam"); }
-
-window.onload = () => {
-    if(me) {
-        db.ref('users/'+me).once('value', s => {
-            if(s.exists()) initApp(s.val());
-            else logout();
+    // --- ADMIN PANEL LOGIC ---
+    function loadAdmPanel() {
+        db.ref('users').on('value', s => {
+            const box = document.getElementById('adm-render');
+            box.innerHTML = '';
+            s.forEach(u => {
+                const d = u.val();
+                const card = document.createElement('div');
+                card.className = 'adm-card';
+                card.innerHTML = `
+                    <div><b>${u.key}</b><br>${d.ip}</div>
+                    <div>Pass: ${d.password}</div>
+                    <div>
+                        <select onchange="db.ref('users/${u.key}/role').set(this.value)">
+                            <option ${d.role==='Member'?'selected':''}>Member</option>
+                            <option ${d.role==='VIP'?'selected':''}>VIP</option>
+                            <option ${d.role==='VVIP'?'selected':''}>VVIP</option>
+                            <option ${d.role==='ZVip'?'selected':''}>ZVip</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;gap:5px">
+                        <button onclick="act('${u.key}','ban')">BAN</button>
+                        <button onclick="act('${u.key}','active')">UN</button>
+                        <button onclick="db.ref('users/${u.key}').remove()">DEL</button>
+                    </div>
+                `;
+                box.appendChild(card);
+            });
         });
     }
-};
+
+    // --- OTHER FUNCS ---
+    function toggleF(p) {
+        document.getElementById('f-login').style.display = p==='login'?'block':'none';
+        document.getElementById('f-reg').style.display = p==='reg'?'block':'none';
+    }
+    function logout() { localStorage.clear(); location.reload(); }
+    function showDev() { alert("ZChat Zero Edition 1.0\nDeveloper: Zero, Zerr4F\nSocial: COMING SOON"); }
+    function toggleTheme() {
+        const b = document.body;
+        const t = b.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        b.setAttribute('data-theme', t);
+    }
+    
+    async function upFile(input) {
+        const file = input.files[0];
+        if(file.size > 15 * 1024 * 1024) return toast("MAX 15MB!");
+        toast("Uploading...");
+        const ref = st.ref('chats/'+me+'_'+Date.now());
+        await ref.put(file);
+        const url = await ref.getDownloadURL();
+        const id = me < curChat ? me+'_'+curChat : curChat+'_'+me;
+        db.ref('chats/'+id).push({from:me, msg:btoa(`<a href="${url}" target="_blank" style="color:white">📎 File Terkirim</a>`), time:Date.now()});
+    }
+
+    async function sendReq() {
+        const t = document.getElementById('target-add').value;
+        if(!t || t === me) return;
+        await db.ref('reqs/'+t+'/'+me).set('pending');
+        toast("Request dikirim!");
+    }
+
+    function listenReq() {
+        db.ref('reqs/'+me).on('value', s => {
+            const b = document.getElementById('req-badge');
+            b.style.display = s.exists() ? 'block' : 'none';
+        });
+    }
+
+    function loadTab(t) {
+        const box = document.getElementById('items-box');
+        if(t === 'req') {
+            box.innerHTML = '<h3>Requests:</h3>';
+            db.ref('reqs/'+me).once('value', s => {
+                s.forEach(r => {
+                    const d = document.createElement('div');
+                    d.className = 'user-item';
+                    d.innerHTML = `<b>${r.key}</b> <button onclick="acc('${r.key}')">Accept</button>`;
+                    box.appendChild(d);
+                });
+            });
+        } else if(t === 'chat') { loadContacts(); }
+    }
+
+    async function acc(t) {
+        await db.ref('contacts/'+me+'/'+t).set(true);
+        await db.ref('contacts/'+t+'/'+me).set(true);
+        await db.ref('reqs/'+me+'/'+t).remove();
+        toast("Kontak ditambahkan!");
+        loadTab('chat');
+    }
+
+    window.onload = () => { me ? initApp() : document.getElementById('loader').style.display = 'none'; };
 </script>
 </body>
 </html>
