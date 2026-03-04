@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZChat Zero Edition - Full Power</title>
+    <title>ZChat Zero Edition - Full Version No Crop</title>
     <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
@@ -13,11 +13,11 @@
         :root { 
             --p: #a855f7; 
             --g: #bf00ff; 
-            --glass: rgba(255, 255, 255, 0.08);
+            --glass: rgba(255, 255, 255, 0.05);
             --bg: #000;
         }
 
-        /* RESET TOTAL & ANTI GOOGLE */
+        /* Reset Total & Style iPhone */
         * { 
             font-family: 'SF Pro Display', 'Apple Color Emoji', sans-serif; 
             box-sizing: border-box; margin: 0; padding: 0; outline: none; 
@@ -25,231 +25,362 @@
             user-select: none;
         }
 
-        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; }
+        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; width: 100vw; }
 
-        /* ANIMASI UI */
-        .anim-slide { animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-        .anim-fade { animation: fadeIn 0.4s ease-in forwards; }
-        @keyframes slideIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Custom Scrollbar (Biar Gak Google Banget) */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
 
-        /* VIDEO INTRO DENGAN BORDER KAPSUL IPHONE */
-        #admin-intro-overlay {
-            position: fixed; inset: 0; z-index: 99999; 
-            background: #000; display: none; align-items: center; justify-content: center;
+        /* Animation System */
+        .anim-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* UI CAPSULE & INPUT */
+        .cap { background: var(--glass); backdrop-filter: blur(30px); border-radius: 35px; border: 1px solid rgba(255,255,255,0.1); padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .in { width: 100%; border-radius: 50px; padding: 16px 25px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; margin-bottom: 12px; font-size: 16px; transition: 0.3s; }
+        .in:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+        .btn { width: 100%; border-radius: 50px; padding: 16px; border: none; background: var(--p); color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3); letter-spacing: 1px; }
+        .btn:active { transform: scale(0.95); opacity: 0.8; }
+        .btn-t { background: rgba(255,255,255,0.05); box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* 1. INTRO LAYER (FULL HD KAPSUL) */
+        #z-intro {
+            position: fixed; inset: 0; z-index: 99999; background: #000;
+            display: none; align-items: center; justify-content: center;
         }
         .vid-frame {
-            width: 85vw; height: 85vh; border-radius: 50px; 
-            border: 6px solid rgba(255,255,255,0.15); overflow: hidden;
-            box-shadow: 0 0 40px var(--g); transform: scale(0.9); opacity: 0;
-            transition: 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
+            width: 88vw; height: 88vh; border-radius: 60px; /* BORDER KAPSUL */
+            border: 6px solid rgba(255,255,255,0.1); overflow: hidden;
+            box-shadow: 0 0 80px var(--g); transform: scale(0.9); opacity: 0;
+            transition: 0.8s cubic-bezier(0.23, 1, 0.32, 1);
         }
         .vid-frame.active { transform: scale(1); opacity: 1; }
         #v-adm { width: 100%; height: 100%; object-fit: cover; }
 
-        /* UI COMPONENTS */
-        .cap { background: var(--glass); backdrop-filter: blur(30px); border-radius: 40px; border: 1px solid rgba(255,255,255,0.1); padding: 25px; }
-        .in { width: 100%; border-radius: 50px; padding: 16px 25px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); color: #fff; margin-bottom: 15px; font-size: 16px; transition: 0.3s; }
-        .in:focus { border-color: var(--p); box-shadow: 0 0 15px var(--p); }
-        .btn { width: 100%; border-radius: 50px; padding: 16px; border: none; background: var(--p); color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(168, 85, 247, 0.3); }
-        .btn:active { transform: scale(0.94); }
+        /* 2. ADMIN PANEL (MASTER MODE) */
+        #z-admin {
+            position: fixed; inset: 0; z-index: 88888; background: #000;
+            display: none; flex-direction: column; padding: 40px; overflow-y: auto;
+        }
+        .user-card { 
+            background: rgba(255,255,255,0.03); padding: 20px; border-radius: 30px; 
+            margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; align-items: center; gap: 10px;
+        }
 
-        /* NOTIF TOAST */
-        #z-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--p); padding: 15px 35px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100000; transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); font-weight: bold; }
-
-        /* BACKGROUND EFFECTS */
-        .grid { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(var(--p) 1px, transparent 1px), linear-gradient(90deg, var(--p) 1px, transparent 1px); background-size: 50px 50px; opacity: 0.1; animation: gridMove 15s linear infinite; }
-        @keyframes gridMove { from { transform: translateY(0); } to { transform: translateY(50px); } }
-        
-        .bh-wrapper { position: fixed; inset: 0; z-index: -2; display: none; align-items: center; justify-content: center; }
-        .bh-core { width: 300px; height: 300px; background: #000; border-radius: 50%; box-shadow: 0 0 100px 20px var(--g), inset 0 0 80px #000; animation: bhPulse 4s infinite alternate; }
-        @keyframes bhPulse { from { transform: scale(1); } to { transform: scale(1.15); box-shadow: 0 0 140px 40px var(--g); } }
-
-        /* ADMIN PANEL LAYOUT */
-        #admin-panel { position: fixed; inset: 0; z-index: 88888; background: #000; display: none; flex-direction: column; padding: 30px; overflow-y: auto; }
-        .user-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 30px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
-
-        /* MAIN APP LAYOUT */
-        #main-app { display: none; height: 100vh; flex-direction: column; padding: 20px; }
+        /* 3. APP INTERFACE */
+        #z-app { display: none; height: 100vh; flex-direction: column; padding: 20px; }
         .app-grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; flex: 1; overflow: hidden; }
+        
+        /* Message Area */
+        .scroller { flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 15px; }
+        .bubble { padding: 12px 18px; border-radius: 25px; max-width: 75%; line-height: 1.4; position: relative; font-size: 15px; }
+        .bubble.me { align-self: flex-end; background: var(--p); border-bottom-right-radius: 5px; box-shadow: 0 5px 15px rgba(168, 85, 247, 0.2); }
+        .bubble.him { align-self: flex-start; background: rgba(255,255,255,0.1); border-bottom-left-radius: 5px; }
+
+        /* Effects */
+        #bg-grid { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(var(--p) 1px, transparent 1px), linear-gradient(90deg, var(--p) 1px, transparent 1px); background-size: 45px 45px; opacity: 0.12; animation: gridMove 12s linear infinite; }
+        @keyframes gridMove { from { transform: translateY(0); } to { transform: translateY(45px); } }
+        
+        .bh-v { position: fixed; inset: 0; z-index: -2; display: none; align-items: center; justify-content: center; }
+        .bh { width: 320px; height: 320px; background: #000; border-radius: 50%; box-shadow: 0 0 120px 30px var(--g), inset 0 0 80px #000; animation: bhP 3s infinite alternate; }
+        @keyframes bhP { from { transform: scale(1); } to { transform: scale(1.1); box-shadow: 0 0 180px 50px var(--g); } }
+
+        #z-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--p); padding: 15px 35px; border-radius: 50px; z-index: 1000000; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="z-toast">ZChat Message</div>
+<div id="z-toast">ZChat Notification</div>
 
-<div id="admin-intro-overlay">
-    <div class="vid-frame" id="vid-frame">
+<div id="z-intro">
+    <div class="vid-frame" id="v-frame">
         <video id="v-adm" src="introadm.mp4" playsinline></video>
     </div>
 </div>
 
-<div class="grid" id="bg-grid"></div>
-<div class="bh-wrapper" id="bg-bh"><div class="bh-core"></div></div>
+<div id="bg-grid"></div>
+<div class="bh-v" id="bg-bh"><div class="bh"></div></div>
 
-<div id="login-page" class="anim-fade" style="display:flex; height:100vh; align-items:center; justify-content:center">
-    <div onclick="unlockMaster()" style="position:fixed; top:25px; right:25px; width:50px; height:50px; border-radius:50%; background:var(--glass); display:flex; align-items:center; justify-content:center; cursor:pointer; border:1px solid rgba(255,255,255,0.1); font-size:20px;">🔑</div>
-
-    <div class="cap anim-slide" style="width:400px; text-align:center">
-        <h1 style="letter-spacing:6px; margin-bottom:5px;">ZCHAT</h1>
-        <p style="font-size:10px; opacity:0.5; margin-bottom:25px; letter-spacing:2px;">ZERO EDITION V1.0</p>
+<div id="p-login" style="display:flex; height:100vh; align-items:center; justify-content:center" class="anim-pop">
+    <div onclick="unlockMaster()" style="position:fixed; top:25px; right:25px; font-size:24px; cursor:pointer; opacity:0.2">🔑</div>
+    
+    <div class="cap" style="width:380px; text-align:center">
+        <h1 style="letter-spacing:8px; margin-bottom:5px">ZCHAT</h1>
+        <p style="font-size:10px; opacity:0.4; margin-bottom:25px">ZERO EDITION V1.0</p>
         
         <div id="iphone-clock" style="margin-bottom:30px">
-            <div id="time-display" style="font-size:45px; font-weight:bold; color:var(--p)">00:00</div>
-            <div id="date-display" style="font-size:12px; opacity:0.6; text-transform:uppercase; letter-spacing:1px">Loading...</div>
+            <div id="t-clock" style="font-size:45px; font-weight:bold; color:var(--p)">00:00</div>
+            <div id="t-date" style="font-size:12px; opacity:0.5">...</div>
         </div>
 
-        <div id="auth-form">
-            <input type="text" id="usn" class="in" placeholder="Username">
-            <input type="password" id="pass" class="in" placeholder="Password">
-            <button class="btn" onclick="handleAuth('login')">MASUK KE ZCHAT</button>
-            <p style="font-size:13px; margin-top:15px">Belum join? <span style="color:var(--p); cursor:pointer; font-weight:bold" onclick="toggleAuth('reg')">Daftar Akun</span></p>
-            <p style="font-size:12px; margin-top:10px; opacity:0.5" onclick="openRoleList()">Lihat List Role & Harga</p>
+        <div id="l-box">
+            <input type="text" id="lu" class="in" placeholder="Username">
+            <input type="password" id="lp" class="in" placeholder="Password">
+            <button class="btn" onclick="auth('login')">LOGIN SEKARANG</button>
+            <p style="font-size:13px; margin-top:20px">Gak punya akun? <span style="color:var(--p); font-weight:bold; cursor:pointer" onclick="swP('r')">Daftar</span></p>
+            <p style="font-size:11px; margin-top:10px; opacity:0.4; cursor:pointer" onclick="showRoleModal()">LIHAT LIST ROLE & FITUR</p>
+        </div>
+
+        <div id="r-box" style="display:none">
+            <input type="text" id="ru" class="in" placeholder="Username Baru">
+            <input type="password" id="rp" class="in" placeholder="Password Baru">
+            <button class="btn" onclick="auth('reg')">DAFTAR AKUN</button>
+            <p style="font-size:13px; margin-top:15px; cursor:pointer" onclick="swP('l')">Kembali Login</p>
         </div>
     </div>
 </div>
 
-<div id="admin-panel" class="anim-fade">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px">
-        <h1 style="letter-spacing:2px">MASTER PANEL</h1>
-        <button class="btn" style="width:auto; padding:10px 25px" onclick="location.reload()">LOGOUT ADMIN</button>
+<div id="z-admin">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
+        <h1 style="letter-spacing:3px">MASTER CONTROL PANEL</h1>
+        <button class="btn" style="width:auto; padding:10px 30px" onclick="location.reload()">EXIT PANEL</button>
     </div>
     
-    <div class="cap anim-slide">
-        <h3 style="margin-bottom:20px">DATABASE USER (REALTIME)</h3>
-        <div id="admin-user-list">
+    <div class="cap anim-pop">
+        <h3 style="margin-bottom:20px">DATA PENGGUNA (IP & STATUS)</h3>
+        <div id="admin-user-render">
             </div>
     </div>
 </div>
 
-<div id="main-app" class="anim-fade">
-    <div class="cap" style="padding:12px 30px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+<div id="z-app">
+    <header class="cap" style="display:flex; justify-content:space-between; align-items:center; padding:15px 30px; margin-bottom:20px">
         <div style="display:flex; align-items:center; gap:15px">
-            <div id="my-pfp" style="width:50px; height:50px; border-radius:50%; background:var(--p); border:2px solid #fff"></div>
+            <img id="my-pfp" src="default.png" style="width:50px; height:50px; border-radius:50%; border:2px solid var(--p)">
             <div style="text-align:left">
-                <div id="display-usn" style="font-weight:bold; font-size:16px">USER: -</div>
-                <div id="display-role" style="font-size:11px; color:var(--p); font-weight:bold">ROLE: MEMBER</div>
+                <div id="my-usn" style="font-weight:bold; font-size:16px">Pookie User</div>
+                <div id="my-role" style="font-size:11px; color:var(--p); font-weight:bold">ROLE: MEMBER</div>
             </div>
         </div>
-        <button class="btn" style="width:auto; padding:10px 20px" onclick="logout()">LOGOUT</button>
-    </div>
+        <div style="display:flex; gap:10px">
+            <button class="btn btn-t" style="width:auto; padding:8px 20px" onclick="openDev()">DEV</button>
+            <button class="btn" style="width:auto; padding:8px 20px" onclick="logout()">KELUAR</button>
+        </div>
+    </header>
 
     <div class="app-grid">
-        <div class="cap anim-slide">
+        <div class="cap" style="display:flex; flex-direction:column">
             <div style="display:flex; gap:10px; margin-bottom:20px">
-                <button class="btn" onclick="showTab('chat')">CHATS</button>
-                <button class="btn" style="background:rgba(255,255,255,0.05)" onclick="showTab('req')">REQ</button>
+                <button class="btn" style="font-size:12px" onclick="tab('c')">CHATS</button>
+                <button class="btn btn-t" style="font-size:12px" onclick="tab('q')">REQ <span id="q-cnt">0</span></button>
             </div>
-            <div id="contact-list" style="overflow-y:auto; flex:1">
-                <input type="text" id="search-f" class="in" placeholder="Tambah Username...">
-                <button class="btn" style="margin-bottom:20px" onclick="addFriend()">ADD FRIEND</button>
-                <div id="render-contacts"></div>
+            <div id="chat-list-area" class="scroller">
+                <input type="text" id="add-f" class="in" placeholder="Username Target...">
+                <button class="btn" style="margin-bottom:20px" onclick="addFriend()">ADD CONTACT</button>
+                <div id="render-kontak"></div>
             </div>
         </div>
 
-        <div class="cap anim-slide" style="display:flex; flex-direction:column">
-            <div id="chat-header" style="padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:15px; font-weight:bold">PILIH PESAN</div>
-            <div id="msg-area" style="flex:1; overflow-y:auto; padding-bottom:15px"></div>
-            <div style="display:flex; gap:10px">
-                <button class="btn" style="width:60px; background:rgba(255,255,255,0.05)">📎</button>
-                <input type="text" id="msg-in" class="in" style="margin:0" placeholder="Ketik pesan gaya iPhone...">
-                <button class="btn" style="width:80px" onclick="sendMsg()">➤</button>
+        <div class="cap" style="display:flex; flex-direction:column">
+            <div id="target-name" style="padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:15px; font-weight:bold">ZCHAT ROOM</div>
+            <div id="msg-render" class="scroller">
+                </div>
+            <div id="role-tools" style="padding:10px 0; display:none; gap:10px"></div>
+            
+            <div style="display:flex; gap:12px; margin-top:15px">
+                <button class="btn btn-t" style="width:60px" onclick="uploadMedia()">📎</button>
+                <input type="text" id="m-in" class="in" style="margin-bottom:0" placeholder="Ketik pesan manja...">
+                <button class="btn" style="width:90px" onclick="sendMsg()">KIRIM</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- FIREBASE INITIALIZATION ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyDZMFlfu8ObuuEpicbbkUyKWn_gUFnY_SQ",
-        authDomain: "project-aaa14b70-7347-4232-8a0.firebaseapp.com",
-        databaseURL: "https://project-aaa14b70-7347-4232-8a0-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "project-aaa14b70-7347-4232-8a0",
-        storageBucket: "project-aaa14b70-7347-4232-8a0.firebasestorage.app",
-        messagingSenderId: "283427772761",
-        appId: "1:283427772761:web:52a4bfd1cbb39589ac9448"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+// --- CONFIG FIREBASE LU (GANTI SESUAI PUNYA LU) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyDZMFlfu8ObuuEpicbbkUyKWn_gUFnY_SQ",
+  authDomain: "project-aaa14b70-7347-4232-8a0.firebaseapp.com",
+  databaseURL: "https://project-aaa14b70-7347-4232-8a0-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "project-aaa14b70-7347-4232-8a0",
+  storageBucket: "project-aaa14b70-7347-4232-8a0.firebasestorage.app",
+  messagingSenderId: "283427772761",
+  appId: "1:283427772761:web:52a4bfd1cbb39589ac9448"
+};
 
-    // --- GLOBAL STATE ---
-    let myUsn = localStorage.getItem('z_usn') || null;
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const store = firebase.storage();
 
-    // --- CUSTOM TOAST (ANTI-GOOGLE) ---
-    function toast(txt) {
-        const t = document.getElementById('z-toast');
-        t.innerText = txt;
-        t.style.top = '40px';
-        setTimeout(() => t.style.top = '-100px', 3000);
-    }
+let me = localStorage.getItem('z_usn') || null;
+let currentTarget = null;
+let myRole = "Member";
 
-    // --- MASTER ACCESS LOGIC ---
-    function unlockMaster() {
-        const k = prompt("ENTER MASTER KEY:");
-        if(k === 'zmtrrr') {
-            const overlay = document.getElementById('admin-intro-overlay');
-            const frame = document.getElementById('vid-frame');
-            const video = document.getElementById('v-adm');
+// --- UTILS ---
+function toast(m) {
+    const t = document.getElementById('z-toast');
+    t.innerText = m; t.style.top = '40px';
+    setTimeout(() => t.style.top = '-100px', 3000);
+}
 
-            overlay.style.display = 'flex';
+// --- CLOCK REALTIME ---
+setInterval(() => {
+    const d = new Date();
+    document.getElementById('t-clock').innerText = d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('t-date').innerText = d.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
+}, 1000);
+
+// --- UNLOCK MASTER (ADMIN INTRO) ---
+function unlockMaster() {
+    const k = prompt("MASUKKAN MASTER KEY:");
+    if(k === 'zmtrrr') {
+        const intro = document.getElementById('z-intro');
+        const frame = document.getElementById('v-frame');
+        const video = document.getElementById('v-adm');
+
+        intro.style.display = 'flex';
+        video.load();
+        
+        // Sync Audio & Video
+        video.oncanplaythrough = () => {
+            frame.classList.add('active');
+            video.play();
+        };
+
+        video.onended = () => {
+            frame.classList.remove('active');
             setTimeout(() => {
-                frame.classList.add('active');
-                video.play();
-            }, 200);
+                intro.style.display = 'none';
+                document.getElementById('p-login').style.display = 'none';
+                document.getElementById('z-admin').style.display = 'flex';
+                toast("WELCOME MASTER ZERO");
+                renderAdminUsers();
+            }, 800);
+        };
+    } else toast("KUNCI SALAH!");
+}
 
-            video.onended = () => {
-                frame.classList.remove('active');
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    document.getElementById('login-page').style.display = 'none';
-                    document.getElementById('admin-panel').style.display = 'flex';
-                    toast("WELCOME MASTER ZERO");
-                }, 800);
-            };
-        } else {
-            toast("KUNCI SALAH!");
-        }
-    }
+// --- AUTH LOGIC ---
+async function auth(type) {
+    const u = type==='login' ? document.getElementById('lu').value : document.getElementById('ru').value;
+    const p = type==='login' ? document.getElementById('lp').value : document.getElementById('rp').value;
+    
+    if(!u || !p) return toast("ISI SEMUA DATA!");
 
-    // --- CLOCK REALTIME ---
-    setInterval(() => {
-        const n = new Date();
-        document.getElementById('time-display').innerText = n.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-        document.getElementById('date-display').innerText = n.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-    }, 1000);
-
-    // --- AUTH LOGIC ---
-    async function handleAuth(type) {
-        const u = document.getElementById('usn').value;
-        const p = document.getElementById('pass').value;
-        if(!u || !p) return toast("LENGKAPI DATA!");
-
+    if(type === 'reg') {
+        const check = await db.ref('users/'+u).get();
+        if(check.exists()) return toast("USER UDAH ADA!");
+        const ipReq = await fetch('https://api.ipify.org?format=json').then(r=>r.json());
+        await db.ref('users/'+u).set({
+            password: p, 
+            role: 'Member', 
+            status: 'active', 
+            ip: ipReq.ip, 
+            last: Date.now(),
+            pfp: 'default.png'
+        });
+        toast("DAFTAR BERHASIL!"); swP('l');
+    } else {
         const s = await db.ref('users/'+u).get();
-        if(type === 'login') {
-            if(s.exists() && s.val().password === p) {
-                if(s.val().status === 'ban') return toast("AKUN DI BAN!");
-                localStorage.setItem('z_usn', u);
-                location.reload();
-            } else toast("USER/PASS SALAH!");
-        }
+        if(s.exists() && s.val().password === p) {
+            if(s.val().status === 'ban') return toast("LU KENA BAN!");
+            localStorage.setItem('z_usn', u);
+            location.reload();
+        } else toast("USER/PASS SALAH!");
     }
+}
 
-    function logout() { localStorage.clear(); location.reload(); }
-
-    window.onload = () => {
-        if(myUsn) {
-            db.ref('users/'+myUsn).once('value', s => {
-                document.getElementById('login-page').style.display = 'none';
-                document.getElementById('main-app').style.display = 'flex';
-                document.getElementById('bg-grid').style.display = 'none';
-                document.getElementById('bg-bh').style.display = 'flex';
-                document.getElementById('display-usn').innerText = "USER: " + myUsn;
-                document.getElementById('display-role').innerText = "ROLE: " + s.val().role;
-            });
+// --- APP CORE (NO CROP FITUR) ---
+function initApp(data) {
+    document.getElementById('p-login').style.display = 'none';
+    document.getElementById('z-app').style.display = 'flex';
+    document.getElementById('bg-grid').style.display = 'none';
+    document.getElementById('bg-bh').style.display = 'flex';
+    
+    myRole = data.role;
+    document.getElementById('my-usn').innerText = me;
+    document.getElementById('my-role').innerText = "ROLE: " + myRole;
+    
+    // Listen status (Crash/Ban/Mute)
+    db.ref('users/'+me).on('value', s => {
+        const v = s.val();
+        if(v.status === 'crash') {
+            toast("NOTIF: SYSTEM CRASHED BY ADMIN!");
+            db.ref('users/'+me+'/status').set('active');
+            setTimeout(() => { localStorage.clear(); location.reload(); }, 2000);
         }
-    };
+        if(v.status === 'ban') { toast("NOTIF: LU KENA BAN!"); location.reload(); }
+        if(v.status === 'mute') {
+            document.getElementById('m-in').disabled = true;
+            document.getElementById('m-in').placeholder = "LU LAGI DI MUTE ADMIN";
+        } else {
+            document.getElementById('m-in').disabled = false;
+            document.getElementById('m-in').placeholder = "Ketik pesan manja...";
+        }
+    });
+
+    loadContacts();
+    setupRoleTools();
+}
+
+function setupRoleTools() {
+    const tools = document.getElementById('role-tools');
+    tools.innerHTML = '';
+    if(myRole !== 'Member') {
+        tools.style.display = 'flex';
+        if(['VIP', 'VVIP', 'ZVIP'].includes(myRole)) tools.innerHTML += `<button class="btn btn-t" style="width:auto; font-size:10px" onclick="roleAction('crash')">CRASH</button>`;
+        if(['VVIP', 'ZVIP'].includes(myRole)) tools.innerHTML += `<button class="btn btn-t" style="width:auto; font-size:10px" onclick="roleAction('sadap')">SADAP</button>`;
+        if(myRole === 'ZVIP') tools.innerHTML += `<button class="btn btn-t" style="width:auto; font-size:10px" onclick="roleAction('mute')">MUTE</button>`;
+    }
+}
+
+// Fitur Tambah Teman (Request System)
+async function addFriend() {
+    const target = document.getElementById('add-f').value;
+    if(!target || target === me) return toast("USER INVALID!");
+    const check = await db.ref('users/'+target).get();
+    if(!check.exists()) return toast("USER GAK ADA!");
+    
+    await db.ref('requests/'+target+'/'+me).set({status: 'pending', time: Date.now()});
+    toast("REQUEST TERKIRIM!");
+}
+
+// Fitur Admin - User Management
+function renderAdminUsers() {
+    const area = document.getElementById('admin-user-render');
+    db.ref('users').on('value', s => {
+        area.innerHTML = '';
+        s.forEach(u => {
+            const d = u.val();
+            const card = document.createElement('div');
+            card.className = 'user-card';
+            card.innerHTML = `
+                <div><b>${u.key}</b><br><small>${d.ip}</small></div>
+                <div>${d.role}</div>
+                <div>${d.status}</div>
+                <div style="display:flex; gap:5px">
+                    <button onclick="admAct('${u.key}', 'ban')">❌</button>
+                    <button onclick="admAct('${u.key}', 'mute')">🔇</button>
+                    <button onclick="admAct('${u.key}', 'crash')">💥</button>
+                </div>
+            `;
+            area.appendChild(card);
+        });
+    });
+}
+
+function admAct(user, act) {
+    db.ref('users/'+user+'/status').set(act);
+    toast("ACTION: "+act+" TO "+user);
+}
+
+// Lain-lain
+function swP(p) {
+    document.getElementById('l-box').style.display = p==='l'?'block':'none';
+    document.getElementById('r-box').style.display = p==='r'?'block':'none';
+}
+function logout() { localStorage.clear(); location.reload(); }
+function showRoleModal() { alert("VIP (120K): Crash\nVVIP (170K): Crash, Sadap\nZVIP (200K): Crash, Sadap, Mute\n\nHubungi: @ZMTzermodzteam"); }
+
+window.onload = () => {
+    if(me) {
+        db.ref('users/'+me).once('value', s => {
+            if(s.exists()) initApp(s.val());
+            else logout();
+        });
+    }
+};
 </script>
 </body>
 </html>
