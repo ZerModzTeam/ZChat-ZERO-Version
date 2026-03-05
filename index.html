@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZChat Zero Edition - Final</title>
-    <!-- Font IPhone SF Pro & Emoji Apple -->
-    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/sf-pro-display?styles=16026,16027,16028,16029">
+    <title>ZChat Zero Edition - iPhone Style</title>
+    <!-- Font IPhone (SF Pro) dan Emoji Apple -->
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiOne Color', 'Twemoji Mozilla', 'Twemoji', 'Segoe UI Symbol';
         }
         body {
             min-height: 100vh;
@@ -95,7 +94,7 @@
             -webkit-backdrop-filter: blur(20px) !important;
             border: 1px solid rgba(255, 255, 255, 0.15);
             background: rgba(20, 20, 30, 0.2) !important;
-            padding: 16px 24px; /* sedikit lebih besar */
+            padding: 16px 24px;
             color: inherit;
             transition: all 0.2s ease;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
@@ -225,8 +224,21 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            animation: fadeOut 3.5s forwards;
+            animation: fadeOut 4s forwards;
             pointer-events: none;
+        }
+        .video-capsule {
+            width: 300px;
+            height: 600px;
+            border-radius: 150px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(180,0,255,0.8);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .video-capsule video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .capsule-opening {
             width: 280px;
@@ -299,7 +311,7 @@
             text-align: center;
         }
         .fas, .far {
-            font-family: 'Font Awesome 5 Free', 'SF Pro Display', sans-serif;
+            font-family: 'Font Awesome 5 Free', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
         }
         .refresh-role {
             background: transparent !important;
@@ -338,7 +350,7 @@
             min-width: 0;
         }
     </style>
-    <!-- Font Awesome -->
+    <!-- Font Awesome untuk ikon (opsional) -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
 </head>
 <body>
@@ -572,8 +584,8 @@
                 if (c.classList.contains('hidden')) {
                     c.innerHTML = `
                         <div class="role-item"><strong>Vip 120K</strong><br>- Crash/Un Crash</div>
-                        <div class="role-item"><strong>VVip 170K</strong><br>- Crash/Un Crash<br>- Sadap pesan</div>
-                        <div class="role-item"><strong>ZVip 200K</strong><br>- Crash/Un Crash<br>- Sadap pesan<br>- Mute</div>
+                        <div class="role-item"><strong>VVip 170K</strong><br>- Crash/Un Crash<br>- Mute</div>
+                        <div class="role-item"><strong>ZVip 200K</strong><br>- Crash/Un Crash<br>- Sadap<br>- Mute</div>
                     `;
                     c.classList.remove('hidden');
                 } else c.classList.add('hidden');
@@ -664,6 +676,7 @@
                         expired: null,
                         ip: ip,
                         kontak: {},
+                        messages: {}, // untuk menyimpan pesan per kontak
                         createdAt: Date.now(),
                         status: 'offline',
                         mute: false,
@@ -694,10 +707,10 @@
                 roleMenu = `<button class="capsule" id="crashBtnUser">💥 Crash</button> <button class="capsule" id="uncrashBtnUser">🔄 Uncrash</button>`;
             }
             if (currentUser.role === 'VVip' || currentUser.role === 'ZVip' || currentUser.role === 'admin') {
-                roleMenu += ` <button class="capsule" id="sadapBtnUser">👁️ Sadap</button>`;
+                roleMenu += ` <button class="capsule" id="muteBtnUser">🔇 Mute</button>`;
             }
             if (currentUser.role === 'ZVip' || currentUser.role === 'admin') {
-                roleMenu += ` <button class="capsule" id="muteBtnUser">🔇 Mute</button>`;
+                roleMenu += ` <button class="capsule" id="sadapBtnUser">👁️ Sadap</button>`;
             }
 
             container.innerHTML = `
@@ -726,9 +739,7 @@
                     </div>
                     <div id="kontakList" class="flex-col" style="max-height: 200px; overflow-y: auto; margin-top: 15px;"></div>
                     <div id="chatDengan" style="margin: 15px 0 10px; font-weight: 500;"></div>
-                    <div class="chat-area" id="chatMessages">
-                        <div class="chat-bubble">Pilih kontak untuk mulai chat</div>
-                    </div>
+                    <div class="chat-area" id="chatMessages"></div>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
                         <input type="text" id="pesanInput" class="input" placeholder="Pesan...">
                         <input type="file" id="fileUpload" accept="image/*,video/*" style="display:none;">
@@ -762,16 +773,44 @@
                 document.getElementById('crashBtnUser').addEventListener('click', () => userAction('crash'));
                 document.getElementById('uncrashBtnUser').addEventListener('click', () => userAction('uncrash'));
             }
-            if (document.getElementById('sadapBtnUser')) {
-                document.getElementById('sadapBtnUser').addEventListener('click', () => userAction('sadap'));
-            }
             if (document.getElementById('muteBtnUser')) {
                 document.getElementById('muteBtnUser').addEventListener('click', () => userAction('mute'));
             }
+            if (document.getElementById('sadapBtnUser')) {
+                document.getElementById('sadapBtnUser').addEventListener('click', () => userAction('sadap'));
+            }
         }
 
+        // Fungsi untuk user action (role)
         function userAction(type) {
-            alert(`Fitur ${type} (simulasi) akan diterapkan ke target kontak.`);
+            if (!kontakTarget) {
+                alert('Pilih kontak terlebih dahulu!');
+                return;
+            }
+            switch(type) {
+                case 'crash':
+                    alert(`Fitur Crash: Anda akan mencoba mengganggu ${kontakTarget} (simulasi).`);
+                    break;
+                case 'uncrash':
+                    alert(`Fitur Uncrash: Memulihkan ${kontakTarget} (simulasi).`);
+                    break;
+                case 'mute':
+                    alert(`Fitur Mute: Anda membisukan ${kontakTarget}. Mereka tidak bisa mengirim pesan (simulasi).`);
+                    break;
+                case 'sadap':
+                    // Sadap: tampilkan pesan-pesan yang pernah dikirim kontak target
+                    const snap = db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages').once('value');
+                    snap.then(s => {
+                        const msgs = s.val() || {};
+                        let chatLog = 'Pesan-pesan dari ' + kontakTarget + ':\n';
+                        for (let t in msgs) {
+                            chatLog += `[${new Date(parseInt(t)).toLocaleString()}] ${msgs[t]}\n`;
+                        }
+                        alert(chatLog || 'Belum ada pesan dari kontak ini.');
+                    });
+                    break;
+                default: break;
+            }
         }
 
         // ==================== SETTINGS ====================
@@ -822,18 +861,46 @@
             loadKontak();
         }
 
-        function loadChat() {
-            document.getElementById('chatMessages').innerHTML = `
-                <div class="chat-bubble">Halo, ini pesan dengan ${kontakTarget}</div>
-                <div class="chat-bubble own">Hai, apa kabar?</div>
-            `;
+        async function loadChat() {
+            if (!kontakTarget) return;
+            // Ambil pesan antara currentUser dan kontakTarget
+            const snap = await db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ',')).once('value');
+            const messages = snap.val() || {};
+            let html = '';
+            for (let time in messages) {
+                const msg = messages[time];
+                const isOwn = msg.sender === currentUser.username;
+                html += `<div class="chat-bubble ${isOwn ? 'own' : ''}">${msg.text}</div>`;
+            }
+            document.getElementById('chatMessages').innerHTML = html || '<div class="chat-bubble">Belum ada pesan. Mulai percakapan!</div>';
         }
 
-        function sendPesan() {
+        async function sendPesan() {
             const pesan = document.getElementById('pesanInput').value.trim();
             if (!pesan || !kontakTarget) return alert('Pilih kontak dan tulis pesan');
+
+            // Cek apakah user di-mute
+            if (currentUser.mute) {
+                return alert('Anda sedang di-mute oleh admin, tidak bisa mengirim pesan.');
+            }
+
+            const time = Date.now().toString();
+            // Simpan pesan ke pengirim
+            await db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ',') + '/' + time).set({
+                text: pesan,
+                sender: currentUser.username,
+                time: time
+            });
+            // Simpan juga ke penerima (biar sync)
+            await db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages/' + currentUser.username.replace(/\./g, ',') + '/' + time).set({
+                text: pesan,
+                sender: currentUser.username,
+                time: time
+            });
+
             alert(`Pesan terkirim ke ${kontakTarget}: ${pesan}`);
             document.getElementById('pesanInput').value = '';
+            loadChat(); // refresh chat
         }
 
         function uploadFile() {
@@ -905,8 +972,9 @@
                 document.getElementById('adminLoginSubmit').addEventListener('click', () => {
                     if (document.getElementById('adminKeyInput').value === 'zmtrrr') {
                         adminAuthed = true;
-                        playAdminOpening();
-                        renderAdminPanel();
+                        playAdminOpening(() => {
+                            renderAdminPanel(); // baru render panel setelah video selesai
+                        });
                     } else alert('Key salah!');
                 });
             } else {
@@ -925,23 +993,54 @@
             }
         }
 
-        function playAdminOpening() {
-            // ==========================================================
-            // UNTUK MENGGUNAKAN VIDEO MP4, GUNAKAN KODE BERIKUT:
-            // const div = document.createElement('div');
-            // div.className = 'admin-opening';
-            // div.innerHTML = '<video autoplay muted style="width:100%; height:100%; object-fit:cover;"><source src="introadm.mp4" type="video/mp4"></video>';
-            // document.body.appendChild(div);
-            // setTimeout(() => div.remove(), 3500); // sesuaikan durasi video
-            // ==========================================================
-            // SAAT INI MENGGUNAKAN ANIMASI CSS SEBAGAI FALLBACK
+        // ==================== VIDEO OPENING DALAM KAPSUL ====================
+        function playAdminOpening(callback) {
             const div = document.createElement('div');
             div.className = 'admin-opening';
-            div.innerHTML = '<div class="capsule-opening"></div><h2 style="color:white; margin-top:30px;">WELCOME ADMIN</h2>';
+            div.innerHTML = `
+                <div class="video-capsule">
+                    <video autoplay muted playsinline>
+                        <source src="introadm.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <h2 style="color:white; margin-top:30px; text-shadow: 0 0 20px purple;">WELCOME ADMIN</h2>
+            `;
             document.body.appendChild(div);
-            setTimeout(() => div.remove(), 3500);
+
+            const video = div.querySelector('video');
+            
+            const cleanup = () => {
+                if (div.parentNode) div.remove();
+                if (callback) callback();
+            };
+
+            if (video) {
+                video.play().catch(() => {
+                    div.innerHTML = `
+                        <div class="capsule-opening"></div>
+                        <h2 style="color:white; margin-top:30px;">WELCOME ADMIN</h2>
+                    `;
+                    setTimeout(cleanup, 3500);
+                });
+                video.onended = cleanup;
+                video.onerror = () => {
+                    div.innerHTML = `
+                        <div class="capsule-opening"></div>
+                        <h2 style="color:white; margin-top:30px;">WELCOME ADMIN</h2>
+                    `;
+                    setTimeout(cleanup, 3500);
+                };
+                setTimeout(cleanup, 4000);
+            } else {
+                div.innerHTML = `
+                    <div class="capsule-opening"></div>
+                    <h2 style="color:white; margin-top:30px;">WELCOME ADMIN</h2>
+                `;
+                setTimeout(cleanup, 3500);
+            }
         }
 
+        // ==================== ADMIN ACTIONS ====================
         async function adminAction(type) {
             const target = document.getElementById('targetAdminUser').value.trim();
             if (!target) return alert('Masukkan username target');
@@ -980,7 +1079,17 @@
                     alert(`User ${target} di-mute`);
                     break;
                 case 'sadap':
-                    alert(`Fitur sadap (simulasi) untuk ${target}`);
+                    // Admin bisa melihat semua pesan target
+                    const msgSnap = await db.ref('users/' + target.replace(/\./g, ',') + '/messages').once('value');
+                    const msgs = msgSnap.val() || {};
+                    let log = `Semua pesan milik ${target}:\n`;
+                    for (let kontak in msgs) {
+                        log += `\n--- Dengan ${kontak} ---\n`;
+                        for (let t in msgs[kontak]) {
+                            log += `[${new Date(parseInt(t)).toLocaleString()}] ${msgs[kontak][t].text}\n`;
+                        }
+                    }
+                    alert(log || 'Tidak ada pesan.');
                     break;
                 default: break;
             }
