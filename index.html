@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZChat Zero Edition - Final Complete</title>
-    <!-- Firebase SDK (compat) -->
+    <title>ZChat Zero Edition - Final</title>
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
     <style>
-        /* ========== RESET & FONT ========== */
         * {
             margin: 0;
             padding: 0;
@@ -18,7 +17,6 @@
             -webkit-tap-highlight-color: transparent;
             outline: none;
         }
-
         body {
             min-height: 100vh;
             background: #000;
@@ -27,34 +25,26 @@
             position: relative;
             overflow-x: hidden;
         }
-
         body.white-mode {
             background: #f2f2f7;
             color: #1c1c1e;
         }
-
-        /* Grid ungu bergerak */
         .grid-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
-                linear-gradient(rgba(180, 0, 255, 0.25) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(180, 0, 255, 0.25) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(180,0,255,0.25) 1px,transparent 1px), linear-gradient(90deg,rgba(180,0,255,0.25) 1px,transparent 1px);
             background-size: 48px 48px;
             animation: moveGrid 16s linear infinite;
             pointer-events: none;
             z-index: 0;
         }
-
         @keyframes moveGrid {
             0% { background-position: 0 0; }
             100% { background-position: 48px 48px; }
         }
-
-        /* Black hole background */
         .blackhole-bg {
             position: fixed;
             top: 0;
@@ -66,13 +56,10 @@
             opacity: 0.8;
             z-index: 0;
         }
-
         body.white-mode .blackhole-bg {
             opacity: 0.2;
             background: radial-gradient(circle at 30% 40%, #c7a4ff, #ccc);
         }
-
-        /* Loading overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -88,58 +75,50 @@
             flex-direction: column;
             gap: 24px;
         }
-
         .loader {
             width: 60px;
             height: 60px;
-            border: 4px solid rgba(180, 0, 255, 0.3);
+            border: 4px solid rgba(180,0,255,0.3);
             border-top: 4px solid #b300ff;
             border-radius: 50%;
             animation: rotasi 1s linear infinite;
         }
-
         @keyframes rotasi {
             0% { transform: rotate(0); }
             100% { transform: rotate(360deg); }
         }
-
-        /* ========== UI KAPSUL ========== */
         .capsule, button, .input, .card, .chat-bubble, .contact-item, .role-item, select, textarea, .custom-notif {
             border-radius: 40px !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            background: rgba(20, 20, 30, 0.2) !important;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(20,20,30,0.2) !important;
             padding: 16px 24px;
             color: inherit;
             transition: all 0.2s ease;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
             width: 100%;
             font-size: 18px;
         }
-
         body.white-mode .capsule, body.white-mode button, body.white-mode .input,
         body.white-mode .card, body.white-mode .chat-bubble, body.white-mode .contact-item {
-            background: rgba(255, 255, 255, 0.3) !important;
-            border-color: rgba(0, 0, 0, 0.1);
+            background: rgba(255,255,255,0.3) !important;
+            border-color: rgba(0,0,0,0.1);
             color: #000;
         }
-
         button {
             cursor: pointer;
             font-weight: 500;
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255,255,255,0.25);
             transform: scale(1);
             width: auto;
             display: inline-block;
             padding: 16px 28px;
         }
-
         button:active {
             transform: scale(0.96);
-            background: rgba(180, 0, 255, 0.4) !important;
+            background: rgba(180,0,255,0.4) !important;
         }
-
         input, select, textarea {
             border: 1px solid rgba(255,255,255,0.2) !important;
             outline: none;
@@ -147,21 +126,17 @@
             color: #fff;
             padding: 18px 24px;
         }
-
         input::placeholder {
             color: rgba(255,255,255,0.8);
             font-weight: 400;
         }
-
         body.white-mode input::placeholder {
             color: rgba(0,0,0,0.6);
         }
-
         select option {
             background: #1c1c1e;
             color: white;
         }
-
         .app-container {
             position: relative;
             z-index: 5;
@@ -170,28 +145,23 @@
             max-width: 600px;
             margin: 0 auto;
         }
-
         .flex-col {
             display: flex;
             flex-direction: column;
             gap: 18px;
         }
-
         .card {
             padding: 24px;
         }
-
         .link-text {
             color: #b266ff;
             cursor: pointer;
             border-bottom: 1px dashed rgba(255,255,255,0.3);
             padding-bottom: 2px;
         }
-
         .link-text:hover {
             border-bottom-color: #b266ff;
         }
-
         .datetime {
             text-align: center;
             font-size: 1.5rem;
@@ -199,14 +169,11 @@
             letter-spacing: -0.5px;
             padding: 16px 22px;
         }
-
         .datetime span {
             font-size: 1rem;
             opacity: 0.8;
             font-weight: 400;
         }
-
-        /* chat area */
         .chat-area {
             display: flex;
             flex-direction: column;
@@ -218,20 +185,17 @@
             background: rgba(0,0,0,0.2);
             backdrop-filter: blur(10px);
         }
-
         .chat-bubble {
             max-width: 80%;
             padding: 14px 20px;
             align-self: flex-start;
-            background: rgba(50, 50, 70, 0.3) !important;
+            background: rgba(50,50,70,0.3) !important;
             word-break: break-word;
         }
-
         .chat-bubble.own {
             align-self: flex-end;
-            background: rgba(140, 0, 255, 0.35) !important;
+            background: rgba(140,0,255,0.35) !important;
         }
-
         .contact-item {
             display: flex;
             justify-content: space-between;
@@ -240,7 +204,6 @@
             background: rgba(30,30,40,0.2) !important;
             margin-bottom: 5px;
         }
-
         .online { color: #32cd32; }
         .offline { color: #8e8e93; }
         .hidden { display: none !important; }
@@ -249,8 +212,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
-
-        /* admin opening */
         .admin-opening {
             position: fixed;
             top: 0;
@@ -265,7 +226,6 @@
             flex-direction: column;
             pointer-events: none;
         }
-
         .video-capsule {
             width: 300px;
             height: 600px;
@@ -275,13 +235,11 @@
             border: 2px solid rgba(255,255,255,0.3);
             position: relative;
         }
-
         .video-capsule video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-
         .capsule-opening {
             width: 280px;
             height: 560px;
@@ -290,27 +248,18 @@
             filter: blur(50px);
             animation: pulseCapsule 1.8s infinite alternate;
         }
-
         @keyframes pulseCapsule {
             0% { transform: scale(0.7) rotate(-2deg); opacity: 0.5; }
             100% { transform: scale(1.3) rotate(3deg); opacity: 1; }
         }
-
         .admin-text {
             margin-top: 30px;
-            font-size: 28px;
-            color: white;
-            text-shadow: 0 0 10px purple;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .admin-text span {
             font-size: 32px;
-            opacity: 0.9;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 0 20px #b300ff, 0 0 40px #8a2be2;
+            letter-spacing: 2px;
         }
-
         .role-badge {
             background: rgba(140,0,255,0.3);
             border-radius: 40px;
@@ -318,39 +267,29 @@
             backdrop-filter: blur(5px);
             font-size: 16px;
         }
-
-        /* keep login toggle */
         .keep-active {
-            background: rgba(48, 209, 88, 0.4) !important;
+            background: rgba(48,209,88,0.4) !important;
             border-color: #32cd32 !important;
         }
-
         .keep-inactive {
-            background: rgba(255, 69, 58, 0.4) !important;
+            background: rgba(255,69,58,0.4) !important;
             border-color: #ff3b30 !important;
         }
-
-        /* developer card */
         .dev-card {
             border: 2px solid rgba(255,215,0,0.5);
         }
-
-        /* admin float button */
         .admin-float {
             position: fixed;
             bottom: 25px;
             right: 25px;
             z-index: 100;
         }
-
         .admin-float button {
             background: rgba(140,0,255,0.6) !important;
             padding: 16px 28px;
             box-shadow: 0 10px 25px rgba(140,0,255,0.5);
             width: auto;
         }
-
-        /* admin panel full */
         .admin-panel-full {
             position: fixed;
             top: 0;
@@ -363,38 +302,19 @@
             overflow-y: auto;
             padding: 25px;
         }
-
         .close-btn {
             background: rgba(255,59,48,0.3) !important;
             border-radius: 40px;
             padding: 12px 25px;
             width: auto;
         }
-
         .grid-2 button {
             width: 100%;
             text-align: center;
         }
-
         .fas, .far {
             font-family: 'Font Awesome 5 Free', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
         }
-
-        .refresh-role {
-            background: transparent !important;
-            border: none;
-            font-size: 22px;
-            padding: 5px 10px;
-            margin-left: 10px;
-            box-shadow: none;
-            width: auto;
-        }
-
-        .refresh-role:active {
-            background: rgba(255,255,255,0.2) !important;
-        }
-
-        /* custom notification */
         .custom-notif {
             position: fixed;
             top: 20px;
@@ -413,58 +333,43 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             font-size: 18px;
         }
-
         @keyframes slideDown {
             from { top: 0; opacity: 0; }
             to { top: 20px; opacity: 1; }
         }
-
         @keyframes fadeOut {
             to { opacity: 0; visibility: hidden; }
         }
-
-        /* wrapper untuk input kontak */
         .cari-kontak-wrapper {
             display: flex;
             gap: 10px;
             align-items: center;
+            margin-bottom: 20px;
         }
-
         .cari-kontak-wrapper input {
             flex: 1;
             min-width: 0;
+            font-size: 20px;
+            padding: 20px 24px;
         }
     </style>
-    <!-- Font Awesome untuk ikon -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
 </head>
 <body>
-    <!-- LOADING -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loader"></div>
         <div style="font-size: 30px; font-weight: 600;">ZChat Zero</div>
     </div>
-
-    <!-- BACKGROUND -->
     <div class="grid-bg" id="gridBg"></div>
     <div class="blackhole-bg" id="blackholeBg"></div>
-
-    <!-- MAIN APP -->
     <div class="app-container" id="appContainer"></div>
-
-    <!-- ADMIN BUTTON -->
     <div class="admin-float" id="adminFloat">
         <button id="adminFloatBtn"><i class="fas fa-user-shield"></i> Admin</button>
     </div>
-
-    <!-- ADMIN PANEL -->
     <div id="adminPanelContainer" class="hidden"></div>
-
-    <!-- TEMPAT NOTIF KUSTOM -->
     <div id="customNotifContainer" style="position: fixed; top: 20px; left: 0; width: 100%; pointer-events: none; z-index: 10001; display: flex; justify-content: center;"></div>
 
     <script>
-        // ==================== FIREBASE INIT ====================
         const firebaseConfig = {
             apiKey: "AIzaSyDZMFlfu8ObuuEpicbbkUyKWn_gUFnY_SQ",
             authDomain: "project-aaa14b70-7347-4232-8a0.firebaseapp.com",
@@ -478,21 +383,17 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // ==================== FUNGSI NOTIF KUSTOM ====================
         function showNotif(msg, isSuccess = true) {
             const container = document.getElementById('customNotifContainer');
             const notif = document.createElement('div');
             notif.className = 'custom-notif';
             notif.style.background = isSuccess ? 'rgba(20,20,30,0.9)' : 'rgba(180,0,0,0.7)';
             notif.innerText = msg;
-            container.innerHTML = ''; // hanya tampilkan satu notif
+            container.innerHTML = '';
             container.appendChild(notif);
-            setTimeout(() => {
-                if (notif.parentNode) notif.remove();
-            }, 3000);
+            setTimeout(() => notif.remove(), 3000);
         }
 
-        // ==================== STATE GLOBAL ====================
         let currentUser = null;
         let keepLogin = false;
         let adminMode = false;
@@ -500,8 +401,8 @@
         let kontakTarget = null;
         let userListener = null;
         let chatListener = null;
+        let autoRefreshInterval = null;
 
-        // LOADING HIDE
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('loadingOverlay').style.opacity = '0';
@@ -512,7 +413,6 @@
             renderApp();
         });
 
-        // AMBIL IP
         async function getIP() {
             try {
                 const res = await fetch('https://api.ipify.org?format=json');
@@ -523,7 +423,6 @@
             }
         }
 
-        // JAM DIGITAL
         function updateDateTime() {
             const el = document.getElementById('liveDateTime');
             if (!el) return;
@@ -534,19 +433,12 @@
         }
         setInterval(updateDateTime, 1000);
 
-        // CLEANUP LISTENERS
         function cleanupListeners() {
-            if (userListener) {
-                userListener();
-                userListener = null;
-            }
-            if (chatListener) {
-                chatListener();
-                chatListener = null;
-            }
+            if (userListener) { userListener(); userListener = null; }
+            if (chatListener) { chatListener(); chatListener = null; }
+            if (autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; }
         }
 
-        // RENDER ROUTER
         function renderApp() {
             if (adminMode) {
                 renderAdminPanel();
@@ -556,7 +448,6 @@
             }
         }
 
-        // ==================== LOGIN ====================
         function renderLogin() {
             cleanupListeners();
             const container = document.getElementById('appContainer');
@@ -609,23 +500,18 @@
                 const user = document.getElementById('loginUser').value.trim();
                 const pass = document.getElementById('loginPass').value.trim();
                 if (!user || !pass) return showNotif('Isi username dan password', false);
-                
                 const snapshot = await db.ref('users/' + user.replace(/\./g, ',')).once('value');
                 const data = snapshot.val();
                 if (data && data.password === pass) {
-                    // Cek ban dan blacklist
                     if (data.ban && data.banUntil > Date.now()) {
-                        return showNotif(`Akun Anda di-ban sampai ${new Date(data.banUntil).toLocaleString()}`, false);
+                        return showNotif(`Akun di-ban sampai ${new Date(data.banUntil).toLocaleString()}`, false);
                     }
                     if (data.blacklist && data.blacklistUntil > Date.now()) {
-                        return showNotif(`Akun Anda di-blacklist sampai ${new Date(data.blacklistUntil).toLocaleString()}`, false);
+                        return showNotif(`Akun di-blacklist sampai ${new Date(data.blacklistUntil).toLocaleString()}`, false);
                     }
                     currentUser = { ...data, username: user };
-                    if (keepLogin) {
-                        localStorage.setItem('zchat_keep', JSON.stringify({ user, pass }));
-                    } else {
-                        localStorage.removeItem('zchat_keep');
-                    }
+                    if (keepLogin) localStorage.setItem('zchat_keep', JSON.stringify({ user, pass }));
+                    else localStorage.removeItem('zchat_keep');
                     const ip = await getIP();
                     await db.ref('users/' + user.replace(/\./g, ',') + '/ip').set(ip);
                     renderApp();
@@ -637,13 +523,8 @@
             const keepBtn = document.getElementById('keepLoginToggle');
             keepBtn.addEventListener('click', () => {
                 keepLogin = !keepLogin;
-                if (keepLogin) {
-                    keepBtn.classList.add('keep-active');
-                    keepBtn.classList.remove('keep-inactive');
-                } else {
-                    keepBtn.classList.add('keep-inactive');
-                    keepBtn.classList.remove('keep-active');
-                }
+                keepBtn.classList.toggle('keep-active', keepLogin);
+                keepBtn.classList.toggle('keep-inactive', !keepLogin);
             });
 
             const keep = localStorage.getItem('zchat_keep');
@@ -659,7 +540,6 @@
             }
         }
 
-        // ==================== REGISTER ====================
         function renderDaftar() {
             const container = document.getElementById('appContainer');
             container.innerHTML = `
@@ -678,9 +558,8 @@
                 const user = document.getElementById('regUser').value.trim();
                 const pass = document.getElementById('regPass').value.trim();
                 if (!user || !pass) return showNotif('Isi semua', false);
-                
-                const snapshot = await db.ref('users/' + user.replace(/\./g, ',')).once('value');
-                if (snapshot.exists()) {
+                const snap = await db.ref('users/' + user.replace(/\./g, ',')).once('value');
+                if (snap.exists()) {
                     showNotif('Username sudah digunakan!', false);
                 } else {
                     const ip = await getIP();
@@ -706,17 +585,14 @@
             });
         }
 
-        // ==================== MAIN ====================
         function renderMain() {
             const container = document.getElementById('appContainer');
             document.getElementById('gridBg').style.display = 'none';
             document.getElementById('blackholeBg').style.display = 'block';
             cleanupListeners();
 
-            // Set status online
             db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/status').set('online');
 
-            // Listener untuk perubahan data user (ban, role, dll)
             const userRef = db.ref('users/' + currentUser.username.replace(/\./g, ','));
             userListener = userRef.on('value', (snap) => {
                 const fresh = snap.val();
@@ -744,9 +620,22 @@
                 if (JSON.stringify(fresh) !== JSON.stringify(currentUser)) {
                     currentUser = { ...fresh, username: currentUser.username };
                     showNotif('Data akun diperbarui.');
-                    renderMain(); // re-render dengan role baru
+                    renderMain();
                 }
             });
+
+            autoRefreshInterval = setInterval(() => {
+                if (currentUser) {
+                    userRef.once('value').then(snap => {
+                        const fresh = snap.val();
+                        if (fresh && JSON.stringify(fresh) !== JSON.stringify(currentUser)) {
+                            currentUser = { ...fresh, username: currentUser.username };
+                            showNotif('Data akun diperbarui (auto).');
+                            renderMain();
+                        }
+                    });
+                }
+            }, 10000);
 
             let roleMenu = '';
             if (currentUser.role === 'Vip' || currentUser.role === 'VVip' || currentUser.role === 'ZVip' || currentUser.role === 'admin') {
@@ -763,12 +652,9 @@
             <div class="flex-col">
                 <div class="datetime capsule" id="liveDateTime"></div>
                 <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div>
-                            <strong>USERNAME:</strong> ${currentUser.username}<br>
-                            <strong>ROLE:</strong> <span class="role-badge">${currentUser.role}</span>
-                        </div>
-                        <button class="refresh-role" id="refreshRoleBtn" title="Refresh manual"><i class="fas fa-sync-alt"></i></button>
+                    <div>
+                        <strong>USERNAME:</strong> ${currentUser.username}<br>
+                        <strong>ROLE:</strong> <span class="role-badge">${currentUser.role}</span>
                     </div>
                     <div><i class="fas fa-cog" id="settingsBtn" style="font-size: 26px; cursor: pointer;"></i></div>
                 </div>
@@ -779,7 +665,7 @@
                 </div>
                 <div class="card">
                     <div class="cari-kontak-wrapper">
-                        <input type="text" id="cariUserInput" class="input" placeholder="Cari username...">
+                        <input type="text" id="cariUserInput" class="input" placeholder="Cari username untuk ditambahkan...">
                         <button id="addKontakBtn" class="capsule"><i class="fas fa-user-plus"></i></button>
                     </div>
                     <div id="kontakList" class="flex-col" style="max-height: 200px; overflow-y: auto; margin-top: 15px;"></div>
@@ -797,16 +683,6 @@
 
             updateDateTime();
             loadKontak();
-
-            document.getElementById('refreshRoleBtn').addEventListener('click', () => {
-                userRef.once('value').then(snap => {
-                    const fresh = snap.val();
-                    if (fresh) {
-                        currentUser = { ...fresh, username: currentUser.username };
-                        renderMain();
-                    }
-                });
-            });
 
             document.getElementById('settingsBtn').addEventListener('click', renderSettings);
             document.getElementById('refreshKontak').addEventListener('click', loadKontak);
@@ -835,40 +711,23 @@
             }
         }
 
-        // Fungsi untuk user action (role)
         function userAction(type) {
-            if (!kontakTarget) {
-                showNotif('Pilih kontak terlebih dahulu!', false);
-                return;
-            }
+            if (!kontakTarget) return showNotif('Pilih kontak terlebih dahulu!', false);
             switch(type) {
-                case 'crash':
-                    showNotif(`Fitur Crash: Anda mengganggu ${kontakTarget} (simulasi).`);
-                    break;
-                case 'uncrash':
-                    showNotif(`Fitur Uncrash: Memulihkan ${kontakTarget} (simulasi).`);
-                    break;
-                case 'mute':
-                    showNotif(`Fitur Mute: Anda membisukan ${kontakTarget}. (simulasi)`);
-                    break;
+                case 'crash': showNotif(`Crash: Anda mengganggu ${kontakTarget} (simulasi).`); break;
+                case 'uncrash': showNotif(`Uncrash: Memulihkan ${kontakTarget} (simulasi).`); break;
+                case 'mute': showNotif(`Mute: Anda membisukan ${kontakTarget}. (simulasi)`); break;
                 case 'sadap':
-                    // Sadap: tampilkan pesan-pesan dari kontak target
                     db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages').once('value').then(snap => {
                         const msgs = snap.val() || {};
                         let log = `Pesan dari ${kontakTarget}:\n`;
-                        for (let contact in msgs) {
-                            for (let time in msgs[contact]) {
-                                log += `[${new Date(parseInt(time)).toLocaleString()}] ${msgs[contact][time].text}\n`;
-                            }
-                        }
+                        for (let c in msgs) for (let t in msgs[c]) log += `[${new Date(parseInt(t)).toLocaleString()}] ${msgs[c][t].text}\n`;
                         showNotif(log || 'Belum ada pesan.', true);
                     });
                     break;
-                default: break;
             }
         }
 
-        // ==================== SETTINGS ====================
         function renderSettings() {
             const container = document.getElementById('appContainer');
             container.innerHTML = `
@@ -880,20 +739,16 @@
                 </div>
             </div>
             `;
-            document.getElementById('toggleTheme').addEventListener('click', () => {
-                document.body.classList.toggle('white-mode');
-            });
+            document.getElementById('toggleTheme').addEventListener('click', () => document.body.classList.toggle('white-mode'));
             document.getElementById('backMain').addEventListener('click', () => renderMain());
         }
 
-        // ==================== KONTAK ====================
         async function loadKontak() {
             if (!currentUser) return;
             const snap = await db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/kontak').once('value');
             const kontak = snap.val() || {};
             let html = '';
             for (let k in kontak) {
-                // Ambil status online dari db
                 const statusSnap = await db.ref('users/' + k.replace(/\./g, ',') + '/status').once('value');
                 const status = statusSnap.val() === 'online' ? 'online' : 'offline';
                 html += `<div class="contact-item" data-user="${k}"><span>${k}</span> <span class="${status}">● ${status}</span></div>`;
@@ -921,39 +776,25 @@
         function loadChat() {
             if (!kontakTarget) return;
             const chatRef = db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ','));
-            // Hapus listener sebelumnya
             if (chatListener) chatListener();
             chatListener = chatRef.on('value', (snap) => {
                 const messages = snap.val() || {};
                 let html = '';
-                const sorted = Object.keys(messages).sort((a,b) => a - b);
-                for (let time of sorted) {
+                Object.keys(messages).sort((a,b)=>a-b).forEach(time => {
                     const msg = messages[time];
-                    const isOwn = msg.sender === currentUser.username;
-                    html += `<div class="chat-bubble ${isOwn ? 'own' : ''}">${msg.text}</div>`;
-                }
-                document.getElementById('chatMessages').innerHTML = html || '<div class="chat-bubble">Belum ada pesan. Mulai percakapan!</div>';
+                    html += `<div class="chat-bubble ${msg.sender === currentUser.username ? 'own' : ''}">${msg.text}</div>`;
+                });
+                document.getElementById('chatMessages').innerHTML = html || '<div class="chat-bubble">Belum ada pesan.</div>';
             });
         }
 
         async function sendPesan() {
             const pesan = document.getElementById('pesanInput').value.trim();
             if (!pesan || !kontakTarget) return showNotif('Pilih kontak dan tulis pesan', false);
-
-            // Cek mute
-            if (currentUser.mute) {
-                return showNotif('Anda sedang di-mute oleh admin, tidak bisa mengirim pesan.', false);
-            }
-
+            if (currentUser.mute) return showNotif('Anda sedang di-mute, tidak bisa mengirim pesan.', false);
             const time = Date.now().toString();
-            const pesanData = {
-                text: pesan,
-                sender: currentUser.username,
-                time: time
-            };
-            // Simpan ke pengirim
+            const pesanData = { text: pesan, sender: currentUser.username, time };
             await db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ',') + '/' + time).set(pesanData);
-            // Simpan ke penerima
             await db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages/' + currentUser.username.replace(/\./g, ',') + '/' + time).set(pesanData);
             showNotif('Pesan terkirim');
             document.getElementById('pesanInput').value = '';
@@ -962,27 +803,17 @@
         function uploadFile() {
             const file = document.getElementById('fileUpload').files[0];
             if (!file) return;
-            if (file.size > 15 * 1024 * 1024) {
-                showNotif('File maksimal 15MB', false);
-                return;
-            }
+            if (file.size > 15 * 1024 * 1024) return showNotif('File maksimal 15MB', false);
             const storageRef = storage.ref('files/' + Date.now() + '_' + file.name);
             storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
                 const time = Date.now().toString();
-                const pesanData = {
-                    text: '[File] ' + file.name,
-                    fileUrl: url,
-                    sender: currentUser.username,
-                    time: time
-                };
+                const pesanData = { text: '[File] ' + file.name, fileUrl: url, sender: currentUser.username, time };
                 db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ',') + '/' + time).set(pesanData);
                 db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages/' + currentUser.username.replace(/\./g, ',') + '/' + time).set(pesanData);
                 showNotif('File terkirim');
-                loadChat();
             }).catch(() => showNotif('Upload gagal', false));
         }
 
-        // ==================== ADMIN PANEL ====================
         function renderAdminPanel() {
             cleanupListeners();
             const adminContainer = document.getElementById('adminPanelContainer');
@@ -1012,6 +843,7 @@
                         <button id="adminUnblacklist" class="capsule">⚪ Unblacklist</button>
                         <button id="adminSadap" class="capsule">👁️ Sadap</button>
                         <button id="adminMute" class="capsule">🔇 Mute</button>
+                        <button id="adminUnmute" class="capsule">🔊 Unmute</button>
                         <button id="adminHapus" class="capsule">❌ Hapus Akun</button>
                         <button id="adminLihatData" class="capsule">🔍 Lihat IP/Pass</button>
                     </div>
@@ -1044,7 +876,7 @@
                     if (document.getElementById('adminKeyInput').value === 'zmtrrr') {
                         adminAuthed = true;
                         playAdminOpening(() => {
-                            renderAdminPanel(); // baru render panel setelah video selesai
+                            renderAdminPanel();
                         });
                     } else showNotif('Key salah!', false);
                 });
@@ -1057,6 +889,7 @@
                 document.getElementById('adminUnblacklist').addEventListener('click', () => adminAction('unblacklist'));
                 document.getElementById('adminSadap').addEventListener('click', () => adminAction('sadap'));
                 document.getElementById('adminMute').addEventListener('click', () => adminAction('mute'));
+                document.getElementById('adminUnmute').addEventListener('click', () => adminAction('unmute'));
                 document.getElementById('adminHapus').addEventListener('click', adminHapusAkun);
                 document.getElementById('adminLihatData').addEventListener('click', adminLihatData);
                 document.getElementById('setRoleBayar').addEventListener('click', adminSetRole);
@@ -1064,7 +897,6 @@
             }
         }
 
-        // ==================== VIDEO OPENING DALAM KAPSUL ====================
         function playAdminOpening(callback) {
             const div = document.createElement('div');
             div.className = 'admin-opening';
@@ -1075,112 +907,58 @@
                     </video>
                 </div>
                 <div class="admin-text">
-                    ZMT ADMIN <span>@</span>
+                    ZMT ADMIN
                 </div>
             `;
             document.body.appendChild(div);
 
             const video = div.querySelector('video');
-            
             const cleanup = () => {
                 if (div.parentNode) div.remove();
                 if (callback) callback();
             };
 
             if (video) {
-                // Pastikan video bisa diputar dengan suara
-                video.muted = false; // biar ada suara
+                video.muted = false;
                 video.play().catch(() => {
-                    // Fallback jika autoplay diblokir
-                    div.innerHTML = `
-                        <div class="capsule-opening"></div>
-                        <div class="admin-text">ZMT ADMIN <span>@</span></div>
-                    `;
-                    setTimeout(cleanup, 3500);
+                    div.innerHTML = `<div class="capsule-opening"></div><div class="admin-text">ZMT ADMIN</div>`;
+                    setTimeout(cleanup, 3000);
                 });
                 video.onended = cleanup;
                 video.onerror = () => {
-                    div.innerHTML = `
-                        <div class="capsule-opening"></div>
-                        <div class="admin-text">ZMT ADMIN <span>@</span></div>
-                    `;
-                    setTimeout(cleanup, 3500);
+                    div.innerHTML = `<div class="capsule-opening"></div><div class="admin-text">ZMT ADMIN</div>`;
+                    setTimeout(cleanup, 3000);
                 };
-                // Timeout maksimal 10 detik (jika video terlalu panjang)
                 setTimeout(cleanup, 10000);
             } else {
-                div.innerHTML = `
-                    <div class="capsule-opening"></div>
-                    <div class="admin-text">ZMT ADMIN <span>@</span></div>
-                `;
-                setTimeout(cleanup, 3500);
+                div.innerHTML = `<div class="capsule-opening"></div><div class="admin-text">ZMT ADMIN</div>`;
+                setTimeout(cleanup, 3000);
             }
         }
 
-        // ==================== ADMIN ACTIONS ====================
         async function adminAction(type) {
             const target = document.getElementById('targetAdminUser').value.trim();
             if (!target) return showNotif('Masukkan username target', false);
             const userRef = db.ref('users/' + target.replace(/\./g, ','));
             const snap = await userRef.once('value');
             if (!snap.exists()) return showNotif('User tidak ditemukan', false);
-            
             const now = Date.now();
             switch(type) {
-                case 'ban':
-                    await userRef.update({ ban: true, banUntil: now + 3600000 });
-                    showNotif(`User ${target} di-ban 1 jam`);
-                    break;
-                case 'unban':
-                    await userRef.update({ ban: false, banUntil: null });
-                    showNotif(`User ${target} di-unban`);
-                    break;
-                case 'blacklist':
-                    await userRef.update({ blacklist: true, blacklistUntil: now + 86400000 });
-                    showNotif(`User ${target} di-blacklist 24 jam`);
-                    break;
-                case 'unblacklist':
-                    await userRef.update({ blacklist: false, blacklistUntil: null });
-                    showNotif(`User ${target} di-unblacklist`);
-                    break;
-                case 'crash':
-                    await userRef.update({ crash: true });
-                    showNotif(`User ${target} di-crash`);
-                    break;
-                case 'uncrash':
-                    await userRef.update({ crash: false });
-                    showNotif(`User ${target} di-uncrash`);
-                    break;
-                case 'mute':
-                    await userRef.update({ mute: true });
-                    showNotif(`User ${target} di-mute`);
-                    break;
+                case 'ban': await userRef.update({ ban: true, banUntil: now + 3600000 }); showNotif(`User ${target} di-ban 1 jam`); break;
+                case 'unban': await userRef.update({ ban: false, banUntil: null }); showNotif(`User ${target} di-unban`); break;
+                case 'blacklist': await userRef.update({ blacklist: true, blacklistUntil: now + 86400000 }); showNotif(`User ${target} di-blacklist 24 jam`); break;
+                case 'unblacklist': await userRef.update({ blacklist: false, blacklistUntil: null }); showNotif(`User ${target} di-unblacklist`); break;
+                case 'crash': await userRef.update({ crash: true }); showNotif(`User ${target} di-crash`); break;
+                case 'uncrash': await userRef.update({ crash: false }); showNotif(`User ${target} di-uncrash`); break;
+                case 'mute': await userRef.update({ mute: true }); showNotif(`User ${target} di-mute`); break;
+                case 'unmute': await userRef.update({ mute: false }); showNotif(`User ${target} di-unmute`); break;
                 case 'sadap':
                     const msgSnap = await db.ref('users/' + target.replace(/\./g, ',') + '/messages').once('value');
                     const msgs = msgSnap.val() || {};
                     let log = `Semua pesan milik ${target}:\n`;
-                    for (let contact in msgs) {
-                        for (let t in msgs[contact]) {
-                            log += `[${new Date(parseInt(t)).toLocaleString()}] ${msgs[contact][t].text}\n`;
-                        }
-                    }
+                    for (let c in msgs) for (let t in msgs[c]) log += `[${new Date(parseInt(t)).toLocaleString()}] ${msgs[c][t].text}\n`;
                     showNotif(log || 'Tidak ada pesan.');
                     break;
-                default: break;
-            }
-
-            // Jika target adalah user yang sedang login, paksa refresh agar efek langsung terasa
-            if (currentUser && currentUser.username === target) {
-                setTimeout(() => {
-                    // Re-fetch data user
-                    db.ref('users/' + currentUser.username.replace(/\./g, ',')).once('value').then(snap => {
-                        const fresh = snap.val();
-                        if (fresh) {
-                            currentUser = { ...fresh, username: currentUser.username };
-                            renderMain();
-                        }
-                    });
-                }, 500);
             }
         }
 
@@ -1207,9 +985,7 @@
             const data = snap.val();
             if (data) {
                 showNotif(`Username: ${target}\nPass: ${data.password}\nIP: ${data.ip || '-'}\nRole: ${data.role}\nBan: ${data.ban ? 'Ya' : 'Tidak'}\nBlacklist: ${data.blacklist ? 'Ya' : 'Tidak'}\nMute: ${data.mute ? 'Ya' : 'Tidak'}`);
-            } else {
-                showNotif('User tidak ditemukan', false);
-            }
+            } else showNotif('User tidak ditemukan', false);
         }
 
         async function adminSetRole() {
@@ -1226,17 +1002,14 @@
         async function listAllUsers() {
             const snap = await db.ref('users').once('value');
             const users = snap.val() || {};
-            let html = '<div class="card"><h4 style="margin-bottom:15px;">Semua User</h4>';
+            let html = '<div class="card"><h4>Semua User</h4>';
             for (let u in users) {
-                html += `<div style="margin-bottom:8px; padding:8px; background:rgba(255,255,255,0.05); border-radius:40px;">
-                    <b>${u}</b> | Role: ${users[u].role} | IP: ${users[u].ip || '-'} | Pass: ${users[u].password}
-                </div>`;
+                html += `<div><b>${u}</b> | Role: ${users[u].role} | IP: ${users[u].ip} | Pass: ${users[u].password}</div>`;
             }
             html += '</div>';
             document.getElementById('allUsersList').innerHTML = html;
         }
 
-        // ADMIN FLOAT BUTTON
         document.getElementById('adminFloatBtn').addEventListener('click', () => {
             adminMode = true;
             renderAdminPanel();
