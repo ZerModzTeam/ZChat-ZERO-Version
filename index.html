@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZChat Zero Edition - Final Full</title>
+    <title>ZChat Zero Edition - Final Complete</title>
     <!-- Firebase SDK (compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -613,8 +613,12 @@
                 const snapshot = await db.ref('users/' + user.replace(/\./g, ',')).once('value');
                 const data = snapshot.val();
                 if (data && data.password === pass) {
+                    // Cek ban dan blacklist
                     if (data.ban && data.banUntil > Date.now()) {
-                        return showNotif(`Akun dibanned sampai ${new Date(data.banUntil).toLocaleString()}`, false);
+                        return showNotif(`Akun Anda di-ban sampai ${new Date(data.banUntil).toLocaleString()}`, false);
+                    }
+                    if (data.blacklist && data.blacklistUntil > Date.now()) {
+                        return showNotif(`Akun Anda di-blacklist sampai ${new Date(data.blacklistUntil).toLocaleString()}`, false);
                     }
                     currentUser = { ...data, username: user };
                     if (keepLogin) {
@@ -725,6 +729,13 @@
                 }
                 if (fresh.ban && fresh.banUntil > Date.now()) {
                     showNotif(`Anda dibanned sampai ${new Date(fresh.banUntil).toLocaleString()}`, false);
+                    currentUser = null;
+                    localStorage.removeItem('zchat_keep');
+                    renderLogin();
+                    return;
+                }
+                if (fresh.blacklist && fresh.blacklistUntil > Date.now()) {
+                    showNotif(`Anda di-blacklist sampai ${new Date(fresh.blacklistUntil).toLocaleString()}`, false);
                     currentUser = null;
                     localStorage.removeItem('zchat_keep');
                     renderLogin();
@@ -1059,7 +1070,7 @@
             div.className = 'admin-opening';
             div.innerHTML = `
                 <div class="video-capsule">
-                    <video autoplay muted playsinline>
+                    <video autoplay playsinline>
                         <source src="introadm.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -1077,8 +1088,10 @@
             };
 
             if (video) {
+                // Pastikan video bisa diputar dengan suara
+                video.muted = false; // biar ada suara
                 video.play().catch(() => {
-                    // Fallback animasi
+                    // Fallback jika autoplay diblokir
                     div.innerHTML = `
                         <div class="capsule-opening"></div>
                         <div class="admin-text">ZMT ADMIN <span>@</span></div>
@@ -1093,10 +1106,9 @@
                     `;
                     setTimeout(cleanup, 3500);
                 };
-                // Timeout maksimal 4 detik jika video tidak memiliki durasi
-                setTimeout(cleanup, 4000);
+                // Timeout maksimal 10 detik (jika video terlalu panjang)
+                setTimeout(cleanup, 10000);
             } else {
-                // Fallback jika video tidak ada
                 div.innerHTML = `
                     <div class="capsule-opening"></div>
                     <div class="admin-text">ZMT ADMIN <span>@</span></div>
@@ -1194,7 +1206,7 @@
             const snap = await db.ref('users/' + target.replace(/\./g, ',')).once('value');
             const data = snap.val();
             if (data) {
-                showNotif(`Username: ${target}\nPass: ${data.password}\nIP: ${data.ip || '-'}\nRole: ${data.role}\nBan: ${data.ban ? 'Ya' : 'Tidak'}\nMute: ${data.mute ? 'Ya' : 'Tidak'}`);
+                showNotif(`Username: ${target}\nPass: ${data.password}\nIP: ${data.ip || '-'}\nRole: ${data.role}\nBan: ${data.ban ? 'Ya' : 'Tidak'}\nBlacklist: ${data.blacklist ? 'Ya' : 'Tidak'}\nMute: ${data.mute ? 'Ya' : 'Tidak'}`);
             } else {
                 showNotif('User tidak ditemukan', false);
             }
