@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZChat Zero Edition - iPhone Style</title>
-    <!-- Font IPhone (SF Pro) dan Emoji Apple -->
+    <title>ZChat Zero Edition - Final</title>
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
     <style>
+        /* ========== RESET & FONT ========== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiOne Color', 'Twemoji Mozilla', 'Twemoji', 'Segoe UI Symbol';
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiOne Color', 'Twemoji Mozilla', 'Twemoji';
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
         }
+
         body {
             min-height: 100vh;
             background: #000;
@@ -20,10 +27,12 @@
             position: relative;
             overflow-x: hidden;
         }
+
         body.white-mode {
             background: #f2f2f7;
             color: #1c1c1e;
         }
+
         /* Grid ungu bergerak */
         .grid-bg {
             position: fixed;
@@ -39,10 +48,12 @@
             pointer-events: none;
             z-index: 0;
         }
+
         @keyframes moveGrid {
             0% { background-position: 0 0; }
             100% { background-position: 48px 48px; }
         }
+
         /* Black hole background */
         .blackhole-bg {
             position: fixed;
@@ -55,10 +66,12 @@
             opacity: 0.8;
             z-index: 0;
         }
+
         body.white-mode .blackhole-bg {
             opacity: 0.2;
             background: radial-gradient(circle at 30% 40%, #c7a4ff, #ccc);
         }
+
         /* Loading overlay */
         .loading-overlay {
             position: fixed;
@@ -75,6 +88,7 @@
             flex-direction: column;
             gap: 24px;
         }
+
         .loader {
             width: 60px;
             height: 60px;
@@ -83,12 +97,14 @@
             border-radius: 50%;
             animation: rotasi 1s linear infinite;
         }
+
         @keyframes rotasi {
             0% { transform: rotate(0); }
             100% { transform: rotate(360deg); }
         }
-        /* ========== UI KAPSUL SERAGAM ========== */
-        .capsule, button, .input, .card, .chat-bubble, .contact-item, .role-item, select, textarea {
+
+        /* ========== UI KAPSUL ========== */
+        .capsule, button, .input, .card, .chat-bubble, .contact-item, .role-item, select, textarea, .custom-notif {
             border-radius: 40px !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
@@ -101,12 +117,14 @@
             width: 100%;
             font-size: 18px;
         }
+
         body.white-mode .capsule, body.white-mode button, body.white-mode .input,
         body.white-mode .card, body.white-mode .chat-bubble, body.white-mode .contact-item {
             background: rgba(255, 255, 255, 0.3) !important;
             border-color: rgba(0, 0, 0, 0.1);
             color: #000;
         }
+
         button {
             cursor: pointer;
             font-weight: 500;
@@ -116,10 +134,12 @@
             display: inline-block;
             padding: 16px 28px;
         }
+
         button:active {
             transform: scale(0.96);
             background: rgba(180, 0, 255, 0.4) !important;
         }
+
         input, select, textarea {
             border: 1px solid rgba(255,255,255,0.2) !important;
             outline: none;
@@ -127,17 +147,21 @@
             color: #fff;
             padding: 18px 24px;
         }
+
         input::placeholder {
             color: rgba(255,255,255,0.8);
             font-weight: 400;
         }
+
         body.white-mode input::placeholder {
             color: rgba(0,0,0,0.6);
         }
+
         select option {
             background: #1c1c1e;
             color: white;
         }
+
         .app-container {
             position: relative;
             z-index: 5;
@@ -146,23 +170,28 @@
             max-width: 600px;
             margin: 0 auto;
         }
+
         .flex-col {
             display: flex;
             flex-direction: column;
             gap: 18px;
         }
+
         .card {
             padding: 24px;
         }
+
         .link-text {
             color: #b266ff;
             cursor: pointer;
             border-bottom: 1px dashed rgba(255,255,255,0.3);
             padding-bottom: 2px;
         }
+
         .link-text:hover {
             border-bottom-color: #b266ff;
         }
+
         .datetime {
             text-align: center;
             font-size: 1.5rem;
@@ -170,11 +199,13 @@
             letter-spacing: -0.5px;
             padding: 16px 22px;
         }
+
         .datetime span {
             font-size: 1rem;
             opacity: 0.8;
             font-weight: 400;
         }
+
         /* chat area */
         .chat-area {
             display: flex;
@@ -187,6 +218,7 @@
             background: rgba(0,0,0,0.2);
             backdrop-filter: blur(10px);
         }
+
         .chat-bubble {
             max-width: 80%;
             padding: 14px 20px;
@@ -194,10 +226,12 @@
             background: rgba(50, 50, 70, 0.3) !important;
             word-break: break-word;
         }
+
         .chat-bubble.own {
             align-self: flex-end;
             background: rgba(140, 0, 255, 0.35) !important;
         }
+
         .contact-item {
             display: flex;
             justify-content: space-between;
@@ -206,6 +240,7 @@
             background: rgba(30,30,40,0.2) !important;
             margin-bottom: 5px;
         }
+
         .online { color: #32cd32; }
         .offline { color: #8e8e93; }
         .hidden { display: none !important; }
@@ -214,6 +249,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
+
         /* admin opening */
         .admin-opening {
             position: fixed;
@@ -224,9 +260,9 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            animation: fadeOut 4s forwards;
             pointer-events: none;
         }
+
         .video-capsule {
             width: 300px;
             height: 600px;
@@ -234,12 +270,15 @@
             overflow: hidden;
             box-shadow: 0 0 50px rgba(180,0,255,0.8);
             border: 2px solid rgba(255,255,255,0.3);
+            position: relative;
         }
+
         .video-capsule video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+
         .capsule-opening {
             width: 280px;
             height: 560px;
@@ -248,15 +287,32 @@
             filter: blur(50px);
             animation: pulseCapsule 1.8s infinite alternate;
         }
+
         @keyframes pulseCapsule {
             0% { transform: scale(0.7) rotate(-2deg); opacity: 0.5; }
             100% { transform: scale(1.3) rotate(3deg); opacity: 1; }
         }
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            75% { opacity: 1; }
-            100% { opacity: 0; visibility: hidden; }
+
+        .loading-text {
+            margin-top: 30px;
+            font-size: 28px;
+            color: white;
+            text-shadow: 0 0 10px purple;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+
+        .loading-text span {
+            animation: blink 1s infinite;
+            font-size: 32px;
+        }
+
+        @keyframes blink {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
         .role-badge {
             background: rgba(140,0,255,0.3);
             border-radius: 40px;
@@ -264,19 +320,23 @@
             backdrop-filter: blur(5px);
             font-size: 16px;
         }
+
         /* keep login toggle */
         .keep-active {
             background: rgba(48, 209, 88, 0.4) !important;
             border-color: #32cd32 !important;
         }
+
         .keep-inactive {
             background: rgba(255, 69, 58, 0.4) !important;
             border-color: #ff3b30 !important;
         }
+
         /* developer card */
         .dev-card {
             border: 2px solid rgba(255,215,0,0.5);
         }
+
         /* admin float button */
         .admin-float {
             position: fixed;
@@ -284,12 +344,14 @@
             right: 25px;
             z-index: 100;
         }
+
         .admin-float button {
             background: rgba(140,0,255,0.6) !important;
             padding: 16px 28px;
             box-shadow: 0 10px 25px rgba(140,0,255,0.5);
             width: auto;
         }
+
         /* admin panel full */
         .admin-panel-full {
             position: fixed;
@@ -300,19 +362,23 @@
             overflow-y: auto;
             padding: 25px;
         }
+
         .close-btn {
             background: rgba(255,59,48,0.3) !important;
             border-radius: 40px;
             padding: 12px 25px;
             width: auto;
         }
+
         .grid-2 button {
             width: 100%;
             text-align: center;
         }
+
         .fas, .far {
             font-family: 'Font Awesome 5 Free', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
         }
+
         .refresh-role {
             background: transparent !important;
             border: none;
@@ -322,35 +388,53 @@
             box-shadow: none;
             width: auto;
         }
+
         .refresh-role:active {
             background: rgba(255,255,255,0.2) !important;
         }
-        /* notifikasi realtime */
-        .realtime-notif {
-            background: rgba(255, 0, 0, 0.3);
+
+        /* custom notification */
+        .custom-notif {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20,20,30,0.9);
+            color: white;
+            padding: 14px 28px;
             border-radius: 40px;
-            padding: 10px 20px;
-            margin-bottom: 10px;
+            z-index: 10001;
             text-align: center;
-            animation: blink 1s infinite;
+            max-width: 80%;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: slideDown 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-size: 18px;
         }
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+
+        @keyframes slideDown {
+            from { top: 0; opacity: 0; }
+            to { top: 20px; opacity: 1; }
         }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
         /* wrapper untuk input kontak */
         .cari-kontak-wrapper {
             display: flex;
             gap: 10px;
             align-items: center;
         }
+
         .cari-kontak-wrapper input {
             flex: 1;
             min-width: 0;
         }
     </style>
-    <!-- Font Awesome untuk ikon (opsional) -->
+    <!-- Font Awesome untuk ikon -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
 </head>
 <body>
@@ -375,80 +459,45 @@
     <!-- ADMIN PANEL -->
     <div id="adminPanelContainer" class="hidden"></div>
 
-    <script>
-        // ==================== DATABASE SIMULATION (localStorage) ====================
-        const db = {
-            ref: (path) => ({
-                once: async (event) => {
-                    const data = JSON.parse(localStorage.getItem('zchat_db') || '{}');
-                    const keys = path.split('/').filter(k => k);
-                    let current = data;
-                    for (let k of keys) {
-                        if (k.includes(',')) k = k.replace(/,/g, '.');
-                        if (current) current = current[k];
-                        else break;
-                    }
-                    return {
-                        exists: () => current !== undefined && current !== null,
-                        val: () => current
-                    };
-                },
-                set: async (value) => {
-                    const data = JSON.parse(localStorage.getItem('zchat_db') || '{}');
-                    const keys = path.split('/').filter(k => k);
-                    let current = data;
-                    for (let i = 0; i < keys.length - 1; i++) {
-                        let k = keys[i];
-                        if (k.includes(',')) k = k.replace(/,/g, '.');
-                        if (!current[k]) current[k] = {};
-                        current = current[k];
-                    }
-                    let lastKey = keys[keys.length - 1];
-                    if (lastKey.includes(',')) lastKey = lastKey.replace(/,/g, '.');
-                    current[lastKey] = value;
-                    localStorage.setItem('zchat_db', JSON.stringify(data));
-                },
-                update: async (value) => {
-                    const data = JSON.parse(localStorage.getItem('zchat_db') || '{}');
-                    const keys = path.split('/').filter(k => k);
-                    let current = data;
-                    for (let i = 0; i < keys.length - 1; i++) {
-                        let k = keys[i];
-                        if (k.includes(',')) k = k.replace(/,/g, '.');
-                        if (!current[k]) current[k] = {};
-                        current = current[k];
-                    }
-                    let lastKey = keys[keys.length - 1];
-                    if (lastKey.includes(',')) lastKey = lastKey.replace(/,/g, '.');
-                    if (!current[lastKey]) current[lastKey] = {};
-                    Object.assign(current[lastKey], value);
-                    localStorage.setItem('zchat_db', JSON.stringify(data));
-                },
-                remove: async () => {
-                    const data = JSON.parse(localStorage.getItem('zchat_db') || '{}');
-                    const keys = path.split('/').filter(k => k);
-                    let current = data;
-                    for (let i = 0; i < keys.length - 1; i++) {
-                        let k = keys[i];
-                        if (k.includes(',')) k = k.replace(/,/g, '.');
-                        if (!current[k]) return;
-                        current = current[k];
-                    }
-                    let lastKey = keys[keys.length - 1];
-                    if (lastKey.includes(',')) lastKey = lastKey.replace(/,/g, '.');
-                    delete current[lastKey];
-                    localStorage.setItem('zchat_db', JSON.stringify(data));
-                }
-            })
-        };
+    <!-- TEMPAT NOTIF KUSTOM -->
+    <div id="customNotifContainer" style="position: fixed; top: 20px; left: 0; width: 100%; pointer-events: none; z-index: 10001; display: flex; justify-content: center;"></div>
 
-        // STATE GLOBAL
+    <script>
+        // ==================== FIREBASE INIT ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZMFlfu8ObuuEpicbbkUyKWn_gUFnY_SQ",
+            authDomain: "project-aaa14b70-7347-4232-8a0.firebaseapp.com",
+            databaseURL: "https://project-aaa14b70-7347-4232-8a0-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "project-aaa14b70-7347-4232-8a0",
+            storageBucket: "project-aaa14b70-7347-4232-8a0.firebasestorage.app",
+            messagingSenderId: "283427772761",
+            appId: "1:283427772761:web:52a4bfd1cbb39589ac9448"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const storage = firebase.storage();
+
+        // ==================== FUNGSI NOTIF KUSTOM ====================
+        function showNotif(msg, isSuccess = true) {
+            const container = document.getElementById('customNotifContainer');
+            const notif = document.createElement('div');
+            notif.className = 'custom-notif';
+            notif.style.background = isSuccess ? 'rgba(20,20,30,0.9)' : 'rgba(180,0,0,0.7)';
+            notif.innerText = msg;
+            container.innerHTML = ''; // hanya tampilkan satu notif
+            container.appendChild(notif);
+            setTimeout(() => {
+                if (notif.parentNode) notif.remove();
+            }, 3000);
+        }
+
+        // ==================== STATE GLOBAL ====================
         let currentUser = null;
         let keepLogin = false;
         let adminMode = false;
         let adminAuthed = false;
         let kontakTarget = null;
-        let realtimeInterval = null;
+        let realtimeListeners = [];
 
         // LOADING HIDE
         window.addEventListener('load', () => {
@@ -461,10 +510,18 @@
             renderApp();
         });
 
+        // AMBIL IP
         async function getIP() {
-            return '192.168.1.' + Math.floor(Math.random() * 255);
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                return data.ip;
+            } catch {
+                return '0.0.0.0';
+            }
         }
 
+        // JAM DIGITAL
         function updateDateTime() {
             const el = document.getElementById('liveDateTime');
             if (!el) return;
@@ -475,45 +532,13 @@
         }
         setInterval(updateDateTime, 1000);
 
-        async function checkForUpdates() {
-            if (!currentUser || adminMode) return;
-
-            const snap = await db.ref('users/' + currentUser.username.replace(/\./g, ',')).once('value');
-            const fresh = snap.val();
-
-            if (!fresh) {
-                alert('Akun Anda telah dihapus oleh admin.');
-                clearInterval(realtimeInterval);
-                currentUser = null;
-                localStorage.removeItem('zchat_keep');
-                renderLogin();
-                return;
-            }
-
-            if (fresh.ban && fresh.banUntil > Date.now()) {
-                alert(`Anda telah dibanned sampai ${new Date(fresh.banUntil).toLocaleString()}`);
-                clearInterval(realtimeInterval);
-                currentUser = null;
-                localStorage.removeItem('zchat_keep');
-                renderLogin();
-                return;
-            }
-
-            if (JSON.stringify(fresh) !== JSON.stringify(currentUser)) {
-                currentUser = { ...fresh, username: currentUser.username };
-                showNotification('Data akun Anda telah diperbarui!');
-                renderMain();
-            }
+        // CLEANUP LISTENERS
+        function cleanupListeners() {
+            realtimeListeners.forEach(unsub => unsub());
+            realtimeListeners = [];
         }
 
-        function showNotification(msg) {
-            const notif = document.createElement('div');
-            notif.className = 'realtime-notif capsule';
-            notif.innerText = msg;
-            document.getElementById('appContainer').prepend(notif);
-            setTimeout(() => notif.remove(), 3000);
-        }
-
+        // RENDER ROUTER
         function renderApp() {
             if (adminMode) {
                 renderAdminPanel();
@@ -523,34 +548,9 @@
             }
         }
 
-        async function refreshUserData() {
-            if (!currentUser) return;
-            const snap = await db.ref('users/' + currentUser.username.replace(/\./g, ',')).once('value');
-            const fresh = snap.val();
-            if (fresh) {
-                if (fresh.ban && fresh.banUntil > Date.now()) {
-                    alert(`Akun dibanned sampai ${new Date(fresh.banUntil).toLocaleString()}`);
-                    currentUser = null;
-                    localStorage.removeItem('zchat_keep');
-                    renderLogin();
-                    return;
-                }
-                currentUser = { ...fresh, username: currentUser.username };
-                renderMain();
-            } else {
-                alert('Akun Anda telah dihapus.');
-                currentUser = null;
-                localStorage.removeItem('zchat_keep');
-                renderLogin();
-            }
-        }
-
         // ==================== LOGIN ====================
         function renderLogin() {
-            if (realtimeInterval) {
-                clearInterval(realtimeInterval);
-                realtimeInterval = null;
-            }
+            cleanupListeners();
             const container = document.getElementById('appContainer');
             document.getElementById('gridBg').style.display = 'block';
             document.getElementById('blackholeBg').style.display = 'none';
@@ -600,12 +600,13 @@
             document.getElementById('loginBtn').addEventListener('click', async () => {
                 const user = document.getElementById('loginUser').value.trim();
                 const pass = document.getElementById('loginPass').value.trim();
-                if (!user || !pass) return alert('Isi username dan password');
-                const snap = await db.ref('users/' + user.replace(/\./g, ',')).once('value');
-                const data = snap.val();
+                if (!user || !pass) return showNotif('Isi username dan password', false);
+                
+                const snapshot = await db.ref('users/' + user.replace(/\./g, ',')).once('value');
+                const data = snapshot.val();
                 if (data && data.password === pass) {
                     if (data.ban && data.banUntil > Date.now()) {
-                        return alert(`Akun dibanned sampai ${new Date(data.banUntil).toLocaleString()}`);
+                        return showNotif(`Akun dibanned sampai ${new Date(data.banUntil).toLocaleString()}`, false);
                     }
                     currentUser = { ...data, username: user };
                     if (keepLogin) {
@@ -617,7 +618,7 @@
                     await db.ref('users/' + user.replace(/\./g, ',') + '/ip').set(ip);
                     renderApp();
                 } else {
-                    alert('Username atau password salah');
+                    showNotif('Username atau password salah', false);
                 }
             });
 
@@ -664,10 +665,11 @@
             document.getElementById('registerBtn').addEventListener('click', async () => {
                 const user = document.getElementById('regUser').value.trim();
                 const pass = document.getElementById('regPass').value.trim();
-                if (!user || !pass) return alert('Isi semua');
-                const snap = await db.ref('users/' + user.replace(/\./g, ',')).once('value');
-                if (snap.exists()) {
-                    alert('Username sudah digunakan!');
+                if (!user || !pass) return showNotif('Isi semua', false);
+                
+                const snapshot = await db.ref('users/' + user.replace(/\./g, ',')).once('value');
+                if (snapshot.exists()) {
+                    showNotif('Username sudah digunakan!', false);
                 } else {
                     const ip = await getIP();
                     await db.ref('users/' + user.replace(/\./g, ',')).set({
@@ -676,7 +678,7 @@
                         expired: null,
                         ip: ip,
                         kontak: {},
-                        messages: {}, // untuk menyimpan pesan per kontak
+                        messages: {},
                         createdAt: Date.now(),
                         status: 'offline',
                         mute: false,
@@ -686,7 +688,7 @@
                         ban: false,
                         banUntil: null
                     });
-                    alert('Pendaftaran berhasil, silakan login.');
+                    showNotif('Pendaftaran berhasil, silakan login.');
                     renderLogin();
                 }
             });
@@ -697,10 +699,36 @@
             const container = document.getElementById('appContainer');
             document.getElementById('gridBg').style.display = 'none';
             document.getElementById('blackholeBg').style.display = 'block';
+            cleanupListeners();
 
-            if (!realtimeInterval) {
-                realtimeInterval = setInterval(checkForUpdates, 3000);
-            }
+            // Set status online
+            db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/status').set('online');
+
+            // Listener untuk perubahan data user (ban, role, dll)
+            const userRef = db.ref('users/' + currentUser.username.replace(/\./g, ','));
+            const unsub = userRef.on('value', (snap) => {
+                const fresh = snap.val();
+                if (!fresh) {
+                    showNotif('Akun Anda telah dihapus admin.', false);
+                    currentUser = null;
+                    localStorage.removeItem('zchat_keep');
+                    renderLogin();
+                    return;
+                }
+                if (fresh.ban && fresh.banUntil > Date.now()) {
+                    showNotif(`Anda dibanned sampai ${new Date(fresh.banUntil).toLocaleString()}`, false);
+                    currentUser = null;
+                    localStorage.removeItem('zchat_keep');
+                    renderLogin();
+                    return;
+                }
+                if (JSON.stringify(fresh) !== JSON.stringify(currentUser)) {
+                    currentUser = { ...fresh, username: currentUser.username };
+                    showNotif('Data akun diperbarui.');
+                    renderMain(); // re-render dengan role baru
+                }
+            });
+            realtimeListeners.push(() => userRef.off('value', unsub));
 
             let roleMenu = '';
             if (currentUser.role === 'Vip' || currentUser.role === 'VVip' || currentUser.role === 'ZVip' || currentUser.role === 'admin') {
@@ -732,7 +760,6 @@
                     <button class="capsule" id="logoutBtn">🚪 Logout</button>
                 </div>
                 <div class="card">
-                    <!-- WRAPPER UNTUK INPUT CARI KONTAK -->
                     <div class="cari-kontak-wrapper">
                         <input type="text" id="cariUserInput" class="input" placeholder="Cari username...">
                         <button id="addKontakBtn" class="capsule"><i class="fas fa-user-plus"></i></button>
@@ -753,7 +780,16 @@
             updateDateTime();
             loadKontak();
 
-            document.getElementById('refreshRoleBtn').addEventListener('click', refreshUserData);
+            document.getElementById('refreshRoleBtn').addEventListener('click', () => {
+                userRef.once('value').then(snap => {
+                    const fresh = snap.val();
+                    if (fresh) {
+                        currentUser = { ...fresh, username: currentUser.username };
+                        renderMain();
+                    }
+                });
+            });
+
             document.getElementById('settingsBtn').addEventListener('click', renderSettings);
             document.getElementById('refreshKontak').addEventListener('click', loadKontak);
             document.getElementById('addKontakBtn').addEventListener('click', addKontak);
@@ -761,8 +797,8 @@
             document.getElementById('attachBtn').addEventListener('click', () => document.getElementById('fileUpload').click());
             document.getElementById('fileUpload').addEventListener('change', uploadFile);
             document.getElementById('logoutBtn').addEventListener('click', () => {
-                clearInterval(realtimeInterval);
-                realtimeInterval = null;
+                db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/status').set('offline');
+                cleanupListeners();
                 currentUser = null;
                 keepLogin = false;
                 localStorage.removeItem('zchat_keep');
@@ -784,29 +820,30 @@
         // Fungsi untuk user action (role)
         function userAction(type) {
             if (!kontakTarget) {
-                alert('Pilih kontak terlebih dahulu!');
+                showNotif('Pilih kontak terlebih dahulu!', false);
                 return;
             }
             switch(type) {
                 case 'crash':
-                    alert(`Fitur Crash: Anda akan mencoba mengganggu ${kontakTarget} (simulasi).`);
+                    showNotif(`Fitur Crash: Anda mengganggu ${kontakTarget} (simulasi).`);
                     break;
                 case 'uncrash':
-                    alert(`Fitur Uncrash: Memulihkan ${kontakTarget} (simulasi).`);
+                    showNotif(`Fitur Uncrash: Memulihkan ${kontakTarget} (simulasi).`);
                     break;
                 case 'mute':
-                    alert(`Fitur Mute: Anda membisukan ${kontakTarget}. Mereka tidak bisa mengirim pesan (simulasi).`);
+                    showNotif(`Fitur Mute: Anda membisukan ${kontakTarget}. (simulasi)`);
                     break;
                 case 'sadap':
-                    // Sadap: tampilkan pesan-pesan yang pernah dikirim kontak target
-                    const snap = db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages').once('value');
-                    snap.then(s => {
-                        const msgs = s.val() || {};
-                        let chatLog = 'Pesan-pesan dari ' + kontakTarget + ':\n';
-                        for (let t in msgs) {
-                            chatLog += `[${new Date(parseInt(t)).toLocaleString()}] ${msgs[t]}\n`;
+                    // Sadap: tampilkan pesan-pesan dari kontak target
+                    db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages').once('value').then(snap => {
+                        const msgs = snap.val() || {};
+                        let log = `Pesan dari ${kontakTarget}:\n`;
+                        for (let contact in msgs) {
+                            for (let time in msgs[contact]) {
+                                log += `[${new Date(parseInt(time)).toLocaleString()}] ${msgs[contact][time].text}\n`;
+                            }
                         }
-                        alert(chatLog || 'Belum ada pesan dari kontak ini.');
+                        showNotif(log || 'Belum ada pesan.', true);
                     });
                     break;
                 default: break;
@@ -838,7 +875,9 @@
             const kontak = snap.val() || {};
             let html = '';
             for (let k in kontak) {
-                const status = kontak[k]?.status === 'online' ? 'online' : 'offline';
+                // Ambil status online dari db
+                const statusSnap = await db.ref('users/' + k.replace(/\./g, ',') + '/status').once('value');
+                const status = statusSnap.val() === 'online' ? 'online' : 'offline';
                 html += `<div class="contact-item" data-user="${k}"><span>${k}</span> <span class="${status}">● ${status}</span></div>`;
             }
             document.getElementById('kontakList').innerHTML = html || '<p style="padding: 15px;">Belum ada kontak</p>';
@@ -853,67 +892,81 @@
 
         async function addKontak() {
             const target = document.getElementById('cariUserInput').value.trim();
-            if (!target || target === currentUser.username) return alert('Username tidak valid');
+            if (!target || target === currentUser.username) return showNotif('Username tidak valid', false);
             const snap = await db.ref('users/' + target.replace(/\./g, ',')).once('value');
-            if (!snap.exists()) return alert('User tidak ditemukan');
-            await db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/kontak/' + target.replace(/\./g, ',')).set({ status: 'offline' });
-            alert('Permintaan kontak terkirim');
+            if (!snap.exists()) return showNotif('User tidak ditemukan', false);
+            await db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/kontak/' + target.replace(/\./g, ',')).set({ added: Date.now() });
+            showNotif('Permintaan kontak terkirim');
             loadKontak();
         }
 
-        async function loadChat() {
+        function loadChat() {
             if (!kontakTarget) return;
-            // Ambil pesan antara currentUser dan kontakTarget
-            const snap = await db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ',')).once('value');
-            const messages = snap.val() || {};
-            let html = '';
-            for (let time in messages) {
-                const msg = messages[time];
-                const isOwn = msg.sender === currentUser.username;
-                html += `<div class="chat-bubble ${isOwn ? 'own' : ''}">${msg.text}</div>`;
-            }
-            document.getElementById('chatMessages').innerHTML = html || '<div class="chat-bubble">Belum ada pesan. Mulai percakapan!</div>';
+            const chatRef = db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ','));
+            // Hapus listener sebelumnya
+            if (window.chatListener) window.chatListener();
+            const unsub = chatRef.on('value', (snap) => {
+                const messages = snap.val() || {};
+                let html = '';
+                const sorted = Object.keys(messages).sort((a,b) => a - b);
+                for (let time of sorted) {
+                    const msg = messages[time];
+                    const isOwn = msg.sender === currentUser.username;
+                    html += `<div class="chat-bubble ${isOwn ? 'own' : ''}">${msg.text}</div>`;
+                }
+                document.getElementById('chatMessages').innerHTML = html || '<div class="chat-bubble">Belum ada pesan. Mulai percakapan!</div>';
+            });
+            window.chatListener = () => chatRef.off('value', unsub);
         }
 
         async function sendPesan() {
             const pesan = document.getElementById('pesanInput').value.trim();
-            if (!pesan || !kontakTarget) return alert('Pilih kontak dan tulis pesan');
+            if (!pesan || !kontakTarget) return showNotif('Pilih kontak dan tulis pesan', false);
 
-            // Cek apakah user di-mute
+            // Cek mute
             if (currentUser.mute) {
-                return alert('Anda sedang di-mute oleh admin, tidak bisa mengirim pesan.');
+                return showNotif('Anda sedang di-mute oleh admin, tidak bisa mengirim pesan.', false);
             }
 
             const time = Date.now().toString();
-            // Simpan pesan ke pengirim
-            await db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ',') + '/' + time).set({
+            const pesanData = {
                 text: pesan,
                 sender: currentUser.username,
                 time: time
-            });
-            // Simpan juga ke penerima (biar sync)
-            await db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages/' + currentUser.username.replace(/\./g, ',') + '/' + time).set({
-                text: pesan,
-                sender: currentUser.username,
-                time: time
-            });
-
-            alert(`Pesan terkirim ke ${kontakTarget}: ${pesan}`);
+            };
+            // Simpan ke pengirim
+            await db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ',') + '/' + time).set(pesanData);
+            // Simpan ke penerima
+            await db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages/' + currentUser.username.replace(/\./g, ',') + '/' + time).set(pesanData);
+            showNotif('Pesan terkirim');
             document.getElementById('pesanInput').value = '';
-            loadChat(); // refresh chat
         }
 
         function uploadFile() {
-            alert('Upload file (max 15MB) - simulasi');
+            const file = document.getElementById('fileUpload').files[0];
+            if (!file) return;
+            if (file.size > 15 * 1024 * 1024) {
+                showNotif('File maksimal 15MB', false);
+                return;
+            }
+            const storageRef = storage.ref('files/' + Date.now() + '_' + file.name);
+            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
+                const time = Date.now().toString();
+                const pesanData = {
+                    text: '[File] ' + file.name,
+                    fileUrl: url,
+                    sender: currentUser.username,
+                    time: time
+                };
+                db.ref('users/' + currentUser.username.replace(/\./g, ',') + '/messages/' + kontakTarget.replace(/\./g, ',') + '/' + time).set(pesanData);
+                db.ref('users/' + kontakTarget.replace(/\./g, ',') + '/messages/' + currentUser.username.replace(/\./g, ',') + '/' + time).set(pesanData);
+                showNotif('File terkirim');
+            }).catch(() => showNotif('Upload gagal', false));
         }
 
         // ==================== ADMIN PANEL ====================
         function renderAdminPanel() {
-            if (realtimeInterval) {
-                clearInterval(realtimeInterval);
-                realtimeInterval = null;
-            }
-
+            cleanupListeners();
             const adminContainer = document.getElementById('adminPanelContainer');
             adminContainer.classList.remove('hidden');
             adminContainer.innerHTML = `
@@ -975,7 +1028,7 @@
                         playAdminOpening(() => {
                             renderAdminPanel(); // baru render panel setelah video selesai
                         });
-                    } else alert('Key salah!');
+                    } else showNotif('Key salah!', false);
                 });
             } else {
                 document.getElementById('adminCrash').addEventListener('click', () => adminAction('crash'));
@@ -1003,7 +1056,9 @@
                         <source src="introadm.mp4" type="video/mp4">
                     </video>
                 </div>
-                <h2 style="color:white; margin-top:30px; text-shadow: 0 0 20px purple;">WELCOME ADMIN</h2>
+                <div class="loading-text">
+                    ZMT ADMIN <span>@</span>
+                </div>
             `;
             document.body.appendChild(div);
 
@@ -1016,9 +1071,10 @@
 
             if (video) {
                 video.play().catch(() => {
+                    // Fallback animasi
                     div.innerHTML = `
                         <div class="capsule-opening"></div>
-                        <h2 style="color:white; margin-top:30px;">WELCOME ADMIN</h2>
+                        <div class="loading-text">ZMT ADMIN <span>@</span></div>
                     `;
                     setTimeout(cleanup, 3500);
                 });
@@ -1026,7 +1082,7 @@
                 video.onerror = () => {
                     div.innerHTML = `
                         <div class="capsule-opening"></div>
-                        <h2 style="color:white; margin-top:30px;">WELCOME ADMIN</h2>
+                        <div class="loading-text">ZMT ADMIN <span>@</span></div>
                     `;
                     setTimeout(cleanup, 3500);
                 };
@@ -1034,7 +1090,7 @@
             } else {
                 div.innerHTML = `
                     <div class="capsule-opening"></div>
-                    <h2 style="color:white; margin-top:30px;">WELCOME ADMIN</h2>
+                    <div class="loading-text">ZMT ADMIN <span>@</span></div>
                 `;
                 setTimeout(cleanup, 3500);
             }
@@ -1043,71 +1099,65 @@
         // ==================== ADMIN ACTIONS ====================
         async function adminAction(type) {
             const target = document.getElementById('targetAdminUser').value.trim();
-            if (!target) return alert('Masukkan username target');
+            if (!target) return showNotif('Masukkan username target', false);
             const userRef = db.ref('users/' + target.replace(/\./g, ','));
             const snap = await userRef.once('value');
-            if (!snap.exists()) return alert('User tidak ditemukan');
+            if (!snap.exists()) return showNotif('User tidak ditemukan', false);
             
             const now = Date.now();
             switch(type) {
                 case 'ban':
                     await userRef.update({ ban: true, banUntil: now + 3600000 });
-                    alert(`User ${target} telah di-ban 1 jam`);
+                    showNotif(`User ${target} di-ban 1 jam`);
                     break;
                 case 'unban':
                     await userRef.update({ ban: false, banUntil: null });
-                    alert(`User ${target} telah di-unban`);
+                    showNotif(`User ${target} di-unban`);
                     break;
                 case 'blacklist':
                     await userRef.update({ blacklist: true, blacklistUntil: now + 86400000 });
-                    alert(`User ${target} di-blacklist 24 jam`);
+                    showNotif(`User ${target} di-blacklist 24 jam`);
                     break;
                 case 'unblacklist':
                     await userRef.update({ blacklist: false, blacklistUntil: null });
-                    alert(`User ${target} di-unblacklist`);
+                    showNotif(`User ${target} di-unblacklist`);
                     break;
                 case 'crash':
                     await userRef.update({ crash: true });
-                    alert(`User ${target} di-crash`);
+                    showNotif(`User ${target} di-crash`);
                     break;
                 case 'uncrash':
                     await userRef.update({ crash: false });
-                    alert(`User ${target} di-uncrash`);
+                    showNotif(`User ${target} di-uncrash`);
                     break;
                 case 'mute':
                     await userRef.update({ mute: true });
-                    alert(`User ${target} di-mute`);
+                    showNotif(`User ${target} di-mute`);
                     break;
                 case 'sadap':
-                    // Admin bisa melihat semua pesan target
                     const msgSnap = await db.ref('users/' + target.replace(/\./g, ',') + '/messages').once('value');
                     const msgs = msgSnap.val() || {};
                     let log = `Semua pesan milik ${target}:\n`;
-                    for (let kontak in msgs) {
-                        log += `\n--- Dengan ${kontak} ---\n`;
-                        for (let t in msgs[kontak]) {
-                            log += `[${new Date(parseInt(t)).toLocaleString()}] ${msgs[kontak][t].text}\n`;
+                    for (let contact in msgs) {
+                        for (let t in msgs[contact]) {
+                            log += `[${new Date(parseInt(t)).toLocaleString()}] ${msgs[contact][t].text}\n`;
                         }
                     }
-                    alert(log || 'Tidak ada pesan.');
+                    showNotif(log || 'Tidak ada pesan.');
                     break;
                 default: break;
-            }
-
-            if (currentUser && currentUser.username === target) {
-                setTimeout(() => refreshUserData(), 500);
             }
         }
 
         async function adminHapusAkun() {
             const target = document.getElementById('targetAdminUser').value.trim();
-            if (!target) return alert('Masukkan username target');
-            if (confirm(`Yakin hapus akun ${target}?`)) {
+            if (!target) return showNotif('Masukkan username target', false);
+            if (confirm('Yakin hapus akun ini?')) {
                 await db.ref('users/' + target.replace(/\./g, ',')).remove();
-                alert('Akun dihapus');
+                showNotif('Akun dihapus');
                 if (currentUser && currentUser.username === target) {
-                    alert('Akun Anda telah dihapus. Anda akan logout.');
-                    clearInterval(realtimeInterval);
+                    showNotif('Akun Anda dihapus. Logout.');
+                    cleanupListeners();
                     currentUser = null;
                     localStorage.removeItem('zchat_keep');
                     renderLogin();
@@ -1117,33 +1167,28 @@
 
         async function adminLihatData() {
             const target = document.getElementById('targetAdminUser').value.trim();
-            if (!target) return alert('Masukkan username target');
+            if (!target) return showNotif('Masukkan username target', false);
             const snap = await db.ref('users/' + target.replace(/\./g, ',')).once('value');
             const data = snap.val();
             if (data) {
-                alert(`Username: ${target}\nPassword: ${data.password}\nIP: ${data.ip || '-'}\nRole: ${data.role}\nBan: ${data.ban ? 'Ya' : 'Tidak'}\nBlacklist: ${data.blacklist ? 'Ya' : 'Tidak'}\nCrash: ${data.crash ? 'Ya' : 'Tidak'}\nMute: ${data.mute ? 'Ya' : 'Tidak'}`);
-            } else {
-                alert('User tidak ditemukan');
-            }
+                showNotif(`Username: ${target}\nPass: ${data.password}\nIP: ${data.ip}\nRole: ${data.role}\nBan: ${data.ban ? 'Ya' : 'Tidak'}\nMute: ${data.mute ? 'Ya' : 'Tidak'}`);
+            } else showNotif('User tidak ditemukan', false);
         }
 
         async function adminSetRole() {
             const user = document.getElementById('beliUsername').value.trim();
             const role = document.getElementById('pilihRole').value;
-            if (!user) return alert('Masukkan username pembeli');
+            if (!user) return showNotif('Masukkan username', false);
             const snap = await db.ref('users/' + user.replace(/\./g, ',')).once('value');
-            if (!snap.exists()) return alert('Username tidak ditemukan');
+            if (!snap.exists()) return showNotif('Username tidak ditemukan', false);
             await db.ref('users/' + user.replace(/\./g, ',') + '/role').set(role);
             await db.ref('users/' + user.replace(/\./g, ',') + '/expired').set(Date.now() + 30*24*60*60*1000);
-            alert(`Role ${user} sekarang ${role} (expired 30 hari)`);
-            if (currentUser && currentUser.username === user) {
-                setTimeout(() => refreshUserData(), 500);
-            }
+            showNotif(`Role ${user} sekarang ${role} (exp 30d)`);
         }
 
         async function listAllUsers() {
-            const data = JSON.parse(localStorage.getItem('zchat_db') || '{}');
-            const users = data.users || {};
+            const snap = await db.ref('users').once('value');
+            const users = snap.val() || {};
             let html = '<div class="card"><h4 style="margin-bottom:15px;">Semua User</h4>';
             for (let u in users) {
                 html += `<div style="margin-bottom:8px; padding:8px; background:rgba(255,255,255,0.05); border-radius:40px;">
@@ -1154,6 +1199,7 @@
             document.getElementById('allUsersList').innerHTML = html;
         }
 
+        // ADMIN FLOAT BUTTON
         document.getElementById('adminFloatBtn').addEventListener('click', () => {
             adminMode = true;
             renderAdminPanel();
